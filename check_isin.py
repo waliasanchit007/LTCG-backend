@@ -163,7 +163,7 @@ def parse_pdf_markdown(md_text):
             i += 1
             continue
         
-        # Update current AMC from headings starting with "## " (but not "####")
+        # Update current AMC from headings that start with "## " (but not "####")
         if raw_line.startswith("## ") and not raw_line.startswith("####"):
             current_amc = clean_line(raw_line[3:]).strip()
             i += 1
@@ -204,7 +204,7 @@ def parse_pdf_markdown(md_text):
                 while i < len(lines) and clean_line(lines[i]).startswith(("PAN:", "KYC:")):
                     i += 1
 
-                # Process ICICI scheme header.
+                # Process the scheme header for ICICI.
                 scheme_header = ""
                 if i < len(lines):
                     line1 = clean_line(lines[i].lstrip("#").strip())
@@ -333,8 +333,9 @@ def parse_pdf_markdown(md_text):
             sip_pattern = re.compile(
                 r"^(?P<date>\d{1,2}-[A-Za-z]{3}-\d{4})\s+(?P<desc>.+?)\s+(?P<amount>\(?[\d,]+\.\d+\)?)\s+(?P<units>\(?[\d,]+\.\d+\)?)\s+(?P<nav>\(?[\d,]+\.\d+\)?)(?:\s+(?P<balance>\(?[\d,]+\.\d+\)?))?$"
             )
-            stamp_pattern = re.compile(
-                r"^(?P<date>\d{1,2}-[A-Za-z]{3}-\d{4})\s+(?P<desc>Stamp Duty)\s+(?P<amount>\(?[\d,]+\.\d+\)?)$",
+            # Updated pattern matches either "Stamp Duty" or "STT Paid".
+            stt_pattern = re.compile(
+                r"^(?P<date>\d{1,2}-[A-Za-z]{3}-\d{4})\s+(?P<desc>(?:Stamp Duty|STT Paid))\s+(?P<amount>\(?[\d,]+\.\d+\)?)$",
                 re.IGNORECASE
             )
             while i < len(lines) and not clean_line(lines[i]).startswith("Closing Unit Balance:"):
@@ -342,15 +343,15 @@ def parse_pdf_markdown(md_text):
                 if not txn_line or txn_line.startswith("Date Transaction"):
                     i += 1
                     continue
-                m_stamp = stamp_pattern.match(txn_line)
+                m_stt = stt_pattern.match(txn_line)
                 m_sip = sip_pattern.match(txn_line)
                 txn = None
-                if m_stamp:
+                if m_stt:
                     txn = {
-                        "amount": parse_signed_number(m_stamp.group("amount")),
+                        "amount": parse_signed_number(m_stt.group("amount")),
                         "balance": None,
-                        "date": parse_date(m_stamp.group("date")),
-                        "description": m_stamp.group("desc").strip(),
+                        "date": parse_date(m_stt.group("date")),
+                        "description": m_stt.group("desc").strip(),
                         "dividend_rate": None,
                         "nav": None,
                         "type": "STAMP_DUTY_TAX",
@@ -370,22 +371,19 @@ def parse_pdf_markdown(md_text):
                 if txn is not None:
                     i += 1
                     # Check for extra lines. If the next non-empty line is purely numeric, use it as balance.
-                    # Otherwise, do not append extra text to the description.
+                    # Otherwise, do nothing.
                     while i < len(lines):
                         next_line = clean_line(lines[i])
                         if next_line == "":
                             i += 1
                             continue
-                        # If next_line starts with a date, assume it's a new transaction.
                         if re.match(r"^\d{1,2}-[A-Za-z]{3}-\d{4}", next_line):
                             break
-                        # If next_line is purely numeric (possibly with parentheses), assign as balance if not already set.
                         if re.fullmatch(r"\(?[\d,]+\.\d+\)?", next_line):
                             if txn["balance"] is None:
                                 txn["balance"] = parse_signed_number(next_line)
                             i += 1
                             break
-                        # Otherwise, ignore the continuation line.
                         break
                     scheme_dict["transactions"].append(txn)
                 else:
@@ -422,7 +420,10 @@ if __name__ == "__main__":
     print(f"Processing {pdf_path}...")
     md_text = pymupdf4llm.to_markdown(pdf_path)
     parsed_data = parse_pdf_markdown(md_text)
-    print(json.dumps(parsed_data, indent=2))
+    # print(json.dumps(parsed_data, indent=2))
+    with open("parsed_json_output", 'w') as file:
+        file.write(json.dumps(parsed_data, indent=2))
+
 
 # if __name__ == "__main__":
 #     # Replace with the path to your CAMS portfolio PDF.
