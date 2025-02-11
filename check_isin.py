@@ -22,12 +22,18 @@ def clean_line(text):
 
 def combine_folio_lines(i, lines):
     """
-    Combine consecutive lines that start with "Folio No:", "PAN:" or "KYC:".
-    (This helps when the folio header is split across two lines.)
+    Combine consecutive lines (after stripping any markdown markers) that start with
+    "Folio No:", "PAN:" or "KYC:".
+    
+    Modified: Instead of breaking on an empty line, skip blank lines so that folio headers
+    split by blank lines will still be combined.
     """
     combined = []
     while i < len(lines):
         cline = clean_line(lines[i].lstrip("#").strip())
+        if cline == "":
+            i += 1
+            continue
         if cline.startswith("Folio No:") or cline.startswith("PAN:") or cline.startswith("KYC:"):
             combined.append(cline)
             i += 1
@@ -73,15 +79,9 @@ def extract_amc_names(lines):
                     amc_names.append(name)
     return amc_names
 
-# For non‑ICICI folios, use a regex that accepts alphanumerics, spaces, and slashes.
+# For non‑ICICI folios, we use a simple regex (accepting alphanumerics, spaces, slashes).
 folio_regex = re.compile(
     r"Folio No:\s*([\w\s/]+).*?PAN:\s*(\S+)\s+KYC:\s*(\S+)\s+PAN:\s*(\S+)",
-    re.IGNORECASE
-)
-
-# For ICICI folios we now use a dedicated regex.
-icici_folio_re = re.compile(
-    r"Folio No:\s*(?P<folio>[\d\s/]+)(?:\s+(?P<holder>.+?))?\s+PAN:\s*(?P<pan>\S+)\s+KYC:\s*(?P<kyc>\S+)(?:\s+PAN:\s*(?P<name>.+))?",
     re.IGNORECASE
 )
 
@@ -145,7 +145,7 @@ def parse_pdf_markdown(md_text):
         raw_line = lines[i].rstrip()
         cline = clean_line(raw_line.lstrip("#").strip())
         
-        # Skip page-breaks (e.g. lines like "----" or "Page 1 of 9")
+        # Skip page-breaks (e.g. "----" or "Page 1 of 9")
         if re.search(r"^(----+|Page \d+ of \d+)", cline, re.IGNORECASE):
             i += 1
             continue
@@ -158,40 +158,42 @@ def parse_pdf_markdown(md_text):
         
         # Look for folio header lines (which start with "Folio No:")
         if cline.startswith("Folio No:"):
-            # Check if we should use the ICICI branch (either current_amc or next line contains "icici prudential")
+            # Check if we should use the ICICI branch (if current_amc or next line mentions "icici prudential")
             next_line = lines[i+1] if i+1 < len(lines) else ""
             if (current_amc and "icici prudential" in current_amc.lower()) or ("icici prudential" in next_line.lower()):
-                # Special handling for ICICI funds.
+                # --- ICICI Branch ---
                 folio_text, i = combine_folio_lines(i, lines)
-                # Remove extra hash markers.
                 folio_text = folio_text.replace("####", "").strip()
-                match_icici = icici_folio_re.search(folio_text)
-                if match_icici:
-                    folio_num = match_icici.group("folio").strip()
-                    holder = match_icici.group("holder")
-                    holder = holder.strip() if holder else ""
-                    pan = match_icici.group("pan").strip()
-                    kyc = match_icici.group("kyc").strip()
-                    name = match_icici.group("name")
-                    name = name.strip() if name else ""
-                    # Use the holder if available; otherwise the extra name.
-                    combined_name = holder if holder else name
+                # Split by "PAN:" to separate parts.
+                parts = folio_text.split("PAN:")
+                if len(parts) >= 3:
+                    m_folio = re.search(r"Folio No:\s*(.+)", parts[0])
+                    folio_num = m_folio.group(1).strip() if m_folio else ""
+                    m_details = re.search(r"(\S+)\s*KYC:\s*(\S+)", parts[1])
+                    if m_details:
+                        pan = m_details.group(1).strip()
+                        kyc = m_details.group(2).strip()
+                    else:
+                        pan = ""
+                        kyc = ""
+                    m_pankyc = re.search(r"(\S+)", parts[2])
+                    pankyc = m_pankyc.group(1).strip() if m_pankyc else ""
                     folio_dict = {
                         "folio": folio_num,
                         "PAN": pan,
                         "KYC": kyc,
-                        "PANKYC": combined_name,
+                        "PANKYC": pankyc,
                         "amc": current_amc if current_amc else "ICICI Prudential",
                         "schemes": []
                     }
                 else:
                     folio_dict = {"folio": "", "PAN": "", "KYC": "", "PANKYC": "", "amc": current_amc if current_amc else "ICICI Prudential", "schemes": []}
                 
-                # Skip any extra lines that start with "PAN:" or "KYC:" (already combined)
+                # Skip extra lines starting with "PAN:" or "KYC:" (if any)
                 while i < len(lines) and clean_line(lines[i]).startswith(("PAN:", "KYC:")):
                     i += 1
 
-                # Process the scheme header for ICICI.
+                # Process the scheme header for ICICI funds.
                 scheme_header = ""
                 if i < len(lines):
                     line1 = clean_line(lines[i].lstrip("#").strip())
@@ -203,11 +205,11 @@ def parse_pdf_markdown(md_text):
                         line2 = ""
                     scheme_header = line1 + " " + line2
                     scheme_header = scheme_header.replace("####", "").strip()
-                    # Remove any "Registrar : ..." text.
+                    scheme_header = re.sub(r"PAN:.*", "", scheme_header)
+                    scheme_header = re.sub(r"Nominee.*", "", scheme_header)
                     scheme_header = re.sub(r"Registrar\s*:\s*\S+", "", scheme_header, flags=re.IGNORECASE)
-                    # Join any broken ISIN parts (remove spaces between "INF" and digits)
                     scheme_header = re.sub(r"(INF)\s+(\d)", r"\1\2", scheme_header)
-                # Use the ICICI-specific scheme regex.
+                # Use the ICICI scheme regex.
                 regex_icici = re.compile(
                     r"^(?P<rta_code>\S+)-(?P<scheme>.+?)\s+-\s+ISIN:\s*(?P<isin>INF[^\s\(]+)\(Advisor:\s*(?P<advisor>\S+)\)",
                     re.IGNORECASE
@@ -248,7 +250,7 @@ def parse_pdf_markdown(md_text):
                         "valuation": {}
                     }
             else:
-                # General folio handling (for non‑ICICI funds).
+                # --- General (Non‑ICICI) Branch ---
                 folio_text, i = combine_folio_lines(i, lines)
                 m = folio_regex.search(folio_text)
                 if m:
@@ -264,7 +266,6 @@ def parse_pdf_markdown(md_text):
                 else:
                     folio_dict = {"folio": "", "PAN": "", "KYC": "", "PANKYC": "", "amc": current_amc, "schemes": []}
                 
-                # For non‑ICICI funds, combine scheme header lines.
                 scheme_header, i = combine_lines(i, lines, stop_prefixes=["Nominee", "Opening Unit Balance:", "Date Transaction", "Closing Unit Balance:", "Page", "-----"])
                 regex_scheme = re.compile(
                     r"^(?P<rta_code>[\w\-]+)-(?P<scheme>.+?)\s+-\s+ISIN:\s*(?P<isin>[A-Z0-9]+)\(Advisor:\s*(?P<advisor>\S+)\)\s+Registrar\s*:\s*(?P<rta>\S+)",
@@ -306,7 +307,7 @@ def parse_pdf_markdown(md_text):
                         "type": "EQUITY",
                         "valuation": {}
                     }
-            # Skip any lines starting with "Nominee".
+            # Skip lines starting with "Nominee".
             while i < len(lines) and clean_line(lines[i]).startswith("Nominee"):
                 i += 1
             
@@ -376,6 +377,7 @@ def parse_pdf_markdown(md_text):
                         "value": parse_float(val_value)
                     }
                 i += 1
+            
             folio_dict["schemes"].append(scheme_dict)
             folios.append(folio_dict)
         else:
@@ -390,6 +392,8 @@ if __name__ == "__main__":
     md_text = pymupdf4llm.to_markdown(pdf_path)
     parsed_data = parse_pdf_markdown(md_text)
     print(json.dumps(parsed_data, indent=2))
+
+
 
 # if __name__ == "__main__":
 #     # Replace with the path to your CAMS portfolio PDF.
