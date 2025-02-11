@@ -19,7 +19,7 @@ def parse_float(num_str):
 def parse_signed_number(num_str):
     """
     Parse a numeric string that may be enclosed in parentheses.
-    If it is, return a negative number.
+    If so, return the negative value.
     """
     num_str = num_str.strip()
     negative = False
@@ -38,7 +38,7 @@ def clean_line(text):
 
 def combine_folio_lines(i, lines):
     """
-    Combine consecutive lines (after stripping any markdown markers) that start with
+    Combine consecutive lines (after stripping markdown markers) that start with
     "Folio No:", "PAN:" or "KYC:". Blank lines are skipped.
     """
     combined = []
@@ -92,7 +92,7 @@ def extract_amc_names(lines):
                     amc_names.append(name)
     return amc_names
 
-# For non‑ICICI folios, use a simple regex (accepting alphanumerics, spaces, and slashes).
+# For non‑ICICI folios, use a simple regex.
 folio_regex = re.compile(
     r"Folio No:\s*([\w\s/]+).*?PAN:\s*(\S+)\s+KYC:\s*(\S+)\s+PAN:\s*(\S+)",
     re.IGNORECASE
@@ -115,7 +115,7 @@ def parse_pdf_markdown(md_text):
         "status": "success"
     }
     
-    # 1. Extract Statement Period (e.g., "01-Jan-2002 To 09-Feb-2025")
+    # 1. Extract Statement Period (e.g. "01-Jan-2002 To 09-Feb-2025")
     for line in lines:
         cline = clean_line(line)
         m = re.search(r"(\d{1,2}-[A-Za-z]{3}-\d{4})\s+To\s+(\d{1,2}-[A-Za-z]{3}-\d{4})", cline)
@@ -123,7 +123,7 @@ def parse_pdf_markdown(md_text):
             result["data"]["statement_period"] = {"from": m.group(1), "to": m.group(2)}
             break
 
-    # 2. Extract Investor Info from the table row containing "Email Id:"
+    # 2. Extract Investor Info
     inv_line = None
     for line in lines:
         if "Email Id:" in line:
@@ -158,26 +158,25 @@ def parse_pdf_markdown(md_text):
         raw_line = lines[i].rstrip()
         cline = clean_line(raw_line.lstrip("#").strip())
         
-        # Skip page-break lines (e.g. "----" or "Page 1 of 9")
+        # Skip page-break lines.
         if re.search(r"^(----+|Page \d+ of \d+)", cline, re.IGNORECASE):
             i += 1
             continue
         
-        # Update current AMC only when a heading starts with "## " (not "####")
+        # Update current AMC from headings starting with "## " (but not "####")
         if raw_line.startswith("## ") and not raw_line.startswith("####"):
             current_amc = clean_line(raw_line[3:]).strip()
             i += 1
             continue
         
-        # Look for folio header lines (starting with "Folio No:")
+        # Look for folio header lines.
         if cline.startswith("Folio No:"):
-            # Check if we should use the ICICI branch (if current_amc or next line mentions "icici prudential")
+            # Use ICICI branch if current_amc or next line mentions "icici prudential"
             next_line = lines[i+1] if i+1 < len(lines) else ""
             if (current_amc and "icici prudential" in current_amc.lower()) or ("icici prudential" in next_line.lower()):
-                # --- ICICI Branch ---
+                # ICICI branch.
                 folio_text, i = combine_folio_lines(i, lines)
                 folio_text = folio_text.replace("####", "").strip()
-                # Split the combined text by "PAN:" to extract parts.
                 parts = folio_text.split("PAN:")
                 if len(parts) >= 3:
                     m_folio = re.search(r"Folio No:\s*(.+)", parts[0])
@@ -202,11 +201,10 @@ def parse_pdf_markdown(md_text):
                 else:
                     folio_dict = {"folio": "", "PAN": "", "KYC": "", "PANKYC": "", "amc": current_amc if current_amc else "ICICI Prudential", "schemes": []}
                 
-                # Skip extra lines starting with "PAN:" or "KYC:" (if any)
                 while i < len(lines) and clean_line(lines[i]).startswith(("PAN:", "KYC:")):
                     i += 1
 
-                # Process the scheme header for ICICI.
+                # Process ICICI scheme header.
                 scheme_header = ""
                 if i < len(lines):
                     line1 = clean_line(lines[i].lstrip("#").strip())
@@ -216,13 +214,11 @@ def parse_pdf_markdown(md_text):
                         i += 1
                     else:
                         line2 = ""
-                    scheme_header = line1 + " " + line2
-                    scheme_header = scheme_header.replace("####", "").strip()
+                    scheme_header = (line1 + " " + line2).replace("####", "").strip()
                     scheme_header = re.sub(r"PAN:.*", "", scheme_header)
                     scheme_header = re.sub(r"Nominee.*", "", scheme_header)
                     scheme_header = re.sub(r"Registrar\s*:\s*\S+", "", scheme_header, flags=re.IGNORECASE)
                     scheme_header = re.sub(r"(INF)\s+(\d)", r"\1\2", scheme_header)
-                # Use the ICICI scheme regex.
                 regex_icici = re.compile(
                     r"^(?P<rta_code>\S+)-(?P<scheme>.+?)\s+-\s+ISIN:\s*(?P<isin>INF[^\s\(]+)\(Advisor:\s*(?P<advisor>\S+)\)",
                     re.IGNORECASE
@@ -263,7 +259,7 @@ def parse_pdf_markdown(md_text):
                         "valuation": {}
                     }
             else:
-                # --- General (Non‑ICICI) Branch ---
+                # General (Non‑ICICI) branch.
                 folio_text, i = combine_folio_lines(i, lines)
                 m = folio_regex.search(folio_text)
                 if m:
@@ -320,11 +316,11 @@ def parse_pdf_markdown(md_text):
                         "type": "EQUITY",
                         "valuation": {}
                     }
-            # Skip any lines starting with "Nominee".
+            # Skip lines starting with "Nominee".
             while i < len(lines) and clean_line(lines[i]).startswith("Nominee"):
                 i += 1
             
-            # Parse Opening Unit Balance (if present).
+            # Parse Opening Unit Balance.
             if i < len(lines) and clean_line(lines[i]).startswith("Opening Unit Balance:"):
                 open_line = clean_line(lines[i])
                 m_open = re.search(r"Opening Unit Balance:\s*([\d,\.]+)", open_line)
@@ -333,9 +329,9 @@ def parse_pdf_markdown(md_text):
                 i += 1
             
             # --- Transaction Parsing ---
-            # Updated regexes allow optional parentheses around numeric values.
+            # The sip_pattern now makes the balance field optional.
             sip_pattern = re.compile(
-                r"^(?P<date>\d{1,2}-[A-Za-z]{3}-\d{4})\s+(?P<desc>.+?)\s+(?P<amount>\(?[\d,]+\.\d+\)?)\s+(?P<units>\(?[\d,]+\.\d+\)?)\s+(?P<nav>\(?[\d,]+\.\d+\)?)\s+(?P<balance>\(?[\d,]+\.\d+\)?)$"
+                r"^(?P<date>\d{1,2}-[A-Za-z]{3}-\d{4})\s+(?P<desc>.+?)\s+(?P<amount>\(?[\d,]+\.\d+\)?)\s+(?P<units>\(?[\d,]+\.\d+\)?)\s+(?P<nav>\(?[\d,]+\.\d+\)?)(?:\s+(?P<balance>\(?[\d,]+\.\d+\)?))?$"
             )
             stamp_pattern = re.compile(
                 r"^(?P<date>\d{1,2}-[A-Za-z]{3}-\d{4})\s+(?P<desc>Stamp Duty)\s+(?P<amount>\(?[\d,]+\.\d+\)?)$",
@@ -348,6 +344,7 @@ def parse_pdf_markdown(md_text):
                     continue
                 m_stamp = stamp_pattern.match(txn_line)
                 m_sip = sip_pattern.match(txn_line)
+                txn = None
                 if m_stamp:
                     txn = {
                         "amount": parse_signed_number(m_stamp.group("amount")),
@@ -359,11 +356,10 @@ def parse_pdf_markdown(md_text):
                         "type": "STAMP_DUTY_TAX",
                         "units": None
                     }
-                    scheme_dict["transactions"].append(txn)
                 elif m_sip:
                     txn = {
                         "amount": parse_signed_number(m_sip.group("amount")),
-                        "balance": parse_signed_number(m_sip.group("balance")),
+                        "balance": parse_signed_number(m_sip.group("balance")) if m_sip.group("balance") else None,
                         "date": parse_date(m_sip.group("date")),
                         "description": m_sip.group("desc").strip(),
                         "dividend_rate": None,
@@ -371,8 +367,29 @@ def parse_pdf_markdown(md_text):
                         "type": "PURCHASE_SIP",
                         "units": parse_signed_number(m_sip.group("units"))
                     }
+                if txn is not None:
+                    i += 1
+                    # Check for extra lines. If the next non-empty line is purely numeric, use it as balance.
+                    # Otherwise, do not append extra text to the description.
+                    while i < len(lines):
+                        next_line = clean_line(lines[i])
+                        if next_line == "":
+                            i += 1
+                            continue
+                        # If next_line starts with a date, assume it's a new transaction.
+                        if re.match(r"^\d{1,2}-[A-Za-z]{3}-\d{4}", next_line):
+                            break
+                        # If next_line is purely numeric (possibly with parentheses), assign as balance if not already set.
+                        if re.fullmatch(r"\(?[\d,]+\.\d+\)?", next_line):
+                            if txn["balance"] is None:
+                                txn["balance"] = parse_signed_number(next_line)
+                            i += 1
+                            break
+                        # Otherwise, ignore the continuation line.
+                        break
                     scheme_dict["transactions"].append(txn)
-                i += 1
+                else:
+                    i += 1
             
             # Parse Valuation from the "Closing Unit Balance:" line.
             if i < len(lines) and clean_line(lines[i]).startswith("Closing Unit Balance:"):
@@ -406,8 +423,6 @@ if __name__ == "__main__":
     md_text = pymupdf4llm.to_markdown(pdf_path)
     parsed_data = parse_pdf_markdown(md_text)
     print(json.dumps(parsed_data, indent=2))
-
-
 
 # if __name__ == "__main__":
 #     # Replace with the path to your CAMS portfolio PDF.
