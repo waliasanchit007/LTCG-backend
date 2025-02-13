@@ -55,12 +55,12 @@ def combine_folio_lines(i, lines):
 
 def combine_lines(i, lines, stop_prefixes):
     """
-    Combine consecutive lines until a line starting with one of the stop_prefixes is encountered.
+    Combine consecutive lines until a line whose cleaned (lowercase) text starts with any stop_prefix.
     """
     combined = []
     while i < len(lines):
         cline = clean_line(lines[i])
-        if any(cline.startswith(prefix) for prefix in stop_prefixes):
+        if any(cline.lower().startswith(prefix.lower()) for prefix in stop_prefixes):
             break
         if cline:
             combined.append(cline)
@@ -113,7 +113,7 @@ def parse_pdf_markdown(md_text):
         "status": "success"
     }
     
-    # 1. Statement Period.
+    # 1. Extract Statement Period.
     for line in lines:
         cline = clean_line(line)
         m = re.search(r"(\d{1,2}-[A-Za-z]{3}-\d{4})\s+To\s+(\d{1,2}-[A-Za-z]{3}-\d{4})", cline)
@@ -121,7 +121,7 @@ def parse_pdf_markdown(md_text):
             result["data"]["statement_period"] = {"from": m.group(1), "to": m.group(2)}
             break
 
-    # 2. Investor Info.
+    # 2. Extract Investor Info.
     inv_line = None
     for line in lines:
         if "Email Id:" in line:
@@ -169,7 +169,7 @@ def parse_pdf_markdown(md_text):
         
         # Look for folio header.
         if cline.startswith("Folio No:"):
-            # Decide on ICICI branch if current_amc or next line mentions "icici prudential".
+            # Use ICICI branch if current_amc or next line mentions "icici prudential".
             next_line = lines[i+1] if i+1 < len(lines) else ""
             if (current_amc and "icici prudential" in current_amc.lower()) or ("icici prudential" in next_line.lower()):
                 # --- ICICI Branch ---
@@ -202,19 +202,19 @@ def parse_pdf_markdown(md_text):
                 while i < len(lines) and clean_line(lines[i]).startswith(("PAN:", "KYC:")):
                     i += 1
 
-                # Process ICICI scheme header.
+                # Process the scheme header for ICICI.
                 scheme_header = ""
                 if i < len(lines):
                     line1 = clean_line(lines[i].lstrip("#").strip())
                     i += 1
-                    if i < len(lines) and not clean_line(lines[i]).startswith("Nominee"):
+                    if i < len(lines) and not clean_line(lines[i]).lower().startswith("nominee"):
                         line2 = clean_line(lines[i].lstrip("#").strip())
                         i += 1
                     else:
                         line2 = ""
                     scheme_header = (line1 + " " + line2).replace("####", "").strip()
                     scheme_header = re.sub(r"PAN:.*", "", scheme_header)
-                    scheme_header = re.sub(r"Nominee.*", "", scheme_header)
+                    scheme_header = re.sub(r"Nominee.*", "", scheme_header, flags=re.IGNORECASE)
                     scheme_header = re.sub(r"Registrar\s*:\s*\S+", "", scheme_header, flags=re.IGNORECASE)
                     scheme_header = re.sub(r"(INF)\s+(\d)", r"\1\2", scheme_header)
                 regex_icici = re.compile(
@@ -225,6 +225,8 @@ def parse_pdf_markdown(md_text):
                 if m_scheme:
                     rta_code = m_scheme.group("rta_code").strip()
                     scheme_name = m_scheme.group("scheme").strip()
+                    # Remove any "(formerly ...)" part.
+                    scheme_name = re.sub(r"\s*\(formerly.*?\)", "", scheme_name)
                     isin = m_scheme.group("isin").strip()
                     advisor = m_scheme.group("advisor").strip()
                     scheme_dict = {
@@ -273,18 +275,29 @@ def parse_pdf_markdown(md_text):
                 else:
                     folio_dict = {"folio": "", "PAN": "", "KYC": "", "PANKYC": "", "amc": current_amc, "schemes": []}
                 
-                scheme_header, i = combine_lines(i, lines, stop_prefixes=["Nominee", "Opening Unit Balance:", "Date Transaction", "Closing Unit Balance:", "Page", "-----"])
-                regex_scheme = re.compile(
-                    r"^(?P<rta_code>[\w\-]+)-(?P<scheme>.+?)\s+-\s+ISIN:\s*(?P<isin>[A-Z0-9]+)\(Advisor:\s*(?P<advisor>\S+)\)\s+Registrar\s*:\s*(?P<rta>\S+)",
+                # First try a specialized regex for PPFAS-style scheme headers.
+                regex_scheme_ppfas = re.compile(
+                    r"^(?P<rta_code>[\w\-]+)-(?P<scheme>.+?)\s+-\s+ISIN:\s*(?P<isin>INF[0-9A-Z]+)\(Advisor:\s*Registrar\s*:\s*(?P<rta>[A-Z]+)\s+(?P<advisor>\S+)\)",
                     re.IGNORECASE
                 )
-                m_scheme = regex_scheme.search(scheme_header)
+                # If that fails, try a general one.
+                regex_scheme_general = re.compile(
+                    r"^(?P<rta_code>[\w\-]+)-(?P<scheme>.+?)\s+-\s+ISIN:\s*(?P<isin>INF[0-9A-Z]+).*?\(Advisor:\s*(?P<advisor>\S+)\)",
+                    re.IGNORECASE
+                )
+                scheme_header, i = combine_lines(i, lines, stop_prefixes=["Nominee", "Opening Unit Balance:", "Date Transaction", "Closing Unit Balance:", "Page", "-----"])
+                m_scheme = regex_scheme_ppfas.search(scheme_header)
+                if not m_scheme:
+                    m_scheme = regex_scheme_general.search(scheme_header)
                 if m_scheme:
                     rta_code = m_scheme.group("rta_code").strip()
                     scheme_name = m_scheme.group("scheme").strip()
+                    # Remove any "(formerly ...)" part.
+                    scheme_name = re.sub(r"\s*\(formerly.*?\)", "", scheme_name)
                     isin = m_scheme.group("isin").strip()
                     advisor = m_scheme.group("advisor").strip()
-                    rta_val = m_scheme.group("rta").strip()
+                    # If our specialized pattern matched, also capture rta.
+                    rta_val = m_scheme.group("rta").strip() if "rta" in m_scheme.groupdict() and m_scheme.group("rta") else ""
                     scheme_dict = {
                         "advisor": advisor,
                         "amfi": "",
@@ -292,7 +305,7 @@ def parse_pdf_markdown(md_text):
                         "close_calculated": None,
                         "isin": isin,
                         "open": None,
-                        "rta": rta_val,
+                        "rta": rta_val if rta_val else "CAMS",
                         "rta_code": rta_code,
                         "scheme": scheme_name,
                         "transactions": [],
@@ -315,7 +328,7 @@ def parse_pdf_markdown(md_text):
                         "valuation": {}
                     }
             # Skip lines starting with "Nominee".
-            while i < len(lines) and clean_line(lines[i]).startswith("Nominee"):
+            while i < len(lines) and clean_line(lines[i]).lower().startswith("nominee"):
                 i += 1
             
             # Parse Opening Unit Balance.
@@ -327,11 +340,9 @@ def parse_pdf_markdown(md_text):
                 i += 1
             
             # --- Transaction Parsing ---
-            # The sip_pattern now makes the balance field optional.
             sip_pattern = re.compile(
                 r"^(?P<date>\d{1,2}-[A-Za-z]{3}-\d{4})\s+(?P<desc>.+?)\s+(?P<amount>\(?[\d,]+\.\d+\)?)\s+(?P<units>\(?[\d,]+\.\d+\)?)\s+(?P<nav>\(?[\d,]+\.\d+\)?)(?:\s+(?P<balance>\(?[\d,]+\.\d+\)?))?$"
             )
-            # stt_pattern matches both "Stamp Duty" and "STT Paid".
             stt_pattern = re.compile(
                 r"^(?P<date>\d{1,2}-[A-Za-z]{3}-\d{4})\s+(?P<desc>(?:Stamp Duty|STT Paid))\s+(?P<amount>\(?[\d,]+\.\d+\)?)$",
                 re.IGNORECASE
@@ -363,42 +374,38 @@ def parse_pdf_markdown(md_text):
                         "description": m_sip.group("desc").strip(),
                         "dividend_rate": None,
                         "nav": parse_signed_number(m_sip.group("nav")),
-                        "type": "PURCHASE_SIP",  # will update type based on description below
+                        "type": "PURCHASE_SIP",  # default; will update below
                         "units": parse_signed_number(m_sip.group("units"))
                     }
                 if txn is not None:
                     i += 1
-                    # Look ahead for additional lines that might provide balance.
+                    # Look ahead for a candidate numeric line for balance if not already set.
                     while i < len(lines):
                         candidate = clean_line(lines[i])
                         if candidate == "":
                             i += 1
                             continue
-                        # If candidate starts with a date, then it's a new transaction.
                         if re.match(r"^\d{1,2}-[A-Za-z]{3}-\d{4}", candidate):
                             break
-                        # If candidate is purely numeric (with optional parentheses), use it as balance if not set.
                         if re.fullmatch(r"\(?[\d,]+\.\d+\)?", candidate):
                             if txn["balance"] is None:
                                 txn["balance"] = parse_signed_number(candidate)
                             i += 1
                             break
-                        # Otherwise, do not append extra text.
                         break
-                    # Update transaction type based on description keywords.
+                    # Update type based on description.
                     desc_lower = txn["description"].lower()
                     if "switch in" in desc_lower:
                         txn["type"] = "SWITCH_IN"
                     elif "switch out" in desc_lower:
                         txn["type"] = "SWITCH_OUT"
                     elif "purchase" in desc_lower:
-                        txn["type"] = "PURCHASE"
-                    # (Stamp duty already set as STAMP_DUTY_TAX)
+                        txn["type"] = "PURCHASE_SIP"
                     scheme_dict["transactions"].append(txn)
                 else:
                     i += 1
             
-            # Parse Valuation from the "Closing Unit Balance:" line.
+            # Parse Valuation.
             if i < len(lines) and clean_line(lines[i]).startswith("Closing Unit Balance:"):
                 closing_line = clean_line(lines[i])
                 m_close = re.search(
@@ -424,12 +431,24 @@ def parse_pdf_markdown(md_text):
     result["data"]["folios"] = folios
     return result
 
+# if __name__ == "__main__":
+#     pdf_path = "cas2.pdf"  # Replace with your PDF file path.
+#     print(f"Processing {pdf_path}...")
+#     md_text = pymupdf4llm.to_markdown(pdf_path)
+#     parsed_data = parse_pdf_markdown(md_text)
+#     print(json.dumps(parsed_data, indent=2))
+
+
 if __name__ == "__main__":
     pdf_path = "cas2.pdf"  # Replace with your PDF file path.
     print(f"Processing {pdf_path}...")
     md_text = pymupdf4llm.to_markdown(pdf_path)
     parsed_data = parse_pdf_markdown(md_text)
     # print(json.dumps(parsed_data, indent=2))
+    filename = "md_result.md"
+
+    with open(filename, 'w') as file:
+        file.write(md_text)
     with open("parsed_json_output", 'w') as file:
         file.write(json.dumps(parsed_data, indent=2))
 
