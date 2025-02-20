@@ -28,7 +28,7 @@ def parse_float(num_str):
 def parse_signed_number(num_str):
     """
     Parse a numeric string that may be enclosed in parentheses.
-    If so, return its negative.
+    Return its negative if so.
     """
     num_str = num_str.strip()
     negative = False
@@ -47,39 +47,44 @@ def clean_line(text):
 
 def combine_folio_lines(i, lines):
     """
-    Combine consecutive lines (ignoring blanks) that start with "Folio No:", "PAN:" or "KYC:".
+    Combine consecutive non-empty lines that contain any of the markers:
+    "Folio No:", "PAN:" or "KYC:".
     """
     combined = []
     while i < len(lines):
-        cline = clean_line(lines[i].lstrip("#").strip())
-        if cline == "":
+        cline = clean_line(lines[i])
+        if not cline:
             i += 1
             continue
-        if cline.startswith("Folio No:") or cline.startswith("PAN:") or cline.startswith("KYC:"):
+        lower = cline.lower()
+        if "folio no:" in lower or "pan:" in lower or "kyc:" in lower:
             combined.append(cline)
             i += 1
         else:
             break
     return " ".join(combined), i
 
-def combine_lines(i, lines, stop_prefixes):
+def combine_scheme_header(i, lines):
     """
-    Combine consecutive lines until a line whose cleaned text (lowercase)
-    starts with any of the stop_prefixes.
+    Combine lines for a scheme header until a line containing a stop marker
+    (e.g. "#### Nominee" or "Opening Unit Balance:") is reached.
     """
+    stop_markers = ["#### Nominee", "Opening Unit Balance:", "Date Transaction", "Closing Unit Balance:", "Page", "-----"]
     combined = []
     while i < len(lines):
         cline = clean_line(lines[i])
-        if any(cline.lower().startswith(prefix.lower()) for prefix in stop_prefixes):
+        if any(marker.lower() in cline.lower() for marker in stop_markers):
             break
-        if cline:
-            combined.append(cline)
+        combined.append(cline)
         i += 1
-    return " ".join(combined), i
+    header = " ".join(combined)
+    # Remove any leading "####" markers.
+    header = header.replace("####", "").strip()
+    return header, i
 
 def extract_amc_names(lines):
     """
-    Scan for the "PORTFOLIO SUMMARY" section and extract AMC names.
+    Scan the markdown for the "PORTFOLIO SUMMARY" section and extract AMC names.
     """
     amc_names = []
     in_summary = False
@@ -113,22 +118,142 @@ def deduplicate_scheme(scheme_str):
             return parts[0].strip() + " " + key.upper()
     return scheme_str
 
-# Regex for non‑ICICI folios.
+# --- Regex Patterns ---
+
 folio_regex = re.compile(
-    r"Folio No:\s*([\w\s/]+).*?PAN:\s*(\S+)\s+KYC:\s*(\S+)\s+PAN:\s*(\S+)",
-    re.IGNORECASE
+    r"Folio No:\s*([\w\s/]+).*?PAN:\s*(\S+).*?KYC:\s*(\S+).*?PAN:\s*(\S+)",
+    re.IGNORECASE | re.DOTALL
 )
+
+regex_icici = re.compile(
+    r"^(?P<rta_code>\S+)-(?P<scheme>.+?)\s+-\s+ISIN:\s*(?P<isin>INF[^\s\(]+)\(Advisor:\s*(?P<advisor>\S+)\)",
+    re.IGNORECASE | re.DOTALL
+)
+
+regex_scheme_ppfas = re.compile(
+    r"^(?P<rta_code>[\w\-]+)-(?P<scheme>.+?)\s+-\s+ISIN:\s*(?P<isin>INF[0-9A-Z]+)\(Advisor:\s*Registrar\s*:\s*(?P<rta>[A-Z]+)\s+(?P<advisor>\S+)\)",
+    re.IGNORECASE | re.DOTALL
+)
+
+regex_scheme_general = re.compile(
+    r"^(?P<rta_code>[\w\-]+)-(?P<scheme>.+?)\s+-\s+ISIN:\s*(?P<isin>INF[0-9A-Z]+).*?\(Advisor:\s*(?P<advisor>\S+)\)(?:\s+Registrar\s*:\s*(?P<rta>\S+))?",
+    re.IGNORECASE | re.DOTALL
+)
+
+# --- Process Scheme Details Helper ---
+
+def process_scheme_details(i, lines, scheme_obj):
+    """
+    Process scheme details: opening unit balance, transactions, and valuation.
+    Updates scheme_obj and returns the new index.
+    """
+    # Opening Unit Balance.
+    if i < len(lines) and clean_line(lines[i]).startswith("Opening Unit Balance:"):
+        open_line = clean_line(lines[i])
+        m_open = re.search(r"Opening Unit Balance:\s*([\d,\.]+)", open_line)
+        if m_open:
+            scheme_obj["open"] = parse_float(m_open.group(1))
+        i += 1
+
+    # Transactions.
+    sip_pattern = re.compile(
+        r"^(?P<date>\d{1,2}-[A-Za-z]{3}-\d{4})\s+(?P<desc>.+?)\s+(?P<amount>\(?[\d,]+\.\d+\)?)\s+(?P<units>\(?[\d,]+\.\d+\)?)\s+(?P<nav>\(?[\d,]+\.\d+\)?)(?:\s+(?P<balance>\(?[\d,]+\.\d+\)?))?$"
+    )
+    stt_pattern = re.compile(
+        r"^(?P<date>\d{1,2}-[A-Za-z]{3}-\d{4})\s+(?P<desc>(?:Stamp Duty|STT Paid))\s+(?P<amount>\(?[\d,]+\.\d+\)?)$",
+        re.IGNORECASE
+    )
+    transactions = []
+    while i < len(lines):
+        current_line = clean_line(lines[i])
+        if (current_line.startswith("Closing Unit Balance:") or 
+            "folio no:" in current_line.lower() or 
+            current_line.startswith("## ")):
+            break
+        if not current_line or current_line.startswith("Date Transaction"):
+            i += 1
+            continue
+        m_stt = stt_pattern.match(current_line)
+        m_sip = sip_pattern.match(current_line)
+        txn = None
+        if m_stt:
+            txn = {
+                "amount": parse_signed_number(m_stt.group("amount")),
+                "balance": None,
+                "date": parse_date(m_stt.group("date")),
+                "description": m_stt.group("desc").strip(),
+                "dividend_rate": None,
+                "nav": None,
+                "type": "STAMP_DUTY_TAX",
+                "units": None
+            }
+        elif m_sip:
+            txn = {
+                "amount": parse_signed_number(m_sip.group("amount")),
+                "balance": parse_signed_number(m_sip.group("balance")) if m_sip.group("balance") else None,
+                "date": parse_date(m_sip.group("date")),
+                "description": m_sip.group("desc").strip(),
+                "dividend_rate": None,
+                "nav": parse_signed_number(m_sip.group("nav")),
+                "type": "PURCHASE_SIP",
+                "units": parse_signed_number(m_sip.group("units"))
+            }
+        if txn is not None:
+            i += 1
+            while i < len(lines):
+                candidate = clean_line(lines[i])
+                if not candidate:
+                    i += 1
+                    continue
+                if (re.match(r"^\d{1,2}-[A-Za-z]{3}-\d{4}", candidate) or 
+                    "folio no:" in candidate.lower() or 
+                    candidate.startswith("## ")):
+                    break
+                if re.fullmatch(r"\(?[\d,]+\.\d+\)?", candidate):
+                    if txn["balance"] is None:
+                        txn["balance"] = parse_signed_number(candidate)
+                    i += 1
+                    break
+                break
+            desc_lower = txn["description"].lower()
+            if "switch in" in desc_lower:
+                txn["type"] = "SWITCH_IN"
+            elif "switch out" in desc_lower:
+                txn["type"] = "SWITCH_OUT"
+            elif "purchase" in desc_lower:
+                txn["type"] = "PURCHASE_SIP"
+            transactions.append(txn)
+        else:
+            i += 1
+    scheme_obj["transactions"] = transactions
+
+    # Valuation.
+    if i < len(lines) and clean_line(lines[i]).startswith("Closing Unit Balance:"):
+        closing_line = clean_line(lines[i])
+        m_close = re.search(
+            r"Closing Unit Balance:\s*([\d,\.]+).*?NAV on ([\d]{1,2}-[A-Za-z]{3}-[\d]{4}):\s*INR\s*([\d,\.]+).*?Market Value on [\d]{1,2}-[A-Za-z]{3}-[\d]{4}:\s*INR\s*([\d,\.]+)",
+            closing_line
+        )
+        if m_close:
+            close_val, val_date, val_nav, val_value = m_close.groups()
+            scheme_obj["close"] = parse_float(close_val)
+            scheme_obj["close_calculated"] = parse_float(close_val)
+            scheme_obj["valuation"] = {
+                "date": parse_date(val_date),
+                "nav": parse_float(val_nav),
+                "value": parse_float(val_value)
+            }
+        i += 1
+    return i
 
 # --- Main Parsing Function ---
 
 def parse_pdf_markdown(md_text):
     """
-    Parse the PDF markdown text into a structured dictionary.
+    Parse the PDF markdown text (converted from PDF) into a structured dictionary.
     Schemes are grouped by AMC.
     """
     lines = md_text.splitlines()
-    amc_names = extract_amc_names(lines)
-    
     result = {
         "cas_author": "CAMS_KFINTECH",
         "data": {
@@ -142,10 +267,11 @@ def parse_pdf_markdown(md_text):
         "status": "success"
     }
     
-    # Group folios by AMC.
     folio_by_amc = {}
-    
-    # 1. Extract Statement Period.
+    current_amc = None
+    i = 0
+
+    # Extract Statement Period.
     for line in lines:
         cline = clean_line(line)
         m = re.search(r"(\d{1,2}-[A-Za-z]{3}-\d{4})\s+To\s+(\d{1,2}-[A-Za-z]{3}-\d{4})", cline)
@@ -153,7 +279,7 @@ def parse_pdf_markdown(md_text):
             result["data"]["statement_period"] = {"from": m.group(1), "to": m.group(2)}
             break
 
-    # 2. Extract Investor Info.
+    # Extract Investor Info.
     inv_line = None
     for line in lines:
         if "Email Id:" in line:
@@ -180,300 +306,157 @@ def parse_pdf_markdown(md_text):
                 "address": inv_line
             }
     
-    # 3. Process Folios and Schemes.
-    current_amc = None
-    i = 0
+    # Process Folios and Schemes.
     while i < len(lines):
         raw_line = lines[i].rstrip()
-        cline = clean_line(raw_line.lstrip("#").strip())
+        cline = clean_line(raw_line)
         
-        # Skip page-break lines.
         if re.search(r"^(----+|Page \d+ of \d+)", cline, re.IGNORECASE):
             i += 1
             continue
         
-        # Update current AMC from headings (## but not ####).
         if raw_line.startswith("## ") and not raw_line.startswith("####"):
             current_amc = clean_line(raw_line[3:]).strip()
             i += 1
             continue
         
-        # Look for folio header.
-        if cline.startswith("Folio No:"):
-            # Process folio header block.
-            if (current_amc and "icici prudential" in current_amc.lower()) or (i+1 < len(lines) and "icici prudential" in lines[i+1].lower()):
-                # --- ICICI Branch ---
-                folio_text, i = combine_folio_lines(i, lines)
-                folio_text = folio_text.replace("####", "").strip()
-                parts = folio_text.split("PAN:")
-                if len(parts) >= 3:
-                    m_folio = re.search(r"Folio No:\s*(.+)", parts[0])
-                    folio_num = m_folio.group(1).strip() if m_folio else ""
-                    m_details = re.search(r"(\S+)\s*KYC:\s*(\S+)", parts[1])
-                    if m_details:
-                        pan = m_details.group(1).strip()
-                        kyc = m_details.group(2).strip()
-                    else:
-                        pan = ""
-                        kyc = ""
-                    m_pankyc = re.search(r"(\S+)", parts[2])
-                    pankyc = m_pankyc.group(1).strip() if m_pankyc else ""
-                    new_folio = {
-                        "folio": folio_num,
-                        "PAN": pan,
-                        "KYC": kyc,
-                        "PANKYC": pankyc,
-                        "amc": current_amc if current_amc else "ICICI Prudential",
-                        "schemes": []
-                    }
-                else:
-                    new_folio = {
-                        "folio": "",
-                        "PAN": "",
-                        "KYC": "",
-                        "PANKYC": "",
-                        "amc": current_amc if current_amc else "ICICI Prudential",
-                        "schemes": []
-                    }
-                while i < len(lines) and clean_line(lines[i]).startswith(("PAN:", "KYC:")):
-                    i += 1
-                # Process scheme header.
-                scheme_header = ""
-                if i < len(lines):
-                    line1 = clean_line(lines[i].lstrip("#").strip())
-                    i += 1
-                    if i < len(lines) and not clean_line(lines[i]).lower().startswith("nominee"):
-                        line2 = clean_line(lines[i].lstrip("#").strip())
-                        i += 1
-                    else:
-                        line2 = ""
-                    scheme_header = (line1 + " " + line2).replace("####", "").strip()
-                    scheme_header = re.sub(r"PAN:.*", "", scheme_header)
-                    scheme_header = re.sub(r"Nominee.*", "", scheme_header, flags=re.IGNORECASE)
-                    scheme_header = re.sub(r"Registrar\s*:\s*\S+", "", scheme_header, flags=re.IGNORECASE)
-                    scheme_header = re.sub(r"(INF)\s+(\d)", r"\1\2", scheme_header)
-                regex_icici = re.compile(
-                    r"^(?P<rta_code>\S+)-(?P<scheme>.+?)\s+-\s+ISIN:\s*(?P<isin>INF[^\s\(]+)\(Advisor:\s*(?P<advisor>\S+)\)",
-                    re.IGNORECASE
-                )
-                m_scheme = regex_icici.search(scheme_header)
-                if m_scheme:
-                    rta_code = m_scheme.group("rta_code").strip()
-                    scheme_name = m_scheme.group("scheme").strip()
-                    scheme_name = re.sub(r"\s*\(formerly.*?\)", "", scheme_name)
-                    isin = m_scheme.group("isin").strip()
-                    advisor = m_scheme.group("advisor").strip()
-                    new_scheme = {
-                        "advisor": advisor,
-                        "amfi": "",
-                        "close": None,
-                        "close_calculated": None,
-                        "isin": isin,
-                        "open": None,
-                        "rta": "CAMS",
-                        "rta_code": rta_code,
-                        "scheme": scheme_name,
-                        "transactions": [],
-                        "type": "EQUITY",
-                        "valuation": {}
-                    }
-                else:
-                    new_scheme = {
-                        "advisor": "",
-                        "amfi": "",
-                        "close": None,
-                        "close_calculated": None,
-                        "isin": "",
-                        "open": None,
-                        "rta": "",
-                        "rta_code": "",
-                        "scheme": scheme_header,
-                        "transactions": [],
-                        "type": "EQUITY",
-                        "valuation": {}
-                    }
+        # Case 1: Folio header block.
+        if "folio no:" in cline.lower():
+            folio_text, i = combine_folio_lines(i, lines)
+            folio_text = folio_text.replace("####", "").strip()
+            m_folio = folio_regex.search(folio_text)
+            if m_folio:
+                folio_num, pan, kyc, pankyc = m_folio.groups()
+                new_folio = {
+                    "folio": folio_num.strip(),
+                    "PAN": pan,
+                    "KYC": kyc,
+                    "PANKYC": pankyc,
+                    "amc": current_amc,
+                    "schemes": []
+                }
             else:
-                # --- General (Non‑ICICI) Branch ---
-                folio_text, i = combine_folio_lines(i, lines)
-                m = folio_regex.search(folio_text)
-                if m:
-                    folio_num, pan, kyc, pankyc = m.groups()
-                    new_folio = {
-                        "folio": folio_num.strip(),
-                        "PAN": pan,
-                        "KYC": kyc,
-                        "PANKYC": pankyc,
-                        "amc": current_amc,
-                        "schemes": []
-                    }
-                else:
-                    new_folio = {
-                        "folio": "",
-                        "PAN": "",
-                        "KYC": "",
-                        "PANKYC": "",
-                        "amc": current_amc,
-                        "schemes": []
-                    }
-                regex_scheme_ppfas = re.compile(
-                    r"^(?P<rta_code>[\w\-]+)-(?P<scheme>.+?)\s+-\s+ISIN:\s*(?P<isin>INF[0-9A-Z]+)\(Advisor:\s*Registrar\s*:\s*(?P<rta>[A-Z]+)\s+(?P<advisor>\S+)\)",
-                    re.IGNORECASE
-                )
-                regex_scheme_general = re.compile(
-                    r"^(?P<rta_code>[\w\-]+)-(?P<scheme>.+?)\s+-\s+ISIN:\s*(?P<isin>INF[0-9A-Z]+)\(Advisor:\s*(?P<advisor>\S+)\)(?:\s+Registrar\s*:\s*(?P<rta>\S+))?",
-                    re.IGNORECASE
-                )
-                scheme_header, i = combine_lines(i, lines, stop_prefixes=["Nominee", "Opening Unit Balance:", "Date Transaction", "Closing Unit Balance:", "Page", "-----"])
+                new_folio = {"folio": "", "PAN": "", "KYC": "", "PANKYC": "", "amc": current_amc, "schemes": []}
+            while i < len(lines) and clean_line(lines[i]).lower().startswith(("pan:", "kyc:")):
+                i += 1
+            # Use the combine_scheme_header function to capture multi-line scheme headers.
+            scheme_header, i = combine_scheme_header(i, lines)
+            # For ICICI funds, remove extraneous "Registrar : CAMS" between ISIN: and the ISIN code.
+            if current_amc and "icici prudential" in current_amc.lower():
+                scheme_header = re.sub(r"ISIN:\s*INF\s+Registrar\s*:\s*CAMS\s*", "ISIN: INF", scheme_header, flags=re.IGNORECASE)
+            if current_amc and "icici prudential" in current_amc.lower():
+                m_scheme = regex_icici.search(scheme_header)
+            else:
                 m_scheme = regex_scheme_ppfas.search(scheme_header)
                 if not m_scheme:
                     m_scheme = regex_scheme_general.search(scheme_header)
-                if m_scheme:
-                    rta_code = m_scheme.group("rta_code").strip()
-                    scheme_name = m_scheme.group("scheme").strip()
-                    scheme_name = re.sub(r"\s*\(formerly.*?\)", "", scheme_name)
-                    isin = m_scheme.group("isin").strip()
-                    advisor = m_scheme.group("advisor").strip()
+            if m_scheme:
+                rta_code = m_scheme.group("rta_code").strip()
+                scheme_name = m_scheme.group("scheme").strip()
+                scheme_name = re.sub(r"\s*\(formerly.*?\)", "", scheme_name)
+                isin = m_scheme.group("isin").strip()
+                advisor = m_scheme.group("advisor").strip()
+                if current_amc and "icici prudential" in current_amc.lower():
+                    rta_val = "CAMS"
+                else:
                     rta_val = m_scheme.group("rta").strip() if "rta" in m_scheme.groupdict() and m_scheme.group("rta") else "CAMS"
-                    scheme_name = deduplicate_scheme(scheme_name)
-                    new_scheme = {
-                        "advisor": advisor,
-                        "amfi": "",
-                        "close": None,
-                        "close_calculated": None,
-                        "isin": isin,
-                        "open": None,
-                        "rta": rta_val,
-                        "rta_code": rta_code,
-                        "scheme": scheme_name,
-                        "transactions": [],
-                        "type": "EQUITY",
-                        "valuation": {}
-                    }
-                else:
-                    new_scheme = {
-                        "advisor": "",
-                        "amfi": "",
-                        "close": None,
-                        "close_calculated": None,
-                        "isin": "",
-                        "open": None,
-                        "rta": "",
-                        "rta_code": "",
-                        "scheme": scheme_header,
-                        "transactions": [],
-                        "type": "EQUITY",
-                        "valuation": {}
-                    }
-            # Skip nominee lines.
-            while i < len(lines) and clean_line(lines[i]).lower().startswith("nominee"):
-                i += 1
-            
-            # Parse Opening Unit Balance.
-            if i < len(lines) and clean_line(lines[i]).startswith("Opening Unit Balance:"):
-                open_line = clean_line(lines[i])
-                m_open = re.search(r"Opening Unit Balance:\s*([\d,\.]+)", open_line)
-                if m_open:
-                    new_scheme["open"] = parse_float(m_open.group(1))
-                i += 1
-            
-            # --- Transaction Parsing ---
-            sip_pattern = re.compile(
-                r"^(?P<date>\d{1,2}-[A-Za-z]{3}-\d{4})\s+(?P<desc>.+?)\s+(?P<amount>\(?[\d,]+\.\d+\)?)\s+(?P<units>\(?[\d,]+\.\d+\)?)\s+(?P<nav>\(?[\d,]+\.\d+\)?)(?:\s+(?P<balance>\(?[\d,]+\.\d+\)?))?$"
-            )
-            stt_pattern = re.compile(
-                r"^(?P<date>\d{1,2}-[A-Za-z]{3}-\d{4})\s+(?P<desc>(?:Stamp Duty|STT Paid))\s+(?P<amount>\(?[\d,]+\.\d+\)?)$",
-                re.IGNORECASE
-            )
-            while i < len(lines) and not clean_line(lines[i]).startswith("Closing Unit Balance:") \
-                  and not clean_line(lines[i]).startswith("Folio No:") \
-                  and not clean_line(lines[i]).startswith("## "):
-                txn_line = clean_line(lines[i])
-                if not txn_line or txn_line.startswith("Date Transaction"):
-                    i += 1
-                    continue
-                m_stt = stt_pattern.match(txn_line)
-                m_sip = sip_pattern.match(txn_line)
-                txn = None
-                if m_stt:
-                    txn = {
-                        "amount": parse_signed_number(m_stt.group("amount")),
-                        "balance": None,
-                        "date": parse_date(m_stt.group("date")),
-                        "description": m_stt.group("desc").strip(),
-                        "dividend_rate": None,
-                        "nav": None,
-                        "type": "STAMP_DUTY_TAX",
-                        "units": None
-                    }
-                elif m_sip:
-                    txn = {
-                        "amount": parse_signed_number(m_sip.group("amount")),
-                        "balance": parse_signed_number(m_sip.group("balance")) if m_sip.group("balance") else None,
-                        "date": parse_date(m_sip.group("date")),
-                        "description": m_sip.group("desc").strip(),
-                        "dividend_rate": None,
-                        "nav": parse_signed_number(m_sip.group("nav")),
-                        "type": "PURCHASE_SIP",  # default; updated below
-                        "units": parse_signed_number(m_sip.group("units"))
-                    }
-                if txn is not None:
-                    i += 1
-                    # Look ahead for a candidate numeric line to use as balance if not already set.
-                    while i < len(lines):
-                        candidate = clean_line(lines[i])
-                        if candidate == "":
-                            i += 1
-                            continue
-                        if re.match(r"^\d{1,2}-[A-Za-z]{3}-\d{4}", candidate):
-                            break
-                        if re.fullmatch(r"\(?[\d,]+\.\d+\)?", candidate):
-                            if txn["balance"] is None:
-                                txn["balance"] = parse_signed_number(candidate)
-                            i += 1
-                            break
-                        break
-                    desc_lower = txn["description"].lower()
-                    if "switch in" in desc_lower:
-                        txn["type"] = "SWITCH_IN"
-                    elif "switch out" in desc_lower:
-                        txn["type"] = "SWITCH_OUT"
-                    elif "purchase" in desc_lower:
-                        txn["type"] = "PURCHASE_SIP"
-                    new_scheme["transactions"].append(txn)
-                else:
-                    i += 1
-            
-            # Parse Valuation.
-            if i < len(lines) and clean_line(lines[i]).startswith("Closing Unit Balance:"):
-                closing_line = clean_line(lines[i])
-                m_close = re.search(
-                    r"Closing Unit Balance:\s*([\d,\.]+).*?NAV on ([\d]{1,2}-[A-Za-z]{3}-[\d]{4}):\s*INR\s*([\d,\.]+).*?Market Value on [\d]{1,2}-[A-Za-z]{3}-[\d]{4}:\s*INR\s*([\d,\.]+)",
-                    closing_line
-                )
-                if m_close:
-                    close_val, val_date, val_nav, val_value = m_close.groups()
-                    new_scheme["close"] = parse_float(close_val)
-                    new_scheme["close_calculated"] = parse_float(close_val)
-                    new_scheme["valuation"] = {
-                        "date": parse_date(val_date),
-                        "nav": parse_float(val_nav),
-                        "value": parse_float(val_value)
-                    }
-                i += 1
-            
-            # Group schemes by AMC.
-            current_amc_key = current_amc if current_amc else ""
-            if current_amc_key in folio_by_amc:
-                folio_by_amc[current_amc_key]["schemes"].append(new_scheme)
+                new_scheme = {
+                    "advisor": advisor,
+                    "amfi": "",
+                    "close": None,
+                    "close_calculated": None,
+                    "isin": isin,
+                    "open": None,
+                    "rta": rta_val,
+                    "rta_code": rta_code,
+                    "scheme": deduplicate_scheme(scheme_name),
+                    "transactions": [],
+                    "type": "EQUITY",
+                    "valuation": {}
+                }
             else:
-                folio_by_amc[current_amc_key] = new_folio
-                folio_by_amc[current_amc_key]["schemes"].append(new_scheme)
-        else:
-            i += 1
-    
+                new_scheme = {
+                    "advisor": "",
+                    "amfi": "",
+                    "close": None,
+                    "close_calculated": None,
+                    "isin": "",
+                    "open": None,
+                    "rta": "",
+                    "rta_code": "",
+                    "scheme": scheme_header,
+                    "transactions": [],
+                    "type": "EQUITY",
+                    "valuation": {}
+                }
+            i = process_scheme_details(i, lines, new_scheme)
+            if current_amc in folio_by_amc:
+                folio_by_amc[current_amc]["schemes"].append(new_scheme)
+            else:
+                folio_by_amc[current_amc] = new_folio
+                folio_by_amc[current_amc]["schemes"].append(new_scheme)
+            continue
+
+        # Case 2: New scheme header without folio header.
+        candidate = cline
+        if current_amc and ("isin:" in candidate.lower() and "advisor:" in candidate.lower()):
+            scheme_header, i = combine_scheme_header(i, lines)
+            if current_amc and "icici prudential" in current_amc.lower():
+                m_scheme = regex_icici.search(scheme_header)
+            else:
+                m_scheme = regex_scheme_ppfas.search(scheme_header)
+                if not m_scheme:
+                    m_scheme = regex_scheme_general.search(scheme_header)
+            if m_scheme:
+                rta_code = m_scheme.group("rta_code").strip()
+                scheme_name = m_scheme.group("scheme").strip()
+                scheme_name = re.sub(r"\s*\(formerly.*?\)", "", scheme_name)
+                isin = m_scheme.group("isin").strip()
+                advisor = m_scheme.group("advisor").strip()
+                if current_amc and "icici prudential" in current_amc.lower():
+                    rta_val = "CAMS"
+                else:
+                    rta_val = m_scheme.group("rta").strip() if "rta" in m_scheme.groupdict() and m_scheme.group("rta") else "CAMS"
+                new_scheme = {
+                    "advisor": advisor,
+                    "amfi": "",
+                    "close": None,
+                    "close_calculated": None,
+                    "isin": isin,
+                    "open": None,
+                    "rta": rta_val,
+                    "rta_code": rta_code,
+                    "scheme": deduplicate_scheme(scheme_name),
+                    "transactions": [],
+                    "type": "EQUITY",
+                    "valuation": {}
+                }
+            else:
+                new_scheme = {
+                    "advisor": "",
+                    "amfi": "",
+                    "close": None,
+                    "close_calculated": None,
+                    "isin": "",
+                    "open": None,
+                    "rta": "",
+                    "rta_code": "",
+                    "scheme": scheme_header,
+                    "transactions": [],
+                    "type": "EQUITY",
+                    "valuation": {}
+                }
+            i = process_scheme_details(i, lines, new_scheme)
+            if current_amc not in folio_by_amc:
+                folio_by_amc[current_amc] = {"folio": "", "PAN": "", "KYC": "", "PANKYC": "", "amc": current_amc, "schemes": []}
+            folio_by_amc[current_amc]["schemes"].append(new_scheme)
+            continue
+        
+        i += 1
+
     result["data"]["folios"] = list(folio_by_amc.values())
     return result
-    
+
 if __name__ == "__main__":
     pdf_path = "cas.pdf"  # Replace with your PDF file path.
     print(f"Processing {pdf_path}...")
