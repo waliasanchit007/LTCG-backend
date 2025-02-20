@@ -1,7 +1,10 @@
+from classify_tax_bucket import classify_cas_schemes
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
 import tempfile
+from full_tax_calculation import simulate_full_unrealized_tax
+from map_cas_to_db import map_cas_schemes_to_db
 import pdf_parser
 import requests
 from datetime import date, timedelta, datetime
@@ -160,7 +163,23 @@ def upload():
         tmp_path = tmp.name
 
     try:
-        result = pdf_parser.parse_pdf(tmp_path)
+        # Parse the PDF and get the initial CAS JSON
+        cas_json = pdf_parser.parse_pdf(tmp_path)
+        
+        # Map the schemes to database entries
+        cas_json = map_cas_schemes_to_db(cas_json)
+        
+        # Classify the schemes
+        cas_json = classify_cas_schemes(cas_json)
+        
+        # Calculate unrealized tax for each scheme
+        for folio in cas_json["data"]["folios"]:
+            for scheme in folio.get("schemes", []):
+                simulation = simulate_full_unrealized_tax(scheme)
+                scheme["unrealized_tax_simulation"] = simulation
+        
+        result = cas_json  # Use the processed cas_json as the result
+
     except Exception as e:
         os.unlink(tmp_path)
         return jsonify({"error": str(e)}), 500
