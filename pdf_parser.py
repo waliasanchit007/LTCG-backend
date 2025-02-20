@@ -1,20 +1,18 @@
 """
 pdf_parser.py
 
-This module contains the logic to parse a CAMS PDF (converted to Markdown) 
-into a structured JSON/dictionary format. It’s organized into clear functions 
-so that it can be reused (for example, by compiling with Pyodide for client-side use).
+This module contains the logic to parse a CAMS PDF (converted to Markdown) into a structured JSON/dictionary.
+The parser groups mutual fund schemes by AMC, so that if multiple folio headers belong to the same AMC,
+all schemes are merged into one folio object.
 """
 
 import re
 import json
 import datetime
-import pymupdf4llm 
-
+import pymupdf4llm
 # --- Helper Functions ---
 
 def parse_date(date_str, in_format="%d-%b-%Y", out_format="%Y-%m-%d"):
-    """Parse a date string from one format to another."""
     try:
         dt = datetime.datetime.strptime(date_str, in_format)
         return dt.strftime(out_format)
@@ -22,7 +20,6 @@ def parse_date(date_str, in_format="%d-%b-%Y", out_format="%Y-%m-%d"):
         return date_str
 
 def parse_float(num_str):
-    """Parse a numeric string to a float, removing commas."""
     try:
         return float(num_str.replace(",", ""))
     except Exception:
@@ -45,7 +42,7 @@ def parse_signed_number(num_str):
         return None
 
 def clean_line(text):
-    """Remove markdown formatting markers (asterisks, underscores) and trim."""
+    """Remove markdown formatting markers and trim whitespace."""
     return re.sub(r"[\*_]+", "", text).strip()
 
 def combine_folio_lines(i, lines):
@@ -67,7 +64,8 @@ def combine_folio_lines(i, lines):
 
 def combine_lines(i, lines, stop_prefixes):
     """
-    Combine consecutive lines until a line whose cleaned text (lowercase) starts with any stop_prefix.
+    Combine consecutive lines until a line whose cleaned text (lowercase)
+    starts with any of the stop_prefixes.
     """
     combined = []
     while i < len(lines):
@@ -102,6 +100,19 @@ def extract_amc_names(lines):
                     amc_names.append(name)
     return amc_names
 
+def deduplicate_scheme(scheme_str):
+    """
+    If the scheme string appears to contain a repeated fund name,
+    return only one copy.
+    """
+    key = "elss tax saver fund"
+    lower = scheme_str.lower()
+    if lower.count(key) > 1:
+        parts = re.split("(?i)" + key, scheme_str)
+        if len(parts) >= 2:
+            return parts[0].strip() + " " + key.upper()
+    return scheme_str
+
 # Regex for non‑ICICI folios.
 folio_regex = re.compile(
     r"Folio No:\s*([\w\s/]+).*?PAN:\s*(\S+)\s+KYC:\s*(\S+)\s+PAN:\s*(\S+)",
@@ -112,8 +123,8 @@ folio_regex = re.compile(
 
 def parse_pdf_markdown(md_text):
     """
-    Parse the markdown text (converted from a PDF) into a structured dictionary.
-    Returns a dictionary matching the expected JSON structure.
+    Parse the PDF markdown text into a structured dictionary.
+    Schemes are grouped by AMC.
     """
     lines = md_text.splitlines()
     amc_names = extract_amc_names(lines)
@@ -131,7 +142,10 @@ def parse_pdf_markdown(md_text):
         "status": "success"
     }
     
-    # Extract Statement Period.
+    # Group folios by AMC.
+    folio_by_amc = {}
+    
+    # 1. Extract Statement Period.
     for line in lines:
         cline = clean_line(line)
         m = re.search(r"(\d{1,2}-[A-Za-z]{3}-\d{4})\s+To\s+(\d{1,2}-[A-Za-z]{3}-\d{4})", cline)
@@ -139,7 +153,7 @@ def parse_pdf_markdown(md_text):
             result["data"]["statement_period"] = {"from": m.group(1), "to": m.group(2)}
             break
 
-    # Extract Investor Info.
+    # 2. Extract Investor Info.
     inv_line = None
     for line in lines:
         if "Email Id:" in line:
@@ -166,8 +180,7 @@ def parse_pdf_markdown(md_text):
                 "address": inv_line
             }
     
-    # Process Folios and Schemes.
-    folios = []
+    # 3. Process Folios and Schemes.
     current_amc = None
     i = 0
     while i < len(lines):
@@ -187,9 +200,8 @@ def parse_pdf_markdown(md_text):
         
         # Look for folio header.
         if cline.startswith("Folio No:"):
-            # Determine branch based on AMC.
-            next_line = lines[i+1] if i+1 < len(lines) else ""
-            if (current_amc and "icici prudential" in current_amc.lower()) or ("icici prudential" in next_line.lower()):
+            # Process folio header block.
+            if (current_amc and "icici prudential" in current_amc.lower()) or (i+1 < len(lines) and "icici prudential" in lines[i+1].lower()):
                 # --- ICICI Branch ---
                 folio_text, i = combine_folio_lines(i, lines)
                 folio_text = folio_text.replace("####", "").strip()
@@ -206,7 +218,7 @@ def parse_pdf_markdown(md_text):
                         kyc = ""
                     m_pankyc = re.search(r"(\S+)", parts[2])
                     pankyc = m_pankyc.group(1).strip() if m_pankyc else ""
-                    folio_dict = {
+                    new_folio = {
                         "folio": folio_num,
                         "PAN": pan,
                         "KYC": kyc,
@@ -215,12 +227,17 @@ def parse_pdf_markdown(md_text):
                         "schemes": []
                     }
                 else:
-                    folio_dict = {"folio": "", "PAN": "", "KYC": "", "PANKYC": "", "amc": current_amc if current_amc else "ICICI Prudential", "schemes": []}
-                
+                    new_folio = {
+                        "folio": "",
+                        "PAN": "",
+                        "KYC": "",
+                        "PANKYC": "",
+                        "amc": current_amc if current_amc else "ICICI Prudential",
+                        "schemes": []
+                    }
                 while i < len(lines) and clean_line(lines[i]).startswith(("PAN:", "KYC:")):
                     i += 1
-
-                # Process ICICI scheme header.
+                # Process scheme header.
                 scheme_header = ""
                 if i < len(lines):
                     line1 = clean_line(lines[i].lstrip("#").strip())
@@ -243,11 +260,10 @@ def parse_pdf_markdown(md_text):
                 if m_scheme:
                     rta_code = m_scheme.group("rta_code").strip()
                     scheme_name = m_scheme.group("scheme").strip()
-                    # Remove any "(formerly ...)" part.
                     scheme_name = re.sub(r"\s*\(formerly.*?\)", "", scheme_name)
                     isin = m_scheme.group("isin").strip()
                     advisor = m_scheme.group("advisor").strip()
-                    scheme_dict = {
+                    new_scheme = {
                         "advisor": advisor,
                         "amfi": "",
                         "close": None,
@@ -262,7 +278,7 @@ def parse_pdf_markdown(md_text):
                         "valuation": {}
                     }
                 else:
-                    scheme_dict = {
+                    new_scheme = {
                         "advisor": "",
                         "amfi": "",
                         "close": None,
@@ -282,7 +298,7 @@ def parse_pdf_markdown(md_text):
                 m = folio_regex.search(folio_text)
                 if m:
                     folio_num, pan, kyc, pankyc = m.groups()
-                    folio_dict = {
+                    new_folio = {
                         "folio": folio_num.strip(),
                         "PAN": pan,
                         "KYC": kyc,
@@ -291,15 +307,20 @@ def parse_pdf_markdown(md_text):
                         "schemes": []
                     }
                 else:
-                    folio_dict = {"folio": "", "PAN": "", "KYC": "", "PANKYC": "", "amc": current_amc, "schemes": []}
-                
-                # Try specialized regex for PPFAS-style scheme header.
+                    new_folio = {
+                        "folio": "",
+                        "PAN": "",
+                        "KYC": "",
+                        "PANKYC": "",
+                        "amc": current_amc,
+                        "schemes": []
+                    }
                 regex_scheme_ppfas = re.compile(
                     r"^(?P<rta_code>[\w\-]+)-(?P<scheme>.+?)\s+-\s+ISIN:\s*(?P<isin>INF[0-9A-Z]+)\(Advisor:\s*Registrar\s*:\s*(?P<rta>[A-Z]+)\s+(?P<advisor>\S+)\)",
                     re.IGNORECASE
                 )
                 regex_scheme_general = re.compile(
-                    r"^(?P<rta_code>[\w\-]+)-(?P<scheme>.+?)\s+-\s+ISIN:\s*(?P<isin>INF[0-9A-Z]+).*?\(Advisor:\s*(?P<advisor>\S+)\)",
+                    r"^(?P<rta_code>[\w\-]+)-(?P<scheme>.+?)\s+-\s+ISIN:\s*(?P<isin>INF[0-9A-Z]+)\(Advisor:\s*(?P<advisor>\S+)\)(?:\s+Registrar\s*:\s*(?P<rta>\S+))?",
                     re.IGNORECASE
                 )
                 scheme_header, i = combine_lines(i, lines, stop_prefixes=["Nominee", "Opening Unit Balance:", "Date Transaction", "Closing Unit Balance:", "Page", "-----"])
@@ -313,7 +334,8 @@ def parse_pdf_markdown(md_text):
                     isin = m_scheme.group("isin").strip()
                     advisor = m_scheme.group("advisor").strip()
                     rta_val = m_scheme.group("rta").strip() if "rta" in m_scheme.groupdict() and m_scheme.group("rta") else "CAMS"
-                    scheme_dict = {
+                    scheme_name = deduplicate_scheme(scheme_name)
+                    new_scheme = {
                         "advisor": advisor,
                         "amfi": "",
                         "close": None,
@@ -328,7 +350,7 @@ def parse_pdf_markdown(md_text):
                         "valuation": {}
                     }
                 else:
-                    scheme_dict = {
+                    new_scheme = {
                         "advisor": "",
                         "amfi": "",
                         "close": None,
@@ -351,7 +373,7 @@ def parse_pdf_markdown(md_text):
                 open_line = clean_line(lines[i])
                 m_open = re.search(r"Opening Unit Balance:\s*([\d,\.]+)", open_line)
                 if m_open:
-                    scheme_dict["open"] = parse_float(m_open.group(1))
+                    new_scheme["open"] = parse_float(m_open.group(1))
                 i += 1
             
             # --- Transaction Parsing ---
@@ -362,7 +384,9 @@ def parse_pdf_markdown(md_text):
                 r"^(?P<date>\d{1,2}-[A-Za-z]{3}-\d{4})\s+(?P<desc>(?:Stamp Duty|STT Paid))\s+(?P<amount>\(?[\d,]+\.\d+\)?)$",
                 re.IGNORECASE
             )
-            while i < len(lines) and not clean_line(lines[i]).startswith("Closing Unit Balance:"):
+            while i < len(lines) and not clean_line(lines[i]).startswith("Closing Unit Balance:") \
+                  and not clean_line(lines[i]).startswith("Folio No:") \
+                  and not clean_line(lines[i]).startswith("## "):
                 txn_line = clean_line(lines[i])
                 if not txn_line or txn_line.startswith("Date Transaction"):
                     i += 1
@@ -394,7 +418,7 @@ def parse_pdf_markdown(md_text):
                     }
                 if txn is not None:
                     i += 1
-                    # Look ahead for a candidate numeric line for balance if not already set.
+                    # Look ahead for a candidate numeric line to use as balance if not already set.
                     while i < len(lines):
                         candidate = clean_line(lines[i])
                         if candidate == "":
@@ -408,7 +432,6 @@ def parse_pdf_markdown(md_text):
                             i += 1
                             break
                         break
-                    # Update type based on description keywords.
                     desc_lower = txn["description"].lower()
                     if "switch in" in desc_lower:
                         txn["type"] = "SWITCH_IN"
@@ -416,7 +439,7 @@ def parse_pdf_markdown(md_text):
                         txn["type"] = "SWITCH_OUT"
                     elif "purchase" in desc_lower:
                         txn["type"] = "PURCHASE_SIP"
-                    scheme_dict["transactions"].append(txn)
+                    new_scheme["transactions"].append(txn)
                 else:
                     i += 1
             
@@ -429,34 +452,30 @@ def parse_pdf_markdown(md_text):
                 )
                 if m_close:
                     close_val, val_date, val_nav, val_value = m_close.groups()
-                    scheme_dict["close"] = parse_float(close_val)
-                    scheme_dict["close_calculated"] = parse_float(close_val)
-                    scheme_dict["valuation"] = {
+                    new_scheme["close"] = parse_float(close_val)
+                    new_scheme["close_calculated"] = parse_float(close_val)
+                    new_scheme["valuation"] = {
                         "date": parse_date(val_date),
                         "nav": parse_float(val_nav),
                         "value": parse_float(val_value)
                     }
                 i += 1
             
-            folio_dict["schemes"].append(scheme_dict)
-            folios.append(folio_dict)
+            # Group schemes by AMC.
+            current_amc_key = current_amc if current_amc else ""
+            if current_amc_key in folio_by_amc:
+                folio_by_amc[current_amc_key]["schemes"].append(new_scheme)
+            else:
+                folio_by_amc[current_amc_key] = new_folio
+                folio_by_amc[current_amc_key]["schemes"].append(new_scheme)
         else:
             i += 1
     
-    result["data"]["folios"] = folios
+    result["data"]["folios"] = list(folio_by_amc.values())
     return result
-
-def parse_pdf(pdf_path):
-    """
-    Given a PDF file path, this function converts the PDF to Markdown using 
-    pymupdf4llm.to_markdown(), then parses the Markdown to produce structured data.
-    Returns a dictionary representing the parsed data.
-    """
-    md_text = pymupdf4llm.to_markdown(pdf_path)
-    return parse_pdf_markdown(md_text)
     
 if __name__ == "__main__":
-    pdf_path = "casonepage.pdf"  # Replace with your PDF file path.
+    pdf_path = "cas.pdf"  # Replace with your PDF file path.
     print(f"Processing {pdf_path}...")
     md_text = pymupdf4llm.to_markdown(pdf_path)
     parsed_data = parse_pdf_markdown(md_text)
