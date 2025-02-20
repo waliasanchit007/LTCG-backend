@@ -4,11 +4,13 @@ from flask_cors import CORS
 import os
 import tempfile
 from full_tax_calculation import simulate_full_unrealized_tax
-from map_cas_to_db import map_cas_schemes_to_db
 import pdf_parser
+from map_cas_to_db import map_cas_schemes_to_db
 import requests
 from datetime import date, timedelta, datetime
 import sqlite3
+import pymupdf4llm
+import json
 
 app = Flask(__name__)
 CORS(app)
@@ -152,39 +154,69 @@ def fetch_and_store_nav():
 @app.route("/upload", methods=["POST"])
 def upload():
     """Endpoint to upload a PDF file for parsing."""
-    if "file" not in request.files:
-        return jsonify({"error": "No file part in the request"}), 400
-    file = request.files["file"]
-    if file.filename == "":
-        return jsonify({"error": "No file selected"}), 400
-
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
-        file.save(tmp.name)
-        tmp_path = tmp.name
-
+    tmp_path = None
     try:
-        # Parse the PDF and get the initial CAS JSON
+        # Check file presence
+        if "file" not in request.files:
+            return jsonify({"error": "No file part in the request"}), 400
+        
+        file = request.files["file"]
+        if file.filename == "":
+            return jsonify({"error": "No file selected"}), 400
+            
+        if not file.filename.endswith('.pdf'):
+            return jsonify({"error": "File must be a PDF"}), 400
+
+        # Save file
+        print(f"Saving uploaded file: {file.filename}")
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+            file.save(tmp.name)
+            tmp_path = tmp.name
+        print(f"File saved to temporary path: {tmp_path}")
+
+        # Parse PDF
+        print("Starting PDF parsing...")
         cas_json = pdf_parser.parse_pdf(tmp_path)
+        print("PDF parsing completed")
         
-        # Map the schemes to database entries
+        # Map schemes
+        print("Mapping schemes to database...")
         cas_json = map_cas_schemes_to_db(cas_json)
+        print("Scheme mapping completed")
         
-        # Classify the schemes
+        # Classify schemes
+        print("Classifying schemes...")
         cas_json = classify_cas_schemes(cas_json)
+        print("Scheme classification completed")
         
-        # Calculate unrealized tax for each scheme
+        # Calculate tax
+        print("Calculating unrealized tax...")
         for folio in cas_json["data"]["folios"]:
             for scheme in folio.get("schemes", []):
                 simulation = simulate_full_unrealized_tax(scheme)
                 scheme["unrealized_tax_simulation"] = simulation
-        
-        result = cas_json  # Use the processed cas_json as the result
+        print("Tax calculation completed")
+
+        result = cas_json
 
     except Exception as e:
-        os.unlink(tmp_path)
-        return jsonify({"error": str(e)}), 500
+        import traceback
+        error_trace = traceback.format_exc()
+        print(f"Error in upload endpoint: {str(e)}")
+        print(f"Full traceback:\n{error_trace}")
+        
+        if tmp_path and os.path.exists(tmp_path):
+            os.unlink(tmp_path)
+        
+        return jsonify({
+            "error": str(e),
+            "traceback": error_trace
+        }), 500
 
-    os.unlink(tmp_path)
+    finally:
+        if tmp_path and os.path.exists(tmp_path):
+            os.unlink(tmp_path)
+
     return jsonify(result)
 
 def initialize_app():
@@ -193,4 +225,26 @@ def initialize_app():
 
 if __name__ == "__main__":
     initialize_app()
-    app.run(debug=True)
+    # app.run(debug=True)
+    pdf_path = "cas.pdf" 
+    md_text = pymupdf4llm.to_markdown(pdf_path)
+    parsed_data = pdf_parser.parse_pdf_markdown(md_text)
+    cas_json = map_cas_schemes_to_db(parsed_data)
+    cas_json = classify_cas_schemes(cas_json)
+    for folio in cas_json["data"]["folios"]:
+            for scheme in folio.get("schemes", []):
+                simulation = simulate_full_unrealized_tax(scheme)
+                scheme["unrealized_tax_simulation"] = simulation
+
+     # Replace with your PDF file path.
+    print(f"Processing {pdf_path}...")
+    
+    # print(json.dumps(parsed_data, indent=2))
+    filename = "md_result.md"
+
+    with open(filename, 'w') as file:
+        file.write(md_text)
+    with open("parsed_json_output", 'w') as file:
+        file.write(json.dumps(parsed_data, indent=2))
+    with open("final_tax_json", 'w') as file:
+        file.write(json.dumps(cas_json, indent=2))

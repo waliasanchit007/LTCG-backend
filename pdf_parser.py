@@ -457,6 +457,15 @@ def parse_pdf_markdown(md_text):
     result["data"]["folios"] = list(folio_by_amc.values())
     return result
 
+def parse_pdf(pdf_path):
+    """
+    Given a PDF file path, this function converts the PDF to Markdown using 
+    pymupdf4llm.to_markdown(), then parses the Markdown to produce structured data.
+    Returns a dictionary representing the parsed data.
+    """
+    md_text = pymupdf4llm.to_markdown(pdf_path)
+    return parse_pdf_markdown(md_text)
+    
 if __name__ == "__main__":
     pdf_path = "cas.pdf"  # Replace with your PDF file path.
     print(f"Processing {pdf_path}...")
