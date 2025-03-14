@@ -204,7 +204,7 @@
               "nav": 98.9287,
               "date": "2025-02-20"
             },
-            "folio": "910157440401 / 0",
+            "folio": "910157440401",
             "scheme_code": "120503",
             "fund_house": "Axis Mutual Fund",
             "scheme_category": "Formerly Known as IIFL Mutual Fund",
@@ -546,7 +546,7 @@
               "nav": 175.68,
               "date": "2025-02-20"
             },
-            "folio": "19943519703 / 0",
+            "folio": "19943519703",
             "scheme_code": "118285",
             "fund_house": "Canara Robeco Mutual Fund",
             "scheme_category": "Formerly Known as IIFL Mutual Fund",
@@ -888,7 +888,7 @@
               "nav": 140.057,
               "date": "2025-02-20"
             },
-            "folio": "7900584 / 04",
+            "folio": "7900584",
             "scheme_code": "119242",
             "fund_house": "DSP Mutual Fund",
             "scheme_category": "Formerly Known as IIFL Mutual Fund",
@@ -1430,7 +1430,7 @@
               "nav": 48.753,
               "date": "2025-02-20"
             },
-            "folio": "79959006163 / 0",
+            "folio": "79959006163",
             "scheme_code": "135781",
             "fund_house": "Mirae Asset Mutual Fund",
             "scheme_category": "Formerly Known as IIFL Mutual Fund",
@@ -1702,7 +1702,7 @@
               "nav": 106.4199,
               "date": "2025-02-20"
             },
-            "folio": "910107459355 / 0",
+            "folio": "910107459355",
             "scheme_code": "127042",
             "fund_house": "Motilal Oswal Mutual Fund",
             "scheme_category": "Equity Scheme - Mid Cap Fund",
@@ -2087,7 +2087,7 @@
               "nav": 43.4024,
               "date": "2025-02-20"
             },
-            "folio": "91065737624 / 0",
+            "folio": "91065737624",
             "scheme_code": "145552",
             "fund_house": "Motilal Oswal Mutual Fund",
             "scheme_category": "Other Scheme - FoF Domestic",
@@ -2373,7 +2373,7 @@
               "nav": 14.878,
               "date": "2025-02-20"
             },
-            "folio": "9103845434 / 0",
+            "folio": "9103845434",
             "scheme_code": "149039",
             "fund_house": "Navi Mutual Fund",
             "scheme_category": "Other Scheme - Index Funds",
@@ -2509,7 +2509,7 @@
               "nav": 17.0579,
               "date": "2025-02-20"
             },
-            "folio": "9775435944 Sanchit Walia",
+            "folio": "9775435944",
             "scheme_code": "149910",
             "fund_house": "Navi Mutual Fund",
             "scheme_category": "Other Scheme - FoF Overseas",
@@ -5463,7 +5463,7 @@
               "nav": 31.5847,
               "date": "2025-02-20"
             },
-            "folio": "13291382 Sanchit Walia",
+            "folio": "13291382",
             "scheme_code": "147481",
             "fund_house": "PPFAS Mutual Fund",
             "scheme_category": "Formerly Known as IIFL Mutual Fund",
@@ -5823,7 +5823,7 @@
               "nav": 360.528,
               "date": "2025-02-20"
             },
-            "folio": "51028381872 / 0",
+            "folio": "51028381872",
             "scheme_code": "120847",
             "fund_house": "quant Mutual Fund",
             "scheme_category": "Formerly Known as IIFL Mutual Fund",
@@ -6480,7 +6480,7 @@
               "nav": 97.2823,
               "date": "2025-02-20"
             },
-            "folio": "51028381872 / 0 SANCHIT WALIA",
+            "folio": "51028381872",
             "scheme_code": "120843",
             "fund_house": "quant Mutual Fund",
             "scheme_category": "Formerly Known as IIFL Mutual Fund",
@@ -6841,7 +6841,7 @@
               "nav": 97.2823,
               "date": "2025-02-20"
             },
-            "folio": "51073313842 / 0 SANCHIT WALIA",
+            "folio": "51073313842",
             "scheme_code": "120843",
             "fund_house": "quant Mutual Fund",
             "scheme_category": "Formerly Known as IIFL Mutual Fund",
@@ -8446,7 +8446,7 @@
               "nav": 0.0,
               "date": null
             },
-            "folio": "23224722 Sanchit Walia",
+            "folio": "23224722",
             "scheme_code": null,
             "fund_house": null,
             "scheme_category": null,

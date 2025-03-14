@@ -327,7 +327,7 @@ def parse_pdf_markdown(md_text):
             i += 1
             continue
         
-        # Case 1: Folio header block.
+               # Case 1: Folio header block.
         if "folio no:" in cline.lower():
             # Extract folio details from the folio header.
             folio_text, i = combine_folio_lines(i, lines)
@@ -335,7 +335,10 @@ def parse_pdf_markdown(md_text):
             m_folio = folio_regex.search(folio_text)
             if m_folio:
                 folio_num, pan, kyc, pankyc = m_folio.groups()
-                current_folio = folio_num.strip()
+                folio_num = folio_num.strip()
+                # Extract only the first contiguous sequence of digits.
+                m_digits = re.search(r"(\d+)", folio_num)
+                current_folio = m_digits.group(1) if m_digits else folio_num
             else:
                 current_folio = ""
             # Skip additional PAN/KYC lines.
@@ -374,7 +377,7 @@ def parse_pdf_markdown(md_text):
                     "transactions": [],
                     "type": "EQUITY",
                     "valuation": {},
-                    "folio": current_folio  # assign the extracted folio number
+                    "folio": current_folio  # assign the cleaned folio number
                 }
             else:
                 new_scheme = {
