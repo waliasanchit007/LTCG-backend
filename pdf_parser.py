@@ -2,8 +2,8 @@
 pdf_parser.py
 
 This module contains the logic to parse a CAMS PDF (converted to Markdown) into a structured JSON/dictionary.
-The parser groups mutual fund schemes by AMC, so that if multiple folio headers belong to the same AMC,
-all schemes are merged into one folio object.
+The parser groups mutual fund schemes by AMC. In this updated version each scheme gets its unique folio number
+extracted from the folio header that immediately precedes it.
 """
 
 import re
@@ -252,6 +252,8 @@ def parse_pdf_markdown(md_text):
     """
     Parse the PDF markdown text (converted from PDF) into a structured dictionary.
     Schemes are grouped by AMC.
+    In this updated version each scheme gets its unique folio number (if parsed)
+    from the folio header block immediately preceding it.
     """
     lines = md_text.splitlines()
     result = {
@@ -267,8 +269,10 @@ def parse_pdf_markdown(md_text):
         "status": "success"
     }
     
+    # We'll group schemes by AMC in a dictionary.
     folio_by_amc = {}
     current_amc = None
+    current_folio = ""  # This will hold the folio number for the next scheme.
     i = 0
 
     # Extract Statement Period.
@@ -317,31 +321,28 @@ def parse_pdf_markdown(md_text):
         
         if raw_line.startswith("## ") and not raw_line.startswith("####"):
             current_amc = clean_line(raw_line[3:]).strip()
+            # Initialize AMC grouping if not already.
+            if current_amc not in folio_by_amc:
+                folio_by_amc[current_amc] = {"amc": current_amc, "schemes": []}
             i += 1
             continue
         
         # Case 1: Folio header block.
         if "folio no:" in cline.lower():
+            # Extract folio details from the folio header.
             folio_text, i = combine_folio_lines(i, lines)
             folio_text = folio_text.replace("####", "").strip()
             m_folio = folio_regex.search(folio_text)
             if m_folio:
                 folio_num, pan, kyc, pankyc = m_folio.groups()
-                new_folio = {
-                    "folio": folio_num.strip(),
-                    "PAN": pan,
-                    "KYC": kyc,
-                    "PANKYC": pankyc,
-                    "amc": current_amc,
-                    "schemes": []
-                }
+                current_folio = folio_num.strip()
             else:
-                new_folio = {"folio": "", "PAN": "", "KYC": "", "PANKYC": "", "amc": current_amc, "schemes": []}
+                current_folio = ""
+            # Skip additional PAN/KYC lines.
             while i < len(lines) and clean_line(lines[i]).lower().startswith(("pan:", "kyc:")):
                 i += 1
-            # Use the combine_scheme_header function to capture multi-line scheme headers.
+            # Next, process the scheme header.
             scheme_header, i = combine_scheme_header(i, lines)
-            # For ICICI funds, remove extraneous "Registrar : CAMS" between ISIN: and the ISIN code.
             if current_amc and "icici prudential" in current_amc.lower():
                 scheme_header = re.sub(r"ISIN:\s*INF\s+Registrar\s*:\s*CAMS\s*", "ISIN: INF", scheme_header, flags=re.IGNORECASE)
             if current_amc and "icici prudential" in current_amc.lower():
@@ -372,7 +373,8 @@ def parse_pdf_markdown(md_text):
                     "scheme": deduplicate_scheme(scheme_name),
                     "transactions": [],
                     "type": "EQUITY",
-                    "valuation": {}
+                    "valuation": {},
+                    "folio": current_folio  # assign the extracted folio number
                 }
             else:
                 new_scheme = {
@@ -387,17 +389,14 @@ def parse_pdf_markdown(md_text):
                     "scheme": scheme_header,
                     "transactions": [],
                     "type": "EQUITY",
-                    "valuation": {}
+                    "valuation": {},
+                    "folio": current_folio
                 }
             i = process_scheme_details(i, lines, new_scheme)
-            if current_amc in folio_by_amc:
-                folio_by_amc[current_amc]["schemes"].append(new_scheme)
-            else:
-                folio_by_amc[current_amc] = new_folio
-                folio_by_amc[current_amc]["schemes"].append(new_scheme)
+            folio_by_amc[current_amc]["schemes"].append(new_scheme)
             continue
 
-        # Case 2: New scheme header without folio header.
+        # Case 2: New scheme header without preceding folio header.
         candidate = cline
         if current_amc and ("isin:" in candidate.lower() and "advisor:" in candidate.lower()):
             scheme_header, i = combine_scheme_header(i, lines)
@@ -429,7 +428,8 @@ def parse_pdf_markdown(md_text):
                     "scheme": deduplicate_scheme(scheme_name),
                     "transactions": [],
                     "type": "EQUITY",
-                    "valuation": {}
+                    "valuation": {},
+                    "folio": ""  # no folio header found; leave empty or set a default if desired
                 }
             else:
                 new_scheme = {
@@ -444,11 +444,12 @@ def parse_pdf_markdown(md_text):
                     "scheme": scheme_header,
                     "transactions": [],
                     "type": "EQUITY",
-                    "valuation": {}
+                    "valuation": {},
+                    "folio": ""
                 }
             i = process_scheme_details(i, lines, new_scheme)
             if current_amc not in folio_by_amc:
-                folio_by_amc[current_amc] = {"folio": "", "PAN": "", "KYC": "", "PANKYC": "", "amc": current_amc, "schemes": []}
+                folio_by_amc[current_amc] = {"amc": current_amc, "schemes": []}
             folio_by_amc[current_amc]["schemes"].append(new_scheme)
             continue
         
