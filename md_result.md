@@ -1,71 +1,45 @@
 # Consolidated Account Statement
 
-### 06-Mar-2002 To 20-Feb-2025
+### 01-Jan-2002 To 09-Feb-2025
 
-|Email Id: waliasanchit007@gmail.com Sanchit Walia B-66 SECTOR-2 RAJGADH ESTAES VILLAGE BIRMI LUDHIANA [WEST] MALAKPUR LUDHIANA - 142027 Punjab India Mobile: +917837446338|This Consolidated Account Statement is brought to you as an investor friendly initiative by CAMS and KFintech, and lists the transactions, balances and valuation of Mutual Funds in which you are holding investments. The consolidation has been carried out based on the email id entered by you. If you have not entered a PAN Number and if the email id is common to several members of your family, this statement will consolidate all those investments as well. If you find any folios missing from this consolidation, you have not registered your email id against those folios. This statement may not reflect the complete information on your DEMAT holdings. Please check with your DP for details on DEMAT holdings.|
+|Email Id: sanchitwalia141@gmail.com SANCHIT WALIA B-66 SECTOR-2 RAJGADH ESTAES VILLAGE BIRMI LUDHIANA [WEST] MALAKPUR LUDHIANA - 142027 Punjab India Mobile: +917837446338|This Consolidated Account Statement is brought to you as an investor friendly initiative by CAMS and KFintech, and lists the transactions, balances and valuation of Mutual Funds in which you are holding investments. The consolidation has been carried out based on the email id entered by you. If you have not entered a PAN Number and if the email id is common to several members of your family, this statement will consolidate all those investments as well. If you find any folios missing from this consolidation, you have not registered your email id against those folios. This statement may not reflect the complete information on your DEMAT holdings. Please check with your DP for details on DEMAT holdings.|
 |---|---|
 
 
 ### PORTFOLIO SUMMARY
 
-#### Cost Value Market Value Mutual Fund
- (INR) (INR)
+#### Cost Value Market Value Mutual Fund (INR) (INR)
 
-SBI Mutual Fund 75,551.26 79,441.12
+ICICI Prudential Mutual Fund 296,549.73 357,214.60
 
-PPFAS Mutual Fund 379,614.74 437,648.98
+DSP Mutual Fund 2,500.00 4,759.23
 
-DSP Mutual Fund 27,000.00 42,449.40
+AXIS Mutual Fund 2,500.00 4,054.13
 
-NAVI MF 30,000.00 48,317.01
+Mirae Asset Mutual Fund 2,500.00 4,304.23
 
-Canara Robeco Mutual Fund 27,000.00 37,740.62
+Canara Robeco Mutual Fund 2,500.00 4,278.31
 
-MOTILAL OSWAL MUTUAL FUND 50,000.00 56,027.82
-
-Quant MF 126,000.00 121,539.68
-
-AXIS Mutual Fund 27,000.00 37,181.98
-
-Mirae Asset Mutual Fund 67,000.00 87,520.63
-
-Total 809,166.00 947,867.25
+Total 306,549.73 374,610.50
 
 #### Date Transaction Amount Units NAV           Unit
-(INR) (INR) Balance
+(INR) (INR) **Balance**
 
 
 ## AXIS Mutual Fund
 
-#### Folio No: 910157440401 / 0 PAN: AFDPW5788D KYC: OK PAN: OK SANCHIT WALIA
+#### Folio No: 910156663334 / 0 PAN: AFDPW5788D KYC: OK PAN: OK SANCHIT WALIA
 
 128TSDGG-Axis ELSS Tax Saver Fund - Direct Growth - ISIN: INF846K01EW2(Advisor: INA100006898) Registrar :
-
 KFINTECH
 
 #### Nominee 1: Sanjay Kumar Walia Nominee 2: Sanyam Walia Nominee 3:
 
-Opening Unit Balance: 0.000
-11-Jul-2022 Systematic Investment (1) 2,999.85 44.283 67.7432 44.283
-11-Jul-2022 *** Stamp Duty *** 0.15
-10-Aug-2022 Systematic Investment (1) 2,999.85 39.826 75.3237 84.109
-10-Aug-2022 *** Stamp Duty *** 0.15
-12-Sep-2022 Systematic Investment (1) 2,999.85 38.997 76.9253 123.106
-12-Sep-2022 *** Stamp Duty *** 0.15
-10-Oct-2022 Systematic Investment (1) 2,999.85 41.587 72.1344 164.693
-10-Oct-2022 *** Stamp Duty *** 0.15
-10-Nov-2022 Systematic Investment (1) 2,999.85 40.409 74.2379 205.102
-10-Nov-2022 *** Stamp Duty *** 0.15
-12-Dec-2022 Systematic Investment (1) 2,999.85 40.640 73.8144 245.742
-12-Dec-2022 *** Stamp Duty *** 0.15
-10-Jan-2023 Systematic Investment (1) 2,999.85 42.837 70.0302 288.579
-10-Jan-2023 *** Stamp Duty *** 0.15
-10-Feb-2023 Systematic Investment (1) 2,999.85 43.497 68.9661 332.076
-10-Feb-2023 *** Stamp Duty *** 0.15
-10-Mar-2023 Systematic Investment (1) 2,999.85 44.748 67.0393 376.824
-10-Mar-2023 *** Stamp Duty *** 0.15
+**Opening Unit Balance: 0.000**
+20-Jun-2022 Purchase 2,499.88 39.444 63.3780 39.444
+20-Jun-2022 _*** Stamp Duty ***_ 0.12
 
-Closing Unit Balance: 376.824 NAV on 19-Feb-2025: INR 98.6720 Total Cost Value: 27,000.00 Market Value on 19-Feb-2025: INR 37,181.98
+**Closing Unit Balance: 39.444** **NAV on 07-Feb-2025: INR 102.7818** **Total Cost Value: 2,500.00** **Market Value on 07-Feb-2025: INR 4,054.13**
 
 
 Entry Load - NIL, Exit Load - NIL. Investment in Axis ELSS Tax Saver Fund is eligible for availing tax benefit under section 80C of Income Tax ACT 1961 read with
@@ -76,51 +50,18 @@ December 08, 2023.
 
 ## Canara Robeco Mutual Fund
 
-
-#### Page 1 of 12
-
-
------
-
-# Consolidated Account Statement
-
-
-### 06-Mar-2002 To 20-Feb-2025
-
-#### Date Transaction Amount Units NAV           Unit
-(INR) (INR) Balance
-
-#### Folio No: 19943519703 / 0 PAN: AFDPW5788D KYC: OK PAN: OK SANCHIT WALIA
+#### Folio No: 19942719332 / 0 PAN: AFDPW5788D KYC: OK PAN: OK SANCHIT WALIA
 
 101ETDGG-Canara Robeco ELSS Tax Saver - Direct Growth - ISIN: INF760K01EL8(Advisor: INA100006898) Registrar :
-
 KFINTECH
-
 
 #### Nominee 1: Sanjay Kumar Walia Nominee 2: Sanyam Walia Nominee 3:
 
+**Opening Unit Balance: 0.000**
+20-Jun-2022 Purchase 2,499.88 23.366 106.99 23.366
+20-Jun-2022 _*** Stamp Duty ***_ 0.12
 
-Opening Unit Balance: 0.000
-15-Jul-2022 Systematic Investment (1) 2,999.85 25.823 116.17 25.823
-15-Jul-2022 *** Stamp Duty *** 0.15
-16-Aug-2022 Systematic Investment (1) 2,999.85 23.537 127.45 49.360
-16-Aug-2022 *** Stamp Duty *** 0.15
-15-Sep-2022 Systematic Investment (1) 2,999.85 23.613 127.04 72.973
-15-Sep-2022 *** Stamp Duty *** 0.15
-17-Oct-2022 Systematic Investment (1) 2,999.85 24.020 124.89 96.993
-17-Oct-2022 *** Stamp Duty *** 0.15
-15-Nov-2022 Systematic Investment (1) 2,999.85 23.213 129.23 120.206
-15-Nov-2022 *** Stamp Duty *** 0.15
-15-Dec-2022 Systematic Investment (1) 2,999.85 23.343 128.51 143.549
-15-Dec-2022 *** Stamp Duty *** 0.15
-16-Jan-2023 Systematic Investment (1) 2,999.85 23.865 125.70 167.414
-16-Jan-2023 *** Stamp Duty *** 0.15
-15-Feb-2023 Systematic Investment (1) 2,999.85 23.701 126.57 191.115
-15-Feb-2023 *** Stamp Duty *** 0.15
-15-Mar-2023 Systematic Investment (1) 2,999.85 24.916 120.40 216.031
-15-Mar-2023 *** Stamp Duty *** 0.15
-
-Closing Unit Balance: 216.031 NAV on 19-Feb-2025: INR 174.70 Total Cost Value: 27,000.00 Market Value on 19-Feb-2025: INR 37,740.62
+**Closing Unit Balance: 23.366** **NAV on 07-Feb-2025: INR 183.10** **Total Cost Value: 2,500.00** **Market Value on 07-Feb-2025: INR 4,278.31**
 
 
 Current Load Structure: NO Entry Load wef., 01.08.2009 for all Purchase/Switch-IN and SIP/STP newly registering. Exit Load: Nil. Eligible for availing tax benefits
@@ -130,46 +71,17 @@ dt. 03.11.2005 and 13.12.2005. This investment is subject to a lock in period of
 
 ## DSP Mutual Fund
 
-#### Folio No: 7900584 / 04 PAN: AFDPW5788D KYC: OK PAN: OK Sanchit Walia
+#### Folio No: 7871252 / 21 PAN: AFDPW5788D KYC: OK PAN: OK Sanchit Walia
 
 D739-DSP ELSS Tax Saver Fund - Direct Plan - Growth (Non-Demat) - ISIN: INF740K01OK1(Advisor: INA100006898) Registrar : CAMS
 
 #### Nominee 1: Sanjay Kumar Walia Nominee 2: Sanyam Walia Nominee 3:
 
-Opening Unit Balance: 0.000
-11-Jul-2022 SIP Purchase Instalment No - 1 - INA100006898 2,999.85 36.543 82.090 36.543
-11-Jul-2022 *** Stamp Duty *** 0.15
-12-Jul-2022 ***Address Updated from KRA Data - First Holder***
-12-Jul-2022 ***Registration of Nominee***
-12-Jul-2022 ***Address Updated from KRA Data - First Holder***
-11-Aug-2022 SIP Purchase Instalment No - 3/601 - INA100006898 2,999.85 34.222 87.658 70.765
-11-Aug-2022 *** Stamp Duty *** 0.15
-12-Sep-2022 SIP Purchase Instalment No - 4/601 - INA100006898 2,999.85 33.019 90.852 103.784
-12-Sep-2022 *** Stamp Duty *** 0.15
-11-Oct-2022 SIP Purchase Instalment No - 5/601 - INA100006898 2,999.85 34.908 85.937 138.692
-11-Oct-2022 *** Stamp Duty *** 0.15
-11-Nov-2022 SIP Purchase Instalment No - 6/601 - INA100006898 2,999.85 32.986 90.943 171.678
-11-Nov-2022 *** Stamp Duty *** 0.15
-12-Dec-2022 SIP Purchase Instalment No - 7/601 - INA100006898 2,999.85 32.287 92.912 203.965
-12-Dec-2022 *** Stamp Duty *** 0.15
-11-Jan-2023 SIP Purchase Instalment No - 8/601 - INA100006898 2,999.85 33.007 90.885 236.972
-11-Jan-2023 *** Stamp Duty *** 0.15
-13-Feb-2023 SIP Purchase Instalment No - 9/601 - INA100006898 2,999.85 33.567 89.369 270.539
-13-Feb-2023 *** Stamp Duty *** 0.15
-13-Mar-2023 SIP Purchase Instalment No - 10/601 - INA100006898 2,999.85 34.464 87.043 305.003
-13-Mar-2023 *** Stamp Duty *** 0.15
-06-Jul-2024 ***Change of Bank Mandate***
-
-Closing Unit Balance: 305.003 NAV on 19-Feb-2025: INR 139.177 Total Cost Value: 27,000.00 Market Value on 19-Feb-2025: INR 42,449.40
+**Opening Unit Balance: 0.000**
+20-Jun-2022 Purchase - INA100006898 2,499.88 33.019 75.710 33.019
 
 
-Investments in DSP Tax Saver Fund (Open ended ELSS) are eligible for tax deduction as per conditions u/s 80C of the Income Tax Act, 1961. Entry & Exit Load - Nil.
-
-
-## Mirae Asset Mutual Fund
-
-
-#### Page 2 of 12
+#### Page 1 of 9
 
 
 -----
@@ -177,867 +89,755 @@ Investments in DSP Tax Saver Fund (Open ended ELSS) are eligible for tax deducti
 # Consolidated Account Statement
 
 
-### 06-Mar-2002 To 20-Feb-2025
+### 01-Jan-2002 To 09-Feb-2025
 
 #### Date Transaction Amount Units NAV           Unit
-(INR) (INR) Balance
+(INR) (INR) **Balance**
 
-#### Folio No: 79959006163 / 0 PAN: AFDPW5788D KYC: OK PAN: OK SANCHIT WALIA
+
+20-Jun-2022 _*** Stamp Duty ***_ 0.12
+21-Jun-2022 _***Registration of Nominee***_
+21-Jun-2022 _***Address Updated from KRA Data - First Holder***_
+12-Jul-2022 _***Address Updated from KRA Data - First Holder***_
+06-Jul-2024 _***Change of Bank Mandate***_
+
+**Closing Unit Balance: 33.019** **NAV on 07-Feb-2025: INR 144.136** **Total Cost Value: 2,500.00** **Market Value on 07-Feb-2025: INR 4,759.23**
+
+
+Investments in DSP Tax Saver Fund (Open ended ELSS) are eligible for tax deduction as per conditions u/s 80C of the Income Tax Act, 1961. Entry & Exit Load - Nil.
+
+
+## ICICI Prudential Mutual Fund
+
+#### Folio No: 22729211 / 69 PAN: AFDPW5788D KYC: OK PAN: OK SANCHIT WALIA
+
+P8078-ICICI Prudential Corporate Bond Fund - Direct Plan - Growth (formerly ICICI Prudential Ultra Short Term Plan) (Non-Demat) - ISIN: INF Registrar : CAMS
+109K016B1(Advisor: INA100006898)
+
+#### Nominee 1: Sanjay Kumar Walia Nominee 2: Sanyam Walia Nominee 3:
+
+**Opening Unit Balance: 0.000**
+20-Jun-2022 Purchase - INA100006898 2,762.86 112.513 24.5560 112.513
+20-Jun-2022 _*** Stamp Duty ***_ 0.14
+21-Jun-2022 _***Address Updated from KRA Data***_
+11-Jul-2022 Switch Out - To Nifty 50 Index Fund-DP Growth (166.00) (6.721) 24.6995 105.792
+14-Jul-2022 _***Address Updated from KRA Data***_
+10-Aug-2022 Switch Out - To Nifty Smallcap 250 Index Fund - Direct Plan - Gro (427.00) (17.183) 24.8503 88.609
+10-Aug-2022 Switch Out - To Nifty Midcap 150 Index Fund - Direct Plan - Growth (1,082.00) (43.541) 24.8503 45.068
+10-Aug-2022 Switch Out - To Nifty 50 Index Fund-DP Growth (1,117.00) (44.949) 24.8503 0.119
+15-Sep-2022 Switch In - From Nifty Midcap 150 Index Fund - Direct Plan - Growth - 150.99 6.006 25.1390 6.125
+INA100006898
+
+
+15-Sep-2022 _*** Stamp Duty ***_ 0.01
+15-Sep-2022 Switch In - From Nifty Smallcap 250 Index Fund - Direct Plan - Gro - 240.99 9.586 25.1390
+INA100006898
+
+
+15.711
+
+
+15-Sep-2022 _*** Stamp Duty ***_ 0.01
+15-Sep-2022 Switch In - From Regular Gold SF (FOF) - DP Growth - INA100006898 11,410.06 453.879 25.1390 469.590
+15-Sep-2022 _*** Stamp Duty ***_ 0.57
+15-Sep-2022 Switch In - From Nifty Next 50 Index Fund-DP Growth - INA100006898 147.99 5.887 25.1390 475.477
+15-Sep-2022 _*** Stamp Duty ***_ 0.01
+25-Oct-2022 Purchase - INA100006898 270.99 10.722 25.2748 486.199
+25-Oct-2022 _*** Stamp Duty ***_ 0.01
+14-Nov-2022 Switch Out - To Nifty Midcap 150 Index Fund - Direct Plan - Growth (561.00) (22.096) 25.3890 464.103
+14-Nov-2022 Switch Out - To Nifty 50 Index Fund-DP Growth (2,701.00) (106.384) 25.3890 357.719
+12-Dec-2022 Purchase - INA100006898 261.99 10.272 25.5053 367.991
+12-Dec-2022 _*** Stamp Duty ***_ 0.01
+15-Dec-2022 Switch In - From Regular Gold SF (FOF) - DP Growth - INA100006898 1,447.31 56.707 25.5226 424.698
+15-Dec-2022 _*** Stamp Duty ***_ 0.07
+10-Jan-2023 Switch Out - To Regular Gold SF (FOF) - DP Growth (10,883.23) (424.698) 25.6258 0.000
+10-Mar-2023 Purchase - INA100006898 9,241.54 357.131 25.8772 357.131
+10-Mar-2023 _*** Stamp Duty ***_ 0.46
+14-Mar-2023 Switch In - From Regular Gold SF (FOF) - DP Growth - INA100006898 10,300.17 397.474 25.9141 754.605
+14-Mar-2023 _*** Stamp Duty ***_ 0.52
+10-Apr-2023 Switch Out - To Regular Gold SF (FOF) - DP Growth (16,823.10) (644.136) 26.1173 110.469
+10-Apr-2023 Switch Out - To Nifty Next 50 Index Fund-DP Growth (2,884.56) (110.446) 26.1173 0.023
+03-Jul-2023 Switch In - From Regular Gold SF (FOF) - DP Growth - INA100006898 13,882.94 521.805 26.6056 521.828
+03-Jul-2023 _*** Stamp Duty ***_ 0.69
+03-Jul-2023 Switch In - From Nifty 50 Index Fund-DP Growth - INA100006898 18,281.09 687.114 26.6056 1,208.942
+03-Jul-2023 _*** Stamp Duty ***_ 0.91
+10-Jul-2023 Switch Out - To Nifty Smallcap 250 Index Fund - Direct Plan - Gro (1,953.00) (73.305) 26.6423 1,135.637
+10-Jul-2023 Switch Out - To Nifty 50 Index Fund-DP Growth (8,292.00) (311.234) 26.6423 824.403
+10-Aug-2023 Switch Out - To Regular Gold SF (FOF) - DP Growth (9,595.65) (357.438) 26.8456 466.965
+10-Aug-2023 Switch Out - To Nifty Smallcap 250 Index Fund - Direct Plan - Gro (822.31) (30.631) 26.8456 436.334
+10-Aug-2023 Switch Out - To Nifty Midcap 150 Index Fund - Direct Plan - Growth (1,068.40) (39.798) 26.8456 396.536
+10-Aug-2023 Switch Out - To Nifty Next 50 Index Fund-DP Growth (10,645.06) (396.529) 26.8456 0.007
+13-Sep-2023 Switch In - From Regular Gold SF (FOF) - DP Growth - INA100006898 22,542.90 833.361 27.0506 833.368
+13-Sep-2023 _*** Stamp Duty ***_ 1.13
+17-Oct-2023 Switch In - From Nifty 50 Index Fund-DP Growth - INA100006898 4,659.77 171.503 27.1702 1,004.871
+17-Oct-2023 _*** Stamp Duty ***_ 0.23
+17-Oct-2023 Switch In - From Nifty Next 50 Index Fund-DP Growth - INA100006898 21,092.95 776.326 27.1702 1,781.197
+17-Oct-2023 _*** Stamp Duty ***_ 1.05
+15-Nov-2023 Switch Out - To Nifty Next 50 Index Fund-DP Growth (15,195.00) (555.814) 27.3383 1,225.383
+12-Dec-2023 Switch Out - To Nifty 50 Index Fund-DP Growth (3,233.00) (117.811) 27.4423 1,107.572
+13-Feb-2024 Switch Out - To Regular Gold SF (FOF) - DP Growth (30,813.00) (1,107.572) 27.8203 0.000
+
+#### Page 2 of 9
+
+
+-----
+
+# Consolidated Account Statement
+
+
+### 01-Jan-2002 To 09-Feb-2025
+
+#### Date Transaction Amount Units NAV           Unit
+(INR) (INR) **Balance**
+
+
+14-Mar-2024 Switch In - From Nifty Smallcap 250 Index Fund - Direct Plan - Gro - 3,533.82 126.054 28.0341
+INA100006898
+
+
+126.054
+
+
+14-Mar-2024 _*** Stamp Duty ***_ 0.18
+12-Apr-2024 Switch Out - To Nifty Smallcap 250 Index Fund - Direct Plan - Gro (3,551.25) (126.054) 28.1724 0.000
+06-Jul-2024 _***Change of Bank Mandate***_
+15-Jul-2024 Switch In - From Regular Gold SF (FOF) - DP Growth - INA100006898 5,074.75 176.300 28.7848 176.300
+15-Jul-2024 _*** Stamp Duty ***_ 0.25
+15-Jul-2024 Switch In - From Nifty Midcap 150 Index Fund - Direct Plan - Growth - 4,754.76 165.183 28.7848 341.483
+INA100006898
+
+15-Jul-2024 _*** Stamp Duty ***_ 0.24
+
+
+**Closing Unit Balance: 341.483** **NAV on 07-Feb-2025: INR 30.0999** **Total Cost Value: 9,830.00** **Market Value on 07-Feb-2025: INR 10,278.60**
+
+
+Current : Entry Load - Nil. Exit Load w.e.f 01-Jan-2015 [including SIP,STP,SWP(SIP) wherever available] if redeemed or switched out - Nil. For lumpsum
+investment/switch in, the applicable load will be based on the load structure as on the date of investment/applicable NAV date. For SIP/STP transactions, load for
+each transaction is based on the applicable load structure as on the registration date. For details, please refer to SID and Addenda available on
+www.icicipruamc.com.
+
+Scheme Name of ICICI Prudential Ultra Short Term Plan has been changed to ICICI Prudential Corporate Bond Fund with effect from May 28, 2018.
+
+
+#### Folio No: 22729211 / 69 SANCHIT WALIA
+
+
+#### PAN: AFDPW5788D KYC: OK PAN: OK
+
+
+P8189-ICICI Prudential Nifty 50 Index Fund - Direct Plan Growth (Non-Demat) - ISIN: INF109K012M7(Advisor: INA100006898) Registrar : CAMS
+
+#### Nominee 1: Sanjay Kumar Walia Nominee 2: Sanyam Walia Nominee 3:
+
+
+**Opening Unit Balance: 0.000**
+20-Jun-2022 Purchase - INA100006898 1,667.92 10.665 156.3968 10.665
+20-Jun-2022 _*** Stamp Duty ***_ 0.08
+11-Jul-2022 Purchase - INA100006898 1,675.92 10.140 165.2779 20.805
+11-Jul-2022 _*** Stamp Duty ***_ 0.08
+12-Jul-2022 Switch In - From Corporate Bond Fund - DP Growth - INA100006898 165.99 1.014 163.6733 21.819
+12-Jul-2022 _*** Stamp Duty ***_ 0.01
+11-Aug-2022 Switch In - From Corporate Bond Fund - DP Growth - INA100006898 1,116.94 6.192 180.3788 28.011
+11-Aug-2022 _*** Stamp Duty ***_ 0.06
+25-Oct-2022 Purchase - INA100006898 1,589.92 8.810 180.4594 36.821
+25-Oct-2022 _*** Stamp Duty ***_ 0.08
+15-Nov-2022 Switch In - From Corporate Bond Fund - DP Growth - INA100006898 2,700.86 14.344 188.2881 51.165
+15-Nov-2022 _*** Stamp Duty ***_ 0.14
+17-Nov-2022 Switch In - From Nifty Smallcap 250 Index Fund - Direct Plan - Gro - 2,902.85 15.467 187.6771 66.632
+INA100006898
+
+17-Nov-2022 _*** Stamp Duty ***_ 0.15
+15-Dec-2022 Switch In - From Regular Gold SF (FOF) - DP Growth - INA100006898 550.41 2.922 188.3744 69.554
+15-Dec-2022 _*** Stamp Duty ***_ 0.03
+10-Jan-2023 _*Switch Out - To Regular Gold SF (FOF) - DP Growth, less STT_ (2,157.00) (11.773) 183.2229 57.781
+10-Jan-2023 _*** STT Paid ***_ 0.02
+10-Mar-2023 Purchase - INA100006898 757.96 4.254 178.1853 62.035
+10-Mar-2023 _*** Stamp Duty ***_ 0.04
+14-Mar-2023 Equity Switch In - From Nifty Next 50 Index Fund-DP Growth - 673.97 3.864 174.4012 65.899
+INA100006898
+
+14-Mar-2023 _*** Stamp Duty ***_ 0.03
+10-Apr-2023 Purchase - INA100006898 5,911.70 32.789 180.2946 98.688
+10-Apr-2023 _*** Stamp Duty ***_ 0.30
+12-Apr-2023 Switch In - From Nifty Midcap 150 Index Fund - Direct Plan - Growth - 4,503.77 24.717 182.2166 123.405
+INA100006898
+
+
+12-Apr-2023 _*** Stamp Duty ***_ 0.23
+12-Apr-2023 Switch In - From Nifty Smallcap 250 Index Fund - Direct Plan - Gro - 983.95 5.400 182.2166
+INA100006898
+
+
+128.805
+
+
+12-Apr-2023 _*** Stamp Duty ***_ 0.05
+10-May-2023 Purchase - INA100006898 7,665.62 40.904 187.4045 169.709
+10-May-2023 _*** Stamp Duty ***_ 0.38
+12-May-2023 Switch In - From Nifty Smallcap 250 Index Fund - Direct Plan - Gro - 1,364.93 7.284 187.3950 176.993
+INA100006898
+
+12-May-2023 _*** Stamp Duty ***_ 0.07
+28-Jun-2023 _*Switch Out - To Nifty Next 50 Index Fund-DP Growth, less STT_ (812.00) (4.167) 194.8579 172.826
+28-Jun-2023 _*** STT Paid ***_ 0.01
+28-Jun-2023 _*Switch Out - To Corporate Bond Fund - DP Growth, less STT_ (18,282.00) (93.823) 194.8579 79.003
+28-Jun-2023 _*** STT Paid ***_ 0.18
+11-Jul-2023 Short Term Switch In - From Corporate Bond Fund - DP Growth - 8,291.59 41.527 199.6666 120.530
+INA100006898
+
+
+11-Jul-2023 _*** Stamp Duty ***_ 0.41
+12-Jul-2023 Equity Switch In - From Nifty Next 50 Index Fund-DP Growth - 4,675.77 23.485 199.0986
+INA100006898
+
+12-Jul-2023 _*** Stamp Duty ***_ 0.23
+
+
+144.015
+
+#### Page 3 of 9
+
+
+-----
+
+# Consolidated Account Statement
+
+
+### 01-Jan-2002 To 09-Feb-2025
+
+#### Date Transaction Amount Units NAV           Unit
+(INR) (INR) **Balance**
+
+
+12-Jul-2023 Switch In - From Nifty Midcap 150 Index Fund - Direct Plan - Growth - 3,725.81 18.713 199.0986
+INA100006898
+
+
+162.728
+
+
+12-Jul-2023 _*** Stamp Duty ***_ 0.19
+10-Aug-2023 _*Switch Out - To Nifty Next 50 Index Fund-DP Growth, less STT_ (3,232.00) (16.066) 201.1784 146.662
+10-Aug-2023 _*** STT Paid ***_ 0.03
+11-Sep-2023 Purchase - INA100006898 5,350.73 25.973 206.0103 172.635
+11-Sep-2023 _*** Stamp Duty ***_ 0.27
+13-Sep-2023 Switch In - From Nifty Midcap 150 Index Fund - Direct Plan - Growth - 845.96 4.091 206.7653 176.726
+INA100006898
+
+
+13-Sep-2023 _*** Stamp Duty ***_ 0.04
+13-Sep-2023 Switch In - From Nifty Smallcap 250 Index Fund - Direct Plan - Gro - 979.95 4.739 206.7653
+INA100006898
+
+
+181.465
+
+
+13-Sep-2023 _*** Stamp Duty ***_ 0.05
+13-Oct-2023 _*Switch Out - To Corporate Bond Fund - DP Growth, less STT_ (4,660.00) (22.905) 203.4492 158.560
+13-Oct-2023 _*** STT Paid ***_ 0.05
+13-Oct-2023 _*Switch Out - To Nifty Midcap 150 Index Fund - Direct Plan - Growth, less_ (4,232.00) (20.801) 203.4492 137.759
+_STT_
+
+13-Oct-2023 _*** STT Paid ***_ 0.04
+15-Nov-2023 _*Switch Out - To Nifty Next 50 Index Fund-DP Growth, less STT_ (9,694.00) (47.771) 202.9295 89.988
+15-Nov-2023 _*** STT Paid ***_ 0.10
+12-Dec-2023 Purchase - INA100006898 14,999.25 69.565 215.6157 159.553
+12-Dec-2023 _*** Stamp Duty ***_ 0.75
+13-Dec-2023 Short Term Switch In - From Corporate Bond Fund - DP Growth - 3,232.84 14.979 215.8210 174.532
+INA100006898
+
+
+13-Dec-2023 _*** Stamp Duty ***_ 0.16
+14-Dec-2023 Equity Switch In - From Nifty Next 50 Index Fund-DP Growth - 4,765.76 21.815 218.4611
+INA100006898
+
+14-Dec-2023 _*** Stamp Duty ***_ 0.24
+14-Dec-2023 Switch In - From Nifty Midcap 150 Index Fund - Direct Plan - Growth - 3,975.80 18.199 218.4611
+INA100006898
+
+14-Dec-2023 _*** Stamp Duty ***_ 0.20
+14-Dec-2023 Switch In - From Nifty Smallcap 250 Index Fund - Direct Plan - Gro - 3,618.82 16.565 218.4611
+INA100006898
+
+
+196.347
+
+214.546
+
+
+231.111
+
+
+14-Dec-2023 _*** Stamp Duty ***_ 0.18
+13-Feb-2024 Purchase - INA100006898 5,607.72 24.988 224.4180 256.099
+13-Feb-2024 _*** Stamp Duty ***_ 0.28
+12-Mar-2024 Purchase - INA100006898 6,990.65 30.314 230.6110 286.413
+12-Mar-2024 _*** Stamp Duty ***_ 0.35
+12-Apr-2024 _*Switch Out - To Regular Gold SF (FOF) - DP Growth, less STT_ (601.00) (2.586) 232.3817 283.827
+12-Apr-2024 _*** STT Paid ***_ 0.01
+12-Apr-2024 _*Switch Out - To Nifty Smallcap 250 Index Fund - Direct Plan - Gro, less_ (2,120.00) (9.123) 232.3817 274.704
+_STT_
+
+12-Apr-2024 _*** STT Paid ***_ 0.02
+10-May-2024 Purchase - INA100006898 357.98 1.570 227.9457 276.274
+10-May-2024 _*** Stamp Duty ***_ 0.02
+06-Jul-2024 _***Change of Bank Mandate***_
+11-Jul-2024 Purchase - INA100006898 309.98 1.230 252.1088 277.504
+11-Jul-2024 _*** Stamp Duty ***_ 0.02
+15-Jul-2024 Short Term Switch In - From Regular Gold SF (FOF) - DP Growth - 8,783.56 34.456 254.9242 311.960
+INA100006898
+
+15-Jul-2024 _*** Stamp Duty ***_ 0.44
+
+
+**Closing Unit Balance: 311.960** **NAV on 07-Feb-2025: INR 245.3821** **Total Cost Value: 68,479.19** **Market Value on 07-Feb-2025: INR 76,549.40**
+
+
+Current: Entry Load - Nil. Exit Load w.e.f 05-Oct-2015 [including SIP,STP,SWP&Micro(SIP) wherever available] if redeemed or switched out - Nil. For lumpsum
+investment/switch in, the applicable load will be based on the load structure as on the date of investment/applicable NAV date. For SIP/STP transactions, load for
+each transaction is based on the applicable load structure as on the registration date. For details, please refer to SID and Addenda available on
+www.icicipruamc.com.
+
+
+#### Folio No: 22729211 / 69 SANCHIT WALIA
+
+
+#### PAN: AFDPW5788D KYC: OK PAN: OK
+
+
+P9662-ICICI Prudential Nifty Midcap 150 Index Fund - Direct Plan - Growth (Non-Demat) - ISIN: INF109KC1W58(Advisor: INA100006898) Registrar : CAMS
+
+#### Nominee 1: Sanjay Kumar Walia Nominee 2: Sanyam Walia Nominee 3:
+
+
+**Opening Unit Balance: 0.000**
+20-Jun-2022 Purchase - INA100006898 1,667.92 196.117 8.5047 196.117
+20-Jun-2022 _*** Stamp Duty ***_ 0.08
+11-Jul-2022 Purchase - INA100006898 1,779.91 189.310 9.4021 385.427
+11-Jul-2022 _*** Stamp Duty ***_ 0.09
+11-Aug-2022 Switch In - From Corporate Bond Fund - DP Growth - INA100006898 1,081.95 105.255 10.2793 490.682
+11-Aug-2022 _*** Stamp Duty ***_ 0.05
+12-Sep-2022 _*Switch Out - To Corporate Bond Fund - DP Growth_ (151.00) (13.877) 10.8812 476.805
+25-Oct-2022 Purchase - INA100006898 1,682.92 161.327 10.4317 638.132
+25-Oct-2022 _*** Stamp Duty ***_ 0.08
+
+#### Page 4 of 9
+
+
+-----
+
+# Consolidated Account Statement
+
+
+### 01-Jan-2002 To 09-Feb-2025
+
+#### Date Transaction Amount Units NAV           Unit
+(INR) (INR) **Balance**
+
+14-Nov-2022 Purchase - INA100006898 5,195.74 490.734 10.5877 1,128.866
+14-Nov-2022 _*** Stamp Duty ***_ 0.26
+15-Nov-2022 Switch In - From Corporate Bond Fund - DP Growth - INA100006898 560.97 53.008 10.5827 1,181.874
+15-Nov-2022 _*** Stamp Duty ***_ 0.03
+15-Dec-2022 Switch In - From Regular Gold SF (FOF) - DP Growth - INA100006898 347.52 31.902 10.8934 1,213.776
+15-Dec-2022 _*** Stamp Duty ***_ 0.02
+10-Jan-2023 _*Switch Out - To Regular Gold SF (FOF) - DP Growth, less STT_ (2,199.00) (207.599) 10.5926 1,006.177
+10-Jan-2023 _*** STT Paid ***_ 0.02
+14-Mar-2023 Switch In - From Regular Gold SF (FOF) - DP Growth - INA100006898 10,930.22 1,085.759 10.0669 2,091.936
+14-Mar-2023 _*** Stamp Duty ***_ 0.55
+10-Apr-2023 _*Switch Out - To Nifty 50 Index Fund-DP Growth, less STT_ (4,504.00) (438.756) 10.2655 1,653.180
+10-Apr-2023 _*** STT Paid ***_ 0.05
+10-May-2023 Purchase - INA100006898 2,226.89 205.190 10.8528 1,858.370
+10-May-2023 _*** Stamp Duty ***_ 0.11
+03-Jul-2023 Switch In - From Nifty Smallcap 250 Index Fund - Direct Plan - Gro - 3,203.84 268.001 11.9546 2,126.371
+INA100006898
+
+03-Jul-2023 _*** Stamp Duty ***_ 0.16
+03-Jul-2023 Switch In - From Regular Gold SF (FOF) - DP Growth - INA100006898 10,504.57 878.706 11.9546 3,005.077
+03-Jul-2023 _*** Stamp Duty ***_ 0.53
+10-Jul-2023 _*Switch Out - To Nifty 50 Index Fund-DP Growth, less STT_ (3,726.00) (311.438) 11.9640 2,693.639
+10-Jul-2023 _*** STT Paid ***_ 0.04
+11-Aug-2023 Switch In - From Corporate Bond Fund - DP Growth - INA100006898 1,068.35 84.467 12.6481 2,778.106
+11-Aug-2023 _*** Stamp Duty ***_ 0.05
+11-Sep-2023 _*Switch Out - To Nifty 50 Index Fund-DP Growth, less STT_ (846.00) (61.218) 13.8197 2,716.888
+11-Sep-2023 _*** STT Paid ***_ 0.01
+13-Oct-2023 Purchase - INA100006898 1,599.92 118.615 13.4883 2,835.503
+13-Oct-2023 _*** Stamp Duty ***_ 0.08
+17-Oct-2023 Switch In - From Nifty 50 Index Fund-DP Growth - INA100006898 4,231.79 311.833 13.5707 3,147.336
+17-Oct-2023 _*** Stamp Duty ***_ 0.21
+15-Nov-2023 Purchase - INA100006898 7,119.64 518.056 13.7430 3,665.392
+15-Nov-2023 _*** Stamp Duty ***_ 0.36
+12-Dec-2023 _*Switch Out - To Nifty 50 Index Fund-DP Growth, less STT_ (3,976.00) (270.636) 14.6914 3,394.756
+12-Dec-2023 _*** STT Paid ***_ 0.04
+13-Feb-2024 Purchase - INA100006898 3,150.84 200.802 15.6913 3,595.558
+13-Feb-2024 _*** Stamp Duty ***_ 0.16
+12-Mar-2024 Purchase - INA100006898 2,047.90 130.001 15.7529 3,725.559
+12-Mar-2024 _*** Stamp Duty ***_ 0.10
+14-Mar-2024 Switch In - From Nifty Smallcap 250 Index Fund - Direct Plan - Gro - 6,785.66 440.139 15.4171 4,165.698
+INA100006898
+
+14-Mar-2024 _*** Stamp Duty ***_ 0.34
+12-Apr-2024 Purchase - INA100006898 406.98 24.661 16.5033 4,190.359
+12-Apr-2024 _*** Stamp Duty ***_ 0.02
+10-May-2024 Purchase - INA100006898 8,089.60 493.253 16.4005 4,683.612
+10-May-2024 _*** Stamp Duty ***_ 0.40
+06-Jul-2024 _***Change of Bank Mandate***_
+11-Jul-2024 _*Switch Out - To Corporate Bond Fund - DP Growth, less STT_ (4,755.00) (250.524) 18.9804 4,433.088
+11-Jul-2024 _*** STT Paid ***_ 0.05
+
+**Closing Unit Balance: 4,433.088** **NAV on 07-Feb-2025: INR 17.6521** **Total Cost Value: 58,083.31** **Market Value on 07-Feb-2025: INR 78,253.31**
+
+Current : Entry & Exit Load - Nil. For lumpsum investment/switch in, the applicable load will be based on the load structure as on the date of investment/applicable
+NAV date. For SIP/STP transactions, load for each transaction is based on the applicable load structure as on the registration date. For details, please refer to SID and
+Addenda available on www.icicipruamc.com.
+
+
+#### Folio No: 22729211 / 69 SANCHIT WALIA
+
+
+#### PAN: AFDPW5788D KYC: OK PAN: OK
+
+
+P8107-ICICI Prudential Nifty Next 50 Index Fund - Direct Plan - Growth (Non-Demat) - ISIN: INF109K01Y80(Advisor: INA100006898) Registrar : CAMS
+
+#### Nominee 1: Sanjay Kumar Walia Nominee 2: Sanyam Walia Nominee 3:
+
+
+**Opening Unit Balance: 0.000**
+20-Jun-2022 Purchase - INA100006898 1,667.92 51.303 32.5114 51.303
+20-Jun-2022 _*** Stamp Duty ***_ 0.08
+11-Jul-2022 Purchase - INA100006898 1,570.92 43.876 35.8039 95.179
+11-Jul-2022 _*** Stamp Duty ***_ 0.08
+10-Aug-2022 Purchase - INA100006898 1,352.93 35.231 38.4019 130.410
+10-Aug-2022 _*** Stamp Duty ***_ 0.07
+12-Sep-2022 _*Switch Out - To Corporate Bond Fund - DP Growth_ (148.00) (3.603) 41.0749 126.807
+25-Oct-2022 Purchase - INA100006898 1,749.91 45.402 38.5425 172.209
+25-Oct-2022 _*** Stamp Duty ***_ 0.09
+14-Nov-2022 Purchase - INA100006898 4,803.76 120.270 39.9413 292.479
+14-Nov-2022 _*** Stamp Duty ***_ 0.24
+17-Nov-2022 Switch In - From Regular Gold SF (FOF) - DP Growth - INA100006898 870.96 22.097 39.4159 314.576
+
+#### Page 5 of 9
+
+
+-----
+
+# Consolidated Account Statement
+
+
+### 01-Jan-2002 To 09-Feb-2025
+
+#### Date Transaction Amount Units NAV           Unit
+(INR) (INR) **Balance**
+
+17-Nov-2022 _*** Stamp Duty ***_ 0.04
+12-Dec-2022 Purchase - INA100006898 488.98 12.135 40.2955 326.711
+12-Dec-2022 _*** Stamp Duty ***_ 0.02
+10-Jan-2023 _*Switch Out - To Regular Gold SF (FOF) - DP Growth, less STT_ (1,962.00) (50.764) 38.6500 275.947
+10-Jan-2023 _*** STT Paid ***_ 0.02
+10-Mar-2023 _*Switch Out - To Nifty 50 Index Fund-DP Growth, less STT_ (674.00) (19.226) 35.0573 256.721
+10-Mar-2023 _*** STT Paid ***_ 0.01
+11-Apr-2023 Switch In - From Corporate Bond Fund - DP Growth - INA100006898 2,884.42 81.642 35.3302 338.363
+11-Apr-2023 _*** Stamp Duty ***_ 0.14
+10-May-2023 Purchase - INA100006898 634.97 17.013 37.3232 355.376
+10-May-2023 _*** Stamp Duty ***_ 0.03
+03-Jul-2023 Switch In - From Nifty 50 Index Fund-DP Growth - INA100006898 811.96 20.075 40.4464 375.451
+03-Jul-2023 _*** Stamp Duty ***_ 0.04
+10-Jul-2023 _*Switch Out - To Nifty 50 Index Fund-DP Growth, less STT_ (4,676.00) (115.992) 40.3135 259.459
+10-Jul-2023 _*** STT Paid ***_ 0.05
+11-Aug-2023 Switch In - From Corporate Bond Fund - DP Growth - INA100006898 10,644.53 259.073 41.0870 518.532
+11-Aug-2023 _*** Stamp Duty ***_ 0.53
+14-Aug-2023 Switch In - From Nifty 50 Index Fund-DP Growth - INA100006898 3,231.84 79.653 40.5740 598.185
+14-Aug-2023 _*** Stamp Duty ***_ 0.16
+11-Sep-2023 Purchase - INA100006898 9,648.52 224.566 42.9651 822.751
+11-Sep-2023 _*** Stamp Duty ***_ 0.48
+13-Sep-2023 Switch In - From Regular Gold SF (FOF) - DP Growth - INA100006898 2,055.09 48.806 42.1069 871.557
+13-Sep-2023 _*** Stamp Duty ***_ 0.10
+13-Oct-2023 _*Switch Out - To Corporate Bond Fund - DP Growth, less STT_ (21,094.00) (505.242) 41.7507 366.315
+13-Oct-2023 _*** STT Paid ***_ 0.21
+15-Nov-2023 Purchase - INA100006898 7,879.61 183.973 42.8303 550.288
+15-Nov-2023 _*** Stamp Duty ***_ 0.39
+16-Nov-2023 Switch In - From Corporate Bond Fund - DP Growth - INA100006898 15,194.24 353.495 42.9829 903.783
+16-Nov-2023 _*** Stamp Duty ***_ 0.76
+17-Nov-2023 Switch In - From Nifty 50 Index Fund-DP Growth - INA100006898 9,693.52 224.286 43.2195 1,128.069
+17-Nov-2023 _*** Stamp Duty ***_ 0.48
+17-Nov-2023 Switch In - From Nifty Smallcap 250 Index Fund - Direct Plan - Gro - 1,509.92 34.936 43.2195 1,163.005
+INA100006898
+
+17-Nov-2023 _*** Stamp Duty ***_ 0.08
+12-Dec-2023 _*Switch Out - To Nifty 50 Index Fund-DP Growth, less STT_ (4,766.00) (101.669) 46.8782 1,061.336
+12-Dec-2023 _*** STT Paid ***_ 0.05
+13-Feb-2024 Purchase - INA100006898 1,343.93 25.607 52.4831 1,086.943
+13-Feb-2024 _*** Stamp Duty ***_ 0.07
+12-Mar-2024 Purchase - INA100006898 5,960.70 108.784 54.7938 1,195.727
+12-Mar-2024 _*** Stamp Duty ***_ 0.30
+12-Apr-2024 _*Switch Out - To Nifty Smallcap 250 Index Fund - Direct Plan - Gro, less_ (4,585.00) (78.781) 58.1998 1,116.946
+_STT_
+
+12-Apr-2024 _*** STT Paid ***_ 0.05
+10-May-2024 _*Switch Out - To Regular Gold SF (FOF) - DP Growth, less STT_ (10,289.00) (174.424) 58.9891 942.522
+10-May-2024 _*** STT Paid ***_ 0.10
+06-Jul-2024 _***Change of Bank Mandate***_
+11-Jul-2024 Purchase - INA100006898 14,689.27 214.841 68.3726 1,157.363
+11-Jul-2024 _*** Stamp Duty ***_ 0.73
+
+**Closing Unit Balance: 1,157.363** **NAV on 07-Feb-2025: INR 58.6565** **Total Cost Value: 56,755.77** **Market Value on 07-Feb-2025: INR 67,886.86**
+
+
+Current : Entry Load - Nil. Exit Load w.e.f 01-Jan-2019 [including SIP,STP,SWP&Micro(SIP) wherever available] if redeemed or switched out - Nil. For lumpsum
+investment/switch in, the applicable load will be based on the load structure as on the date of investment/applicable NAV date. For SIP/STP transactions, load for
+each transaction is based on the applicable load structure as on the registration date. For details, please refer to SID and Addenda available on
+www.icicipruamc.com.
+
+
+#### Folio No: 22729211 / 69 SANCHIT WALIA
+
+
+#### PAN: AFDPW5788D KYC: OK PAN: OK
+
+
+P9658-ICICI Prudential Nifty Smallcap 250 Index Fund - Direct Plan - Growth (Non-Demat) - ISIN: INF109KC1V18(Advisor: INA100006898) Registrar : CAMS
+
+#### Nominee 1: Sanjay Kumar Walia Nominee 2: Sanyam Walia Nominee 3:
+
+
+**Opening Unit Balance: 0.000**
+20-Jun-2022 Purchase - INA100006898 1,667.92 212.954 7.8323 212.954
+20-Jun-2022 _*** Stamp Duty ***_ 0.08
+11-Jul-2022 Purchase - INA100006898 1,901.90 220.533 8.6241 433.487
+11-Jul-2022 _*** Stamp Duty ***_ 0.10
+10-Aug-2022 Purchase - INA100006898 615.97 67.315 9.1506 500.802
+10-Aug-2022 _*** Stamp Duty ***_ 0.03
+11-Aug-2022 Switch In - From Corporate Bond Fund - DP Growth - INA100006898 426.98 46.359 9.2103 547.161
+11-Aug-2022 _*** Stamp Duty ***_ 0.02
+12-Sep-2022 _*Switch Out - To Corporate Bond Fund - DP Growth_ (241.00) (24.251) 9.9376 522.910
+25-Oct-2022 Purchase - INA100006898 1,630.92 169.566 9.6182 692.476
+
+#### Page 6 of 9
+
+
+-----
+
+# Consolidated Account Statement
+
+
+### 01-Jan-2002 To 09-Feb-2025
+
+#### Date Transaction Amount Units NAV           Unit
+(INR) (INR) **Balance**
+
+25-Oct-2022 _*** Stamp Duty ***_ 0.08
+14-Nov-2022 _*Switch Out - To Nifty 50 Index Fund-DP Growth, less STT_ (2,903.00) (299.347) 9.6979 393.129
+14-Nov-2022 _*** STT Paid ***_ 0.03
+12-Dec-2022 Purchase - INA100006898 9,248.54 924.069 10.0085 1,317.198
+12-Dec-2022 _*** Stamp Duty ***_ 0.46
+10-Jan-2023 _*Switch Out - To Regular Gold SF (FOF) - DP Growth, less STT_ (2,078.00) (215.063) 9.6624 1,102.135
+10-Jan-2023 _*** STT Paid ***_ 0.02
+14-Mar-2023 Switch In - From Regular Gold SF (FOF) - DP Growth - INA100006898 7,585.94 833.849 9.0975 1,935.984
+14-Mar-2023 _*** Stamp Duty ***_ 0.38
+10-Apr-2023 _*Switch Out - To Nifty 50 Index Fund-DP Growth, less STT_ (984.00) (106.376) 9.2503 1,829.608
+10-Apr-2023 _*** STT Paid ***_ 0.01
+10-May-2023 _*Switch Out - To Nifty 50 Index Fund-DP Growth, less STT_ (1,365.00) (138.770) 9.8365 1,690.838
+10-May-2023 _*** STT Paid ***_ 0.01
+28-Jun-2023 _*Switch Out - To Nifty Midcap 150 Index Fund - Direct Plan - Growth, less_ (3,204.00) (297.272) 10.7781 1,393.566
+_STT_
+
+28-Jun-2023 _*** STT Paid ***_ 0.03
+10-Jul-2023 Purchase - INA100006898 14,999.25 1,359.317 11.0344 2,752.883
+10-Jul-2023 _*** Stamp Duty ***_ 0.75
+11-Jul-2023 Switch In - From Corporate Bond Fund - DP Growth - INA100006898 1,952.90 175.337 11.1380 2,928.220
+11-Jul-2023 _*** Stamp Duty ***_ 0.10
+11-Aug-2023 Switch In - From Corporate Bond Fund - DP Growth - INA100006898 822.27 70.347 11.6888 2,998.567
+11-Aug-2023 _*** Stamp Duty ***_ 0.04
+11-Sep-2023 _*Switch Out - To Nifty 50 Index Fund-DP Growth, less STT_ (980.00) (76.342) 12.8371 2,922.225
+11-Sep-2023 _*** STT Paid ***_ 0.01
+13-Oct-2023 Purchase - INA100006898 13,399.33 1,050.516 12.7550 3,972.741
+13-Oct-2023 _*** Stamp Duty ***_ 0.67
+15-Nov-2023 _*Switch Out - To Nifty Next 50 Index Fund-DP Growth, less STT_ (1,510.00) (114.072) 13.2374 3,858.669
+15-Nov-2023 _*** STT Paid ***_ 0.02
+12-Dec-2023 _*Switch Out - To Nifty 50 Index Fund-DP Growth, less STT_ (3,619.00) (260.271) 13.9049 3,598.398
+12-Dec-2023 _*** STT Paid ***_ 0.04
+13-Feb-2024 Purchase - INA100006898 1,639.92 109.008 15.0440 3,707.406
+13-Feb-2024 _*** Stamp Duty ***_ 0.08
+12-Mar-2024 _*Switch Out - To Corporate Bond Fund - DP Growth, less STT_ (3,534.00) (241.981) 14.6046 3,465.425
+12-Mar-2024 _*** STT Paid ***_ 0.04
+12-Mar-2024 _*Switch Out - To Nifty Midcap 150 Index Fund - Direct Plan - Growth, less_ (6,786.00) (464.653) 14.6046 3,000.772
+_STT_
+
+12-Mar-2024 _*** STT Paid ***_ 0.07
+12-Mar-2024 _*Switch Out - To Regular Gold SF (FOF) - DP Growth, less STT_ (572.00) (39.166) 14.6046 2,961.606
+12-Mar-2024 _*** STT Paid ***_ 0.01
+12-Apr-2024 Purchase - INA100006898 14,592.27 927.312 15.7361 3,888.918
+12-Apr-2024 _*** Stamp Duty ***_ 0.73
+15-Apr-2024 Switch In - From Corporate Bond Fund - DP Growth - INA100006898 3,551.07 229.183 15.4945 4,118.101
+15-Apr-2024 _*** Stamp Duty ***_ 0.18
+16-Apr-2024 Switch In - From Nifty 50 Index Fund-DP Growth - INA100006898 2,119.89 135.948 15.5934 4,254.049
+16-Apr-2024 _*** Stamp Duty ***_ 0.11
+16-Apr-2024 Switch In - From Nifty Next 50 Index Fund-DP Growth - INA100006898 4,584.77 294.020 15.5934 4,548.069
+16-Apr-2024 _*** Stamp Duty ***_ 0.23
+10-May-2024 _*Switch Out - To Regular Gold SF (FOF) - DP Growth, less STT_ (5,514.00) (355.555) 15.5083 4,192.514
+10-May-2024 _*** STT Paid ***_ 0.06
+06-Jul-2024 _***Change of Bank Mandate***_
+15-Jul-2024 Switch In - From Regular Gold SF (FOF) - DP Growth - INA100006898 10,740.46 589.730 18.2125 4,782.244
+15-Jul-2024 _*** Stamp Duty ***_ 0.54
+
+**Closing Unit Balance: 4,782.244** **NAV on 07-Feb-2025: INR 16.4489** **Total Cost Value: 66,656.79** **Market Value on 07-Feb-2025: INR 78,662.65**
+
+Current : Entry & Exit Load - Nil. For lumpsum investment/switch in, the applicable load will be based on the load structure as on the date of investment/applicable
+NAV date. For SIP/STP transactions, load for each transaction is based on the applicable load structure as on the registration date. For details, please refer to SID and
+Addenda available on www.icicipruamc.com.
+
+
+#### Folio No: 22729211 / 69 SANCHIT WALIA
+
+
+#### PAN: AFDPW5788D KYC: OK PAN: OK
+
+
+P8130-ICICI Prudential Regular Gold Savings Fund (FOF) - Direct Plan - Growth (Non-Demat) - ISIN: INF109K01U92(Advisor: INA100006898) Registrar : CAMS
+
+#### Nominee 1: Sanjay Kumar Walia Nominee 2: Sanyam Walia Nominee 3:
+
+
+**Opening Unit Balance: 0.000**
+20-Jun-2022 Purchase - INA100006898 564.97 33.303 16.9644 33.303
+20-Jun-2022 _*** Stamp Duty ***_ 0.03
+11-Jul-2022 Purchase - INA100006898 3,070.85 182.362 16.8393 215.665
+11-Jul-2022 _*** Stamp Duty ***_ 0.15
+10-Aug-2022 Purchase - INA100006898 8,030.60 461.439 17.4034 677.104
+10-Aug-2022 _*** Stamp Duty ***_ 0.40
+12-Sep-2022 Switch Out - To Corporate Bond Fund - DP Growth (11,410.63) (677.104) 16.8521 0.000
+
+#### Page 7 of 9
+
+
+-----
+
+# Consolidated Account Statement
+
+
+### 01-Jan-2002 To 09-Feb-2025
+
+#### Date Transaction Amount Units NAV           Unit
+(INR) (INR) **Balance**
+
+25-Oct-2022 Purchase - INA100006898 3,074.85 181.839 16.9097 181.839
+25-Oct-2022 _*** Stamp Duty ***_ 0.15
+14-Nov-2022 Switch Out - To Nifty Next 50 Index Fund-DP Growth (871.00) (50.338) 17.3030 131.501
+12-Dec-2022 Switch Out - To Corporate Bond Fund - DP Growth (1,447.38) (81.123) 17.8418 50.378
+12-Dec-2022 Switch Out - To Nifty Midcap 150 Index Fund - Direct Plan - Growth (347.54) (19.479) 17.8418 30.899
+12-Dec-2022 Switch Out - To Nifty 50 Index Fund-DP Growth (550.44) (30.851) 17.8418 0.048
+10-Jan-2023 Purchase - INA100006898 9,999.50 539.746 18.5263 539.794
+10-Jan-2023 _*** Stamp Duty ***_ 0.50
+11-Jan-2023 Switch in - From Corporate Bond Fund - DP Growth - INA100006898 10,882.69 586.475 18.5561 1,126.269
+11-Jan-2023 _*** Stamp Duty ***_ 0.54
+13-Jan-2023 Switch in - From Nifty 50 Index Fund-DP Growth - INA100006898 2,156.89 115.351 18.6985 1,241.620
+13-Jan-2023 _*** Stamp Duty ***_ 0.11
+13-Jan-2023 Switch in - From Nifty Next 50 Index Fund-DP Growth - INA100006898 1,961.90 104.923 18.6985 1,346.543
+13-Jan-2023 _*** Stamp Duty ***_ 0.10
+13-Jan-2023 Switch in - From Nifty Midcap 150 Index Fund - Direct Plan - Growth - 2,198.89 117.597 18.6985 1,464.140
+INA100006898
+
+
+13-Jan-2023 _*** Stamp Duty ***_ 0.11
+13-Jan-2023 Switch in - From Nifty Smallcap 250 Index Fund - Direct Plan - Gro - 2,077.90 111.126 18.6985
+INA100006898
+
+
+1,575.266
+
+
+13-Jan-2023 _*** Stamp Duty ***_ 0.10
+10-Mar-2023 Switch Out - To Corporate Bond Fund - DP Growth (10,300.69) (563.054) 18.2943 1,012.212
+10-Mar-2023 Switch Out - To Nifty Smallcap 250 Index Fund - Direct Plan - Gro (7,586.32) (414.682) 18.2943 597.530
+10-Mar-2023 Switch Out - To Nifty Midcap 150 Index Fund - Direct Plan - Growth (10,930.77) (597.496) 18.2943 0.034
+10-Apr-2023 Purchase - INA100006898 4,087.80 206.026 19.8412 206.060
+10-Apr-2023 _*** Stamp Duty ***_ 0.20
+11-Apr-2023 Switch in - From Corporate Bond Fund - DP Growth - INA100006898 16,822.26 846.727 19.8674 1,052.787
+11-Apr-2023 _*** Stamp Duty ***_ 0.84
+10-May-2023 Purchase - INA100006898 4,471.78 220.937 20.2401 1,273.724
+10-May-2023 _*** Stamp Duty ***_ 0.22
+28-Jun-2023 Switch Out - To Corporate Bond Fund - DP Growth (13,883.63) (725.058) 19.1483 548.666
+28-Jun-2023 Switch Out - To Nifty Midcap 150 Index Fund - Direct Plan - Growth (10,505.10) (548.618) 19.1483 0.048
+10-Aug-2023 Purchase - INA100006898 14,999.25 773.089 19.4017 773.137
+10-Aug-2023 _*** Stamp Duty ***_ 0.75
+11-Aug-2023 Switch in - From Corporate Bond Fund - DP Growth - INA100006898 9,595.17 494.938 19.3866 1,268.075
+11-Aug-2023 _*** Stamp Duty ***_ 0.48
+11-Sep-2023 Switch Out - To Corporate Bond Fund - DP Growth (22,544.03) (1,162.087) 19.3996 105.988
+11-Sep-2023 Switch Out - To Nifty Next 50 Index Fund-DP Growth (2,055.19) (105.940) 19.3996 0.048
+13-Feb-2024 Purchase - INA100006898 3,256.84 159.401 20.4318 159.449
+13-Feb-2024 _*** Stamp Duty ***_ 0.16
+14-Feb-2024 Switch in - From Corporate Bond Fund - DP Growth - INA100006898 30,811.46 1,529.036 20.1509 1,688.485
+14-Feb-2024 _*** Stamp Duty ***_ 1.54
+14-Mar-2024 Switch in - From Nifty Smallcap 250 Index Fund - Direct Plan - Gro - 571.97 26.605 21.4988 1,715.090
+INA100006898
+
+14-Mar-2024 _*** Stamp Duty ***_ 0.03
+16-Apr-2024 Switch in - From Nifty 50 Index Fund-DP Growth - INA100006898 600.97 25.201 23.8475 1,740.291
+16-Apr-2024 _*** Stamp Duty ***_ 0.03
+10-May-2024 Purchase - INA100006898 6,551.67 273.507 23.9543 2,013.798
+10-May-2024 _*** Stamp Duty ***_ 0.33
+14-May-2024 Switch in - From Nifty Next 50 Index Fund-DP Growth - INA100006898 10,288.49 435.558 23.6214 2,449.356
+14-May-2024 _*** Stamp Duty ***_ 0.51
+14-May-2024 Switch in - From Nifty Smallcap 250 Index Fund - Direct Plan - Gro - 5,513.72 233.421 23.6214 2,682.777
+INA100006898
+
+14-May-2024 _*** Stamp Duty ***_ 0.28
+06-Jul-2024 _***Change of Bank Mandate***_
+11-Jul-2024 Switch Out - To Corporate Bond Fund - DP Growth (5,075.00) (213.033) 23.8226 2,469.744
+11-Jul-2024 Switch Out - To Nifty Smallcap 250 Index Fund - Direct Plan - Gro (10,741.00) (450.874) 23.8226 2,018.870
+11-Jul-2024 Switch Out - To Nifty 50 Index Fund-DP Growth (8,784.00) (368.725) 23.8226 1,650.145
+
+**Closing Unit Balance: 1,650.145** **NAV on 07-Feb-2025: INR 27.6241** **Total Cost Value: 36,744.67** **Market Value on 07-Feb-2025: INR 45,583.77**
+
+
+Current: Entry Load - Nil. Exit Load w.e.f 01-Nov-2018 [including SIP,STP,SWP&Micro(SIP) wherever available] - If redeemed or switched out upto 15 days - 1.0%, > 15
+days - Nil. For lumpsum investment/switch in, the applicable load will be based on the load structure as on the date of investment/applicable NAV date. For SIP/STP
+transactions, load for each transaction is based on the applicable load structure as on the registration date. For details, please refer to SID and Addenda available on
+www.icicipruamc.com.
+Scheme Name of ICICI Prudential Regular Gold Savings Fund has been changed to ICICI Prudential Regular Gold Savings Fund (FOF) with effect from November 29,
+2019.
+
+
+## Mirae Asset Mutual Fund
+
+
+#### Page 8 of 9
+
+
+-----
+
+# Consolidated Account Statement
+
+
+### 01-Jan-2002 To 09-Feb-2025
+
+#### Date Transaction Amount Units NAV           Unit
+(INR) (INR) **Balance**
+
+#### Folio No: 79958531362 / 0 PAN: AFDPW5788D KYC: OK PAN: OK SANCHIT WALIA
 
 117TSD1G-Mirae Asset ELSS Tax Saver Fund (formerly Mirae Asset Tax Saver Fund ) - Direct Plan - ISIN: INF769K01DM9(Advisor: INA100006898) Registrar :
-
 KFINTECH
 
 
 #### Nominee 1: Sanjay Kumar Walia Nominee 2: Sanyam Walia Nominee 3:
 
 
-Opening Unit Balance: 0.000
-11-Jul-2022 Systematic Investment (1/600) 2,999.85 94.755 31.659 94.755
-11-Jul-2022 *** Stamp Duty *** 0.15
-10-Aug-2022 Systematic Investment (1) 2,999.85 88.218 34.005 182.973
-10-Aug-2022 *** Stamp Duty *** 0.15
-12-Sep-2022 Systematic Investment (1) 2,999.85 86.603 34.639 269.576
-12-Sep-2022 *** Stamp Duty *** 0.15
-10-Oct-2022 Systematic Investment (1) 2,999.85 91.081 32.936 360.657
-10-Oct-2022 *** Stamp Duty *** 0.15
-10-Nov-2022 Systematic Investment (1) 2,999.85 86.064 34.856 446.721
-10-Nov-2022 *** Stamp Duty *** 0.15
-12-Dec-2022 Systematic Investment (1) 2,999.85 84.629 35.447 531.350
-12-Dec-2022 *** Stamp Duty *** 0.15
-10-Jan-2023 Systematic Investment (1) 2,999.85 86.967 34.494 618.317
-10-Jan-2023 *** Stamp Duty *** 0.15
-10-Feb-2023 Systematic Investment (1) 2,999.85 88.210 34.008 706.527
-10-Feb-2023 *** Stamp Duty *** 0.15
-10-Mar-2023 Systematic Investment (1) 2,999.85 90.808 33.035 797.335
-10-Mar-2023 *** Stamp Duty *** 0.15
-10-May-2023 Systematic Investment (1/12) 3,999.80 113.075 35.373 910.410
-10-May-2023 *** Stamp Duty *** 0.20
-12-Jun-2023 Systematic Investment (1) 3,999.80 109.924 36.387 1,020.334
-12-Jun-2023 *** Stamp Duty *** 0.20
-10-Jul-2023 Systematic Investment (1) 3,999.80 105.388 37.953 1,125.722
-10-Jul-2023 *** Stamp Duty *** 0.20
-10-Aug-2023 Systematic Investment (1) 3,999.80 102.242 39.121 1,227.964
-10-Aug-2023 *** Stamp Duty *** 0.20
-11-Sep-2023 Systematic Investment (1) 3,999.80 97.869 40.869 1,325.833
-11-Sep-2023 *** Stamp Duty *** 0.20
-10-Oct-2023 Systematic Investment (1) 3,999.80 99.688 40.123 1,425.521
-10-Oct-2023 *** Stamp Duty *** 0.20
-10-Nov-2023 Systematic Investment (1) 3,999.80 100.974 39.612 1,526.495
-10-Nov-2023 *** Stamp Duty *** 0.20
-11-Dec-2023 Systematic Investment (1) 3,999.80 93.357 42.844 1,619.852
-11-Dec-2023 *** Stamp Duty *** 0.20
-10-Jan-2024 Systematic Investment (1) 3,999.80 89.435 44.723 1,709.287
-10-Jan-2024 *** Stamp Duty *** 0.20
-12-Feb-2024 Systematic Investment (1) 3,999.80 90.364 44.263 1,799.651
-12-Feb-2024 *** Stamp Duty *** 0.20
+**Opening Unit Balance: 0.000**
+20-Jun-2022 Purchase 2,499.88 84.891 29.448 84.891
+20-Jun-2022 _*** Stamp Duty ***_ 0.12
+21-Jun-2022 _***Updation of KYC***_
 
-Closing Unit Balance: 1,799.651 NAV on 19-Feb-2025: INR 48.632 Total Cost Value: 67,000.00 Market Value on 19-Feb-2025: INR 87,520.63
+**Closing Unit Balance: 84.891** **NAV on 07-Feb-2025: INR 50.703** **Total Cost Value: 2,500.00** **Market Value on 07-Feb-2025: INR 4,304.23**
 
 
 Current Load Structure : Entry Load - NIL,Exit Load - NIL subject to lock-in period of 3 years.The above Investment in Mirae Asset Tax Saver Fund, is eligible for
 applicable tax benefits under section 80C of Income Tax Act 1961.Units allotted in Multiples of Rs.500/-,
 
 
-## MOTILAL OSWAL MUTUAL FUND
-
-#### Folio No: 910107459355 / 0 PAN: AFDPW5788D KYC: OK PAN: OK SANCHIT WALIA
-
-127FMGDG-Motilal Oswal Midcap Fund - Direct Plan Growth - ISIN: INF247L01445(Advisor: INZ000240532) Registrar :
-
-KFINTECH
-
-#### Nominee 1: Nominee 2: Nominee 3:
-
-Opening Unit Balance: 0.000
-31-Jan-2025 Purchase 19,999.00 182.388 109.6511 182.388
-31-Jan-2025 *** Stamp Duty *** 1.00
-
-Closing Unit Balance: 182.388 NAV on 19-Feb-2025: INR 105.5570 Total Cost Value: 20,000.00 Market Value on 19-Feb-2025: INR 19,252.33
-
-
-Entry Load: Nil, Exit Load : 1% - If redeemed on or before 365 days from the date of allotment for Subscription received Wef 17-Feb-2025,Nil - If redeemed after 365
-days from the date of allotment.Entry Load: Nil, Exit Load: 1% -If redeemed or switched out on or before 15 days from the date of allotment for Subscription
-received till 17-Mar-2024.Nil - If redeemed after 15 days from the date of allotment.
-
-
-#### Page 3 of 12
-
-
------
-
-# Consolidated Account Statement
-
-
-### 06-Mar-2002 To 20-Feb-2025
-
-#### Date Transaction Amount Units NAV           Unit
-(INR) (INR) Balance
-
-#### Folio No: 91065737624 / 0 PAN: AFDPW5788D KYC: OK PAN: OK SANCHIT WALIA
-
-127N1GDG-Motilal Oswal Nasdaq 100 Fund of Fund - Direct Plan Growth - ISIN: INF247L01718(Advisor: EOP-0002) Registrar :
-
-KFINTECH
-
-
-#### Nominee 1: Sanjay Kumar Walia Nominee 2: Surita Walia Nominee 3: Sanyam Walia
-
-
-Opening Unit Balance: 0.000
-31-Jul-2024 Systematic Investment (1) 1,999.90 59.990 33.3374 59.990
-31-Jul-2024 *** Stamp Duty *** 0.10
-02-Aug-2024 Systematic Investment (1) 1,999.90 64.614 30.9517 124.604
-02-Aug-2024 *** Stamp Duty *** 0.10
-02-Aug-2024 Systematic Investment (1) 1,999.90 64.614 30.9517 189.218
-02-Aug-2024 *** Stamp Duty *** 0.10
-09-Sep-2024 Systematic Investment (1) 1,999.90 60.996 32.7874 250.214
-09-Sep-2024 *** Stamp Duty *** 0.10
-16-Sep-2024 Systematic Investment (1) 1,999.90 59.073 33.8545 309.287
-16-Sep-2024 *** Stamp Duty *** 0.10
-01-Oct-2024 Systematic Investment (1) 1,999.90 57.830 34.5824 367.117
-01-Oct-2024 *** Stamp Duty *** 0.10
-07-Oct-2024 Systematic Investment (1) 1,999.90 57.693 34.6643 424.810
-07-Oct-2024 *** Stamp Duty *** 0.10
-14-Oct-2024 Systematic Investment (1) 1,999.90 56.577 35.3482 481.387
-14-Oct-2024 *** Stamp Duty *** 0.10
-04-Nov-2024 Systematic Investment (1) 1,999.90 57.202 34.9622 538.589
-04-Nov-2024 *** Stamp Duty *** 0.10
-07-Nov-2024 Systematic Investment (1) 1,999.90 53.637 37.2860 592.226
-07-Nov-2024 *** Stamp Duty *** 0.10
-14-Nov-2024 Systematic Investment (1) 1,999.90 55.498 36.0357 647.724
-14-Nov-2024 *** Stamp Duty *** 0.10
-02-Dec-2024 Systematic Investment (1) 1,999.90 51.550 38.7954 699.274
-02-Dec-2024 *** Stamp Duty *** 0.10
-09-Dec-2024 Systematic Investment (1) 1,999.90 51.267 39.0093 750.541
-09-Dec-2024 *** Stamp Duty *** 0.10
-16-Dec-2024 Systematic Investment (1) 1,999.90 45.317 44.1313 795.858
-16-Dec-2024 *** Stamp Duty *** 0.10
-01-Jan-2025 Systematic Investment (1) 1,999.90 44.742 44.6983 840.600
-01-Jan-2025 *** Stamp Duty *** 0.10
-07-Jan-2025 ***Refund*** 2,000.00
-
-Closing Unit Balance: 840.600 NAV on 19-Feb-2025: INR 43.7491 Total Cost Value: 30,000.00 Market Value on 19-Feb-2025: INR 36,775.49
-
-
-Entry Load: Nil, Exit Load: 1% - If redeemed or switched out on or before 15 days from the date of allotmentNil - If redeemed after 15 days from the date of
-allotment.
-
-
-## NAVI MF
-
-#### Folio No: 9103845434 / 0 PAN: AFDPW5788D KYC: OK PAN: OK SANCHIT WALIA
-
-PLFNIGDG-Navi Nifty 50 Index Fund - Direct Plan - Growth (Non-Demat) - ISIN: INF959L01FP2(Advisor: DIRECT) Registrar : CAMS
-
-#### Nominee 1: Sanjay Walia Nominee 2: Surita Walia Nominee 3:
-
-Opening Unit Balance: 0.000
-03-Jan-2022 SIP Purchase 1,999.90 180.174 11.0998 180.174
-03-Jan-2022 *** Stamp Duty *** 0.10
-03-Feb-2022 SIP Purchase 1,999.90 180.785 11.0623 360.959
-03-Feb-2022 *** Stamp Duty *** 0.10
-09-May-2022 SIP Purchase 1,999.90 194.524 10.2810 555.483
-09-May-2022 *** Stamp Duty *** 0.10
-01-Sep-2022 Redemption (6,195.97) (555.483) 11.1542 0.000
-16-May-2023 ***Registration of NomineeNominee addition through - MFC-113447636335051397***
-07-Jun-2023 ***Address Updated from KRA Data***
-06-Jul-2024 ***Change of Bank Mandate***
-
-Closing Unit Balance: 0.000 NAV on 19-Feb-2025: INR 14.8909 Total Cost Value: 0.00 Market Value on 19-Feb-2025: INR 0.00
-
-
-Entry Load & Exit Load- Nil.
-
-
-#### Folio No: 9775435944 Sanchit Walia
-
-
-#### PAN: AFDPW5788D KYC: OK PAN: OK
-
-
-PLFNQGDG-Navi Nasdaq 100 Fund of Fund - Direct - Growth (Non-Demat) - ISIN: INF959L01FZ1(Advisor: INA100006898) Registrar : CAMS
-
-#### Nominee 1: Sanyam Walia Nominee 2: Sanjay Kumar Walia Nominee 3: Surita Walia
-
-
-Opening Unit Balance: 0.000
-
-#### Page 4 of 12
-
-
------
-
-# Consolidated Account Statement
-
-
-### 06-Mar-2002 To 20-Feb-2025
-
-#### Date Transaction Amount Units NAV           Unit
-(INR) (INR) Balance
-
-06-Jun-2023 Purchase 29,998.50 2,811.613 10.6695 2,811.613
-06-Jun-2023 *** Stamp Duty *** 1.50
-07-Jun-2023 ***Registration of Nominee***
-07-Jun-2023 ***Address Updated from KRA Data***
-06-Jul-2024 ***Change of Bank Mandate***
-
-Closing Unit Balance: 2,811.613 NAV on 19-Feb-2025: INR 17.1848 Total Cost Value: 30,000.00 Market Value on 19-Feb-2025: INR 48,317.01
-
-
-Entry Load & Exit Load- Nil.
-
-
-## PPFAS Mutual Fund
-
-#### Folio No: 12567973 PAN: AFDPW5788D KYC: OK PAN: OK Sanchit Walia
-
-PP001ZG-Parag Parikh Flexi Cap Fund - Direct Plan (formerly Parag Parikh Long Term Value Fund) (Non-Demat) - ISIN: INF879O01027(Advisor: Registrar : CAMS
-INZ000240532)
-
-#### Nominee 1: Sanjay Walia Nominee 2: Surita Walia Nominee 3:
-
-Opening Unit Balance: 0.000
-19-May-2022 Purchase Systematic Instalment No - 1 2,999.85 63.088 47.5502 63.088
-19-May-2022 *** Stamp Duty *** 0.15
-20-May-2022 ***Address Updated from KRA Data***
-06-Jul-2022 Purchase Systematic Instalment No - 2/482 2,999.85 62.707 47.8395 125.795
-06-Jul-2022 *** Stamp Duty *** 0.15
-13-Jul-2022 ***Address Updated from KRA Data***
-08-Aug-2022 Purchase Systematic Instalment No - 3/482 2,999.85 58.588 51.2029 184.383
-08-Aug-2022 *** Stamp Duty *** 0.15
-06-Sep-2022 Purchase SystematicBalance Insufficient - Instalment No 4 (2,999.85) (58.290) 51.4646 126.093
-06-Sep-2022 *** Stamp Duty *** (0.15)
-06-Sep-2022 Purchase Systematic Instalment No - 4/482 2,999.85 58.290 51.4646 184.383
-06-Sep-2022 *** Stamp Duty *** 0.15
-06-Oct-2022 Purchase Systematic Instalment No - 5/482 2,999.85 58.576 51.2132 242.959
-06-Oct-2022 *** Stamp Duty *** 0.15
-07-Nov-2022 Purchase Systematic-BSE - Instalment No - 6 2,999.85 58.304 51.4519 301.263
-07-Nov-2022 *** Stamp Duty *** 0.15
-06-Dec-2022 Purchase Systematic-BSE - Instalment No - 7 2,999.85 56.996 52.6323 358.259
-06-Dec-2022 *** Stamp Duty *** 0.15
-06-Mar-2023 Purchase Systematic-BSE - Instalment No - 10 2,999.85 56.467 53.1254 414.726
-06-Mar-2023 *** Stamp Duty *** 0.15
-06-Apr-2023 Purchase Systematic-BSE - Instalment No - 11 2,999.85 55.745 53.8142 470.471
-06-Apr-2023 *** Stamp Duty *** 0.15
-08-May-2023 Purchase Systematic-BSE - Instalment No - 12 2,999.85 53.402 56.1744 523.873
-08-May-2023 *** Stamp Duty *** 0.15
-09-May-2023 Purchase Systematic-BSE - Instalment No - 1 1,999.90 35.534 56.2813 559.407
-09-May-2023 *** Stamp Duty *** 0.10
-16-May-2023 ***Registration of NomineeNominee addition through - MFC-113447636335005850***
-26-Jun-2023 Purchase Systematic-BSE - Instalment No - 2/481 1,999.90 33.921 58.9582 593.328
-26-Jun-2023 *** Stamp Duty *** 0.10
-06-Jul-2023 Purchase Systematic-BSE - Instalment No - 14 2,999.85 49.582 60.5029 642.910
-06-Jul-2023 *** Stamp Duty *** 0.15
-24-Jul-2023 Purchase Systematic-BSE - Instalment No - 3/481 1,999.90 33.037 60.5348 675.947
-24-Jul-2023 *** Stamp Duty *** 0.10
-07-Aug-2023 Purchase Systematic-BSE - Instalment No - 15 2,999.85 48.897 61.3507 724.844
-07-Aug-2023 *** Stamp Duty *** 0.15
-24-Aug-2023 Purchase Systematic-BSE - Instalment No - 4/481 1,999.90 32.920 60.7503 757.764
-24-Aug-2023 *** Stamp Duty *** 0.10
-06-Sep-2023 Purchase Systematic-BSE - Instalment No - 16 2,999.85 48.096 62.3722 805.860
-06-Sep-2023 *** Stamp Duty *** 0.15
-25-Sep-2023 Purchase Systematic-BSE - Instalment No - 5/481 1,999.90 31.878 62.7359 837.738
-25-Sep-2023 *** Stamp Duty *** 0.10
-06-Oct-2023 Purchase Systematic-BSE - Instalment No - 17 2,999.85 47.810 62.7456 885.548
-06-Oct-2023 *** Stamp Duty *** 0.15
-25-Oct-2023 Purchase Systematic-BSE - Instalment No - 6/481 1,999.90 32.121 62.2623 917.669
-25-Oct-2023 *** Stamp Duty *** 0.10
-06-Nov-2023 Purchase Systematic-BSE - Instalment No - 18 2,999.85 46.843 64.0403 964.512
-06-Nov-2023 *** Stamp Duty *** 0.15
-24-Nov-2023 Purchase Systematic-BSE - Instalment No - 7/481 1,999.90 30.141 66.3522 994.653
-24-Nov-2023 *** Stamp Duty *** 0.10
-06-Dec-2023 Purchase Systematic-BSE - Instalment No - 19 2,999.85 43.865 68.3887 1,038.518
-06-Dec-2023 *** Stamp Duty *** 0.15
-26-Dec-2023 Purchase Systematic-BSE - Instalment No - 8/481 1,999.90 28.637 69.8354 1,067.155
-
-
-#### Page 5 of 12
-
-
------
-
-# Consolidated Account Statement
-
-
-### 06-Mar-2002 To 20-Feb-2025
-
-#### Date Transaction Amount Units NAV           Unit
-(INR) (INR) Balance
-
-26-Dec-2023 *** Stamp Duty *** 0.10
-24-Jan-2024 Purchase Systematic-BSE - Instalment No - 9/481 1,999.90 28.013 71.3910 1,095.168
-24-Jan-2024 *** Stamp Duty *** 0.10
-26-Feb-2024 Purchase Systematic-BSE - Instalment No - 10 1,999.90 26.712 74.8684 1,121.880
-26-Feb-2024 *** Stamp Duty *** 0.10
-06-Mar-2024 Purchase Systematic-BSE - Instalment No - 22 2,999.85 39.825 75.3257 1,161.705
-06-Mar-2024 *** Stamp Duty *** 0.15
-12-Mar-2024 *REDEMPTION - ELECTRONIC PAYMENT (NEFT)-BSE - - 592456089, (23,895.93) (322.506) 74.0954 839.199
-less STT
-
-
-12-Mar-2024 *** STT Paid *** 0.24
-12-Mar-2024 *REDEMPTION - ELECTRONIC PAYMENT (NEFT)-BSE - - 592456089, (3,104.07) (41.474) 74.8438
-less STT
-
-
-797.725
-
-
-12-Mar-2024 *** STT Paid *** 0.03
-14-Mar-2024 Purchase-BSE - 19,999.00 269.929 74.0899 1,067.654
-14-Mar-2024 *** Stamp Duty *** 1.00
-12-Apr-2024 Purchase Systematic-BSE - Instalment No - 1 2,999.85 39.108 76.7069 1,106.762
-12-Apr-2024 *** Stamp Duty *** 0.15
-12-Apr-2024 Purchase Systematic-BSE - Instalment No - 1 2,999.85 39.108 76.7069 1,145.870
-12-Apr-2024 *** Stamp Duty *** 0.15
-16-Apr-2024 Purchase Systematic-BSE - Instalment No - 1 2,999.85 39.581 75.7907 1,185.451
-16-Apr-2024 *** Stamp Duty *** 0.15
-16-Apr-2024 Purchase-BSE - 9,999.50 131.936 75.7907 1,317.387
-16-Apr-2024 *** Stamp Duty *** 0.50
-24-Apr-2024 Purchase Systematic-BSE - Instalment No - 12/481 1,999.90 26.018 76.8651 1,343.405
-24-Apr-2024 *** Stamp Duty *** 0.10
-06-May-2024 Purchase Systematic-BSE - Instalment No - 24 2,999.85 38.577 77.7623 1,381.982
-06-May-2024 *** Stamp Duty *** 0.15
-13-May-2024 Purchase Systematic-BSE - Instalment No - 2/361 2,999.85 38.961 76.9965 1,420.943
-13-May-2024 *** Stamp Duty *** 0.15
-21-May-2024 Purchase Systematic-BSE - Instalment No - 2/361 2,999.85 38.172 78.5887 1,459.115
-21-May-2024 *** Stamp Duty *** 0.15
-24-May-2024 Purchase Systematic-BSE - Instalment No - 13/481 1,999.90 25.323 78.9749 1,484.438
-24-May-2024 *** Stamp Duty *** 0.10
-03-Jun-2024 Purchase Systematic-BSE - Instalment No - 2/361 2,999.85 37.802 79.3574 1,522.240
-03-Jun-2024 *** Stamp Duty *** 0.15
-05-Jun-2024 Purchase-BSE - 12,999.35 166.467 78.0896 1,688.707
-05-Jun-2024 *** Stamp Duty *** 0.65
-06-Jun-2024 Purchase Systematic-BSE - Instalment No - 25 2,999.85 38.062 78.8155 1,726.769
-06-Jun-2024 *** Stamp Duty *** 0.15
-12-Jun-2024 Purchase Systematic-BSE - Instalment No - 3/361 2,999.85 37.152 80.7448 1,763.921
-12-Jun-2024 *** Stamp Duty *** 0.15
-18-Jun-2024 Purchase Systematic-BSE - Instalment No - 3/361 2,999.85 37.052 80.9622 1,800.973
-18-Jun-2024 *** Stamp Duty *** 0.15
-24-Jun-2024 Purchase Systematic-BSE - Instalment No - 14/481 1,999.90 24.539 81.4983 1,825.512
-24-Jun-2024 *** Stamp Duty *** 0.10
-27-Jun-2024 *REDEMPTION - ELECTRONIC PAYMENT (NEFT)-BSE - - (13,812.82) (170.037) 81.2351 1,655.475
-N206243166260799, less STT
-
-
-27-Jun-2024 *** STT Paid *** 0.14
-27-Jun-2024 *REDEMPTION - ELECTRONIC PAYMENT (NEFT)-BSE - - (1,187.18) (14.468) 82.0557
-N206243166260799, less STT
-
-
-1,641.007
-
-
-27-Jun-2024 *** STT Paid *** 0.01
-01-Jul-2024 Purchase Systematic-BSE - Instalment No - 3/361 2,999.85 36.359 82.5054 1,677.366
-01-Jul-2024 *** Stamp Duty *** 0.15
-06-Jul-2024 ***Change of Bank Mandate***
-08-Jul-2024 Purchase Systematic-BSE - Instalment No - 26 2,999.85 35.722 83.9784 1,713.088
-08-Jul-2024 *** Stamp Duty *** 0.15
-12-Jul-2024 Purchase Systematic-BSE - Instalment No - 4/361 2,999.85 35.667 84.1068 1,748.755
-12-Jul-2024 *** Stamp Duty *** 0.15
-18-Jul-2024 Purchase Systematic-BSE - Instalment No - 4/361 2,999.85 35.712 84.0002 1,784.467
-18-Jul-2024 *** Stamp Duty *** 0.15
-24-Jul-2024 Purchase Systematic-BSE - Instalment No - 15/481 1,999.90 24.005 83.3111 1,808.472
-24-Jul-2024 *** Stamp Duty *** 0.10
-01-Aug-2024 Purchase Systematic-BSE - Instalment No - 4/361 2,999.85 35.151 85.3407 1,843.623
-01-Aug-2024 *** Stamp Duty *** 0.15
-06-Aug-2024 Purchase Systematic-BSE - Instalment No - 27 2,999.85 36.501 82.1857 1,880.124
-06-Aug-2024 *** Stamp Duty *** 0.15
-12-Aug-2024 Purchase Systematic-BSE - Instalment No - 5/361 2,999.85 35.833 83.7172 1,915.957
-12-Aug-2024 *** Stamp Duty *** 0.15
-19-Aug-2024 Purchase Systematic-BSE - Instalment No - 5/361 2,999.85 35.425 84.6819 1,951.382
-19-Aug-2024 *** Stamp Duty *** 0.15
-
-#### Page 6 of 12
-
-
------
-
-# Consolidated Account Statement
-
-### 06-Mar-2002 To 20-Feb-2025
-
-
-#### Date Transaction Amount Units NAV           Unit
-(INR) (INR) Balance
-
-26-Aug-2024 Purchase Systematic-BSE - Instalment No - 16/481 1,999.90 23.319 85.7622 1,974.701
-26-Aug-2024 *** Stamp Duty *** 0.10
-06-Sep-2024 Purchase Systematic-BSE - Instalment No - 28 2,999.85 35.235 85.1393 2,009.936
-06-Sep-2024 *** Stamp Duty *** 0.15
-12-Sep-2024 Purchase Systematic-BSE - Instalment No - 6/361 2,999.85 34.601 86.6981 2,044.537
-12-Sep-2024 *** Stamp Duty *** 0.15
-18-Sep-2024 Purchase Systematic-BSE - Instalment No - 6/361 2,999.85 34.364 87.2969 2,078.901
-18-Sep-2024 *** Stamp Duty *** 0.15
-24-Sep-2024 Purchase Systematic-BSE - Instalment No - 17/481 1,999.90 22.495 88.9023 2,101.396
-24-Sep-2024 *** Stamp Duty *** 0.10
-01-Oct-2024 Purchase Systematic-BSE - Instalment No - 6/361 2,999.85 33.841 88.6465 2,135.237
-01-Oct-2024 *** Stamp Duty *** 0.15
-07-Oct-2024 Purchase Systematic-BSE - Instalment No - 29 2,999.85 34.892 85.9761 2,170.129
-07-Oct-2024 *** Stamp Duty *** 0.15
-14-Oct-2024 Purchase Systematic-BSE - Instalment No - 7/361 2,999.85 34.138 87.8732 2,204.267
-14-Oct-2024 *** Stamp Duty *** 0.15
-18-Oct-2024 Purchase Systematic-BSE - Instalment No - 7/361 2,999.85 34.218 87.6683 2,238.485
-18-Oct-2024 *** Stamp Duty *** 0.15
-24-Oct-2024 Purchase Systematic-BSE - Instalment No - 18/481 1,999.90 23.130 86.4618 2,261.615
-24-Oct-2024 *** Stamp Duty *** 0.10
-04-Nov-2024 Purchase Systematic-BSE - Instalment No - 7/361 2,999.85 34.978 85.7645 2,296.593
-04-Nov-2024 *** Stamp Duty *** 0.15
-04-Nov-2024 Purchase-BSE - 14,999.25 174.889 85.7645 2,471.482
-04-Nov-2024 *** Stamp Duty *** 0.75
-06-Nov-2024 Purchase Systematic-BSE - Instalment No - 30 2,999.85 34.447 87.0848 2,505.929
-06-Nov-2024 *** Stamp Duty *** 0.15
-12-Nov-2024 Purchase Systematic-BSE - Instalment No - 8/361 2,999.85 34.646 86.5864 2,540.575
-12-Nov-2024 *** Stamp Duty *** 0.15
-18-Nov-2024 Purchase-BSE - 14,999.25 175.956 85.2443 2,716.531
-18-Nov-2024 *** Stamp Duty *** 0.75
-18-Nov-2024 Purchase Systematic-BSE - Instalment No - 8/361 2,999.85 35.191 85.2443 2,751.722
-18-Nov-2024 *** Stamp Duty *** 0.15
-25-Nov-2024 Purchase Systematic-BSE - Instalment No - 19/481 1,999.90 23.006 86.9296 2,774.728
-25-Nov-2024 *** Stamp Duty *** 0.10
-02-Dec-2024 Purchase Systematic-BSE - Instalment No - 8/361 2,999.85 34.369 87.2842 2,809.097
-02-Dec-2024 *** Stamp Duty *** 0.15
-06-Dec-2024 Purchase Systematic-BSE - Instalment No - 31 2,999.85 33.824 88.6888 2,842.921
-06-Dec-2024 *** Stamp Duty *** 0.15
-24-Dec-2024 Purchase Systematic-BSE - Instalment No - 20/481 1,999.90 22.872 87.4392 2,865.793
-24-Dec-2024 *** Stamp Duty *** 0.10
-01-Jan-2025 Purchase Systematic-BSE - Instalment No - 9/361 2,999.85 34.110 87.9456 2,899.903
-01-Jan-2025 *** Stamp Duty *** 0.15
-06-Jan-2025 Purchase Systematic-BSE - Instalment No - 32 2,999.85 34.344 87.3465 2,934.247
-06-Jan-2025 *** Stamp Duty *** 0.15
-13-Jan-2025 Purchase Systematic-BSE - Instalment No - 10/361 2,999.85 35.253 85.0944 2,969.500
-13-Jan-2025 *** Stamp Duty *** 0.15
-20-Jan-2025 Purchase Systematic-BSE - Instalment No - 10/361 2,999.85 34.738 86.3561 3,004.238
-20-Jan-2025 *** Stamp Duty *** 0.15
-24-Jan-2025 Purchase Systematic-BSE - Instalment No - 21/481 1,999.90 23.222 86.1202 3,027.460
-24-Jan-2025 *** Stamp Duty *** 0.10
-30-Jan-2025 Purchase-BSE - 9,999.50 115.662 86.4548 3,143.122
-30-Jan-2025 *** Stamp Duty *** 0.50
-03-Feb-2025 Purchase Systematic-BSE - Instalment No - 10/361 2,999.85 34.331 87.3790 3,177.453
-03-Feb-2025 *** Stamp Duty *** 0.15
-06-Feb-2025 Purchase Systematic-BSE - Instalment No - 33 2,999.85 34.189 87.7441 3,211.642
-06-Feb-2025 *** Stamp Duty *** 0.15
-12-Feb-2025 Purchase Systematic-BSE - Instalment No - 11/361 2,999.85 34.899 85.9582 3,246.541
-12-Feb-2025 *** Stamp Duty *** 0.15
-13-Feb-2025 Purchase-BSE - 29,998.50 348.019 86.1979 3,594.560
-13-Feb-2025 *** Stamp Duty *** 1.50
-18-Feb-2025 Purchase Systematic-BSE - Instalment No - 11/361 2,999.85 34.926 85.8927 3,629.486
-18-Feb-2025 *** Stamp Duty *** 0.15
-
-#### Page 7 of 12
-
-
------
-
-# Consolidated Account Statement
-
-
-### 06-Mar-2002 To 20-Feb-2025
-
-#### Date Transaction Amount Units NAV           Unit
-(INR) (INR) Balance
-
-
-#### Folio No: 13291382 Sanchit Walia
-
-
-#### PAN: AFDPW5788D KYC: OK PAN: OK
-
-
-PPTSFGZ-Parag Parikh ELSS Tax Saver Fund - Direct Plan (Non-Demat) - ISIN: INF879O01100(Advisor: INA100006898) Registrar : CAMS
-
-#### Nominee 1: Sanjay Kumar Walia Nominee 2: Sanyam Walia Nominee 3:
-
-
-Opening Unit Balance: 0.000
-17-Feb-2023 Purchase 49,997.50 2,374.625 21.0549 2,374.625
-17-Feb-2023 *** Stamp Duty *** 2.50
-18-Feb-2023 ***Address Updated from KRA Data***
-18-Feb-2023 ***Registration of Nominee***
-11-May-2023 Purchase Systematic Instalment No - 1 3,999.80 183.016 21.8549 2,557.641
-11-May-2023 *** Stamp Duty *** 0.20
-12-Jun-2023 Purchase Systematic Instalment No - 3/12 3,999.80 180.646 22.1417 2,738.287
-12-Jun-2023 *** Stamp Duty *** 0.20
-11-Jul-2023 Purchase Systematic Instalment No - 4/12 3,999.80 175.232 22.8257 2,913.519
-11-Jul-2023 *** Stamp Duty *** 0.20
-11-Aug-2023 Purchase Systematic Instalment No - 5/12 3,999.80 172.966 23.1248 3,086.485
-11-Aug-2023 *** Stamp Duty *** 0.20
-11-Sep-2023 Purchase Systematic Instalment No - 6/12 3,999.80 163.087 24.5255 3,249.572
-11-Sep-2023 *** Stamp Duty *** 0.20
-11-Oct-2023 Purchase Systematic Instalment No - 7/12 3,999.80 163.227 24.5045 3,412.799
-11-Oct-2023 *** Stamp Duty *** 0.20
-10-Nov-2023 Purchase Systematic Instalment No - 8/12 3,999.80 163.076 24.5272 3,575.875
-10-Nov-2023 *** Stamp Duty *** 0.20
-11-Dec-2023 Purchase Systematic Instalment No - 9/12 3,999.80 152.415 26.2428 3,728.290
-11-Dec-2023 *** Stamp Duty *** 0.20
-10-Jan-2024 Purchase Systematic Instalment No - 10/12 3,999.80 149.330 26.7849 3,877.620
-10-Jan-2024 *** Stamp Duty *** 0.20
-12-Feb-2024 Purchase Systematic Instalment No - 11/12 3,999.80 144.614 27.6584 4,022.234
-12-Feb-2024 *** Stamp Duty *** 0.20
-20-Feb-2024 ***Cancelled***
-06-Jul-2024 ***Change of Bank Mandate***
-
-Closing Unit Balance: 4,022.234 NAV on 19-Feb-2025: INR 31.4289 Total Cost Value: 90,000.00 Market Value on 19-Feb-2025: INR 126,414.39
-
-
-Entry Load and Exit Load-Nil. All the investments in this Scheme are under ELSS. Units are under lock-in period of 3 Years from the date of investment. Please refer
-the Offer Document / Addendum issued from time to time for any change in load structure. In Equity Linked Tax Saving Scheme (ELSS), investment eligible for tax
-benefits under Section 80C of Income Tax Act subject to conditions and limitations specified therein. "Effective from July 01, 2020, stamp duty @ 0.005% will be
-deducted from the Net investment amount. Units will be allotted for the balance amount".
-
-
-## Quant MF
-
-#### Folio No: 51028381872 / 0 PAN: AFDPW5788D KYC: OK PAN: OK SANCHIT WALIA
-
-166TPDGG-quant ELSS Tax Saver Fund - Direct Plan - ISIN: INF966L01986(Advisor: INA100006898) Registrar :
-
-KFINTECH
-
-#### Nominee 1: Sanyam Walia Nominee 2: Sanjay Kumar Walia Nominee 3:
-
-Opening Unit Balance: 0.000
-10-May-2023 Systematic Investment (1) 3,999.80 15.487 258.2704 15.487
-10-May-2023 *** Stamp Duty *** 0.20
-11-May-2023 ******Address Updated from CVL Data******
-12-Jun-2023 Systematic Investment (1) 3,999.80 14.892 268.5838 30.379
-12-Jun-2023 *** Stamp Duty *** 0.20
-10-Jul-2023 Systematic Investment (1) 3,999.80 14.225 281.1736 44.604
-10-Jul-2023 *** Stamp Duty *** 0.20
-10-Aug-2023 Systematic Investment (1) 3,999.80 13.726 291.3927 58.330
-10-Aug-2023 *** Stamp Duty *** 0.20
-11-Sep-2023 Systematic Investment (1) 3,999.80 12.857 311.1021 71.187
-11-Sep-2023 *** Stamp Duty *** 0.20
-10-Oct-2023 Systematic Investment (1) 3,999.80 13.202 302.9704 84.389
-10-Oct-2023 *** Stamp Duty *** 0.20
-
-
-#### Page 8 of 12
-
-
------
-
-# Consolidated Account Statement
-
-
-### 06-Mar-2002 To 20-Feb-2025
-
-#### Date Transaction Amount Units NAV           Unit
-(INR) (INR) Balance
-
-10-Nov-2023 Systematic Investment (1) 3,999.80 12.950 308.8757 97.339
-10-Nov-2023 *** Stamp Duty *** 0.20
-11-Dec-2023 Systematic Investment (1) 3,999.80 11.847 337.6126 109.186
-11-Dec-2023 *** Stamp Duty *** 0.20
-12-Feb-2024 Systematic Investment (1) 3,999.80 10.603 377.2409 119.789
-12-Feb-2024 *** Stamp Duty *** 0.20
-07-Jun-2024 ******Address Updated from CVL Data******
-
-Closing Unit Balance: 119.789 NAV on 19-Feb-2025: INR 357.9666 Total Cost Value: 36,000.00 Market Value on 19-Feb-2025: INR 42,880.46
-
-
-Entry load - NILL, Exit load - NILL. Lock in period is 3 years from the date of subscription.The above investment in Quant Tax Plan Fund is eligible for availing tax
-benefits under Section 80C of Income Tax Act,1961.
-
-
-#### Folio No: 51028381872 / 0 SANCHIT WALIA
-
-
-#### PAN: AFDPW5788D KYC: OK PAN: OK
-
-
-166PEDGG-quant Flexi Cap Fund - Direct Plan Growth - ISIN: INF966L01911(Advisor: EOP-0002) Registrar :
-
-KFINTECH
-
-#### Nominee 1: Sanyam Walia Nominee 2: Sanjay Kumar Walia Nominee 3:
-
-
-Opening Unit Balance: 0.000
-11-May-2023 ******Address Updated from CVL Data******
-07-Jun-2024 ******Address Updated from CVL Data******
-31-Jul-2024 Systematic Investment (1) 1,999.90 16.480 121.3497 16.480
-31-Jul-2024 *** Stamp Duty *** 0.10
-31-Jul-2024 Systematic Investment (1) 1,999.90 16.480 121.3497 32.960
-31-Jul-2024 *** Stamp Duty *** 0.10
-05-Aug-2024 Systematic Investment (1) 1,999.90 17.163 116.5249 50.123
-05-Aug-2024 *** Stamp Duty *** 0.10
-05-Aug-2024 Systematic Investment (1) 1,999.90 17.163 116.5249 67.286
-05-Aug-2024 *** Stamp Duty *** 0.10
-07-Aug-2024 Systematic Investment (1) 1,999.90 16.945 118.0239 84.231
-07-Aug-2024 *** Stamp Duty *** 0.10
-14-Aug-2024 Systematic Investment (1) 1,999.90 17.220 116.1408 101.451
-14-Aug-2024 *** Stamp Duty *** 0.10
-09-Sep-2024 Systematic Investment (1) 1,999.90 16.806 119.0013 118.257
-09-Sep-2024 *** Stamp Duty *** 0.10
-16-Sep-2024 Systematic Investment (1) 1,999.90 16.534 120.9571 134.791
-16-Sep-2024 *** Stamp Duty *** 0.10
-23-Sep-2024 Systematic Investment (1) 1,999.90 16.409 121.8789 151.200
-23-Sep-2024 *** Stamp Duty *** 0.10
-30-Sep-2024 Systematic Investment (1) 1,999.90 16.379 122.1034 167.579
-30-Sep-2024 *** Stamp Duty *** 0.10
-07-Oct-2024 Systematic Investment (1) 1,999.90 16.943 118.0375 184.522
-07-Oct-2024 *** Stamp Duty *** 0.10
-14-Oct-2024 Systematic Investment (1) 1,999.90 16.906 118.2934 201.428
-14-Oct-2024 *** Stamp Duty *** 0.10
-21-Oct-2024 Systematic Investment (1) 1,999.90 17.452 114.5953 218.880
-21-Oct-2024 *** Stamp Duty *** 0.10
-28-Oct-2024 Systematic Investment (1) 1,999.90 17.921 111.5957 236.801
-28-Oct-2024 *** Stamp Duty *** 0.10
-07-Nov-2024 Systematic Investment (1) 1,999.90 18.048 110.8091 254.849
-07-Nov-2024 *** Stamp Duty *** 0.10
-14-Nov-2024 Systematic Investment (1) 1,999.90 18.848 106.1052 273.697
-14-Nov-2024 *** Stamp Duty *** 0.10
-21-Nov-2024 Systematic Investment (1) 1,999.90 19.451 102.8178 293.148
-21-Nov-2024 *** Stamp Duty *** 0.10
-28-Nov-2024 Systematic Investment (1) 1,999.90 18.612 107.4499 311.760
-28-Nov-2024 *** Stamp Duty *** 0.10
-30-Dec-2024 Systematic Investment (1) 1,999.90 18.895 105.8421 330.655
-30-Dec-2024 *** Stamp Duty *** 0.10
-07-Jan-2025 Systematic Investment (1) 1,999.90 18.918 105.7132 349.573
-07-Jan-2025 *** Stamp Duty *** 0.10
-14-Jan-2025 Systematic Investment (1) 1,999.90 19.524 102.4315 369.097
-14-Jan-2025 *** Stamp Duty *** 0.10
-21-Jan-2025 Systematic Investment (1) 1,999.90 19.396 103.1098 388.493
-21-Jan-2025 *** Stamp Duty *** 0.10
-28-Jan-2025 Systematic Investment (1) 1,999.90 20.074 99.6262 408.567
-28-Jan-2025 *** Stamp Duty *** 0.10
-07-Feb-2025 Systematic Investment (1) 1,999.90 19.725 101.3910 428.292
-07-Feb-2025 *** Stamp Duty *** 0.10
-14-Feb-2025 Systematic Investment (1) 1,999.90 20.812 96.0944 449.104
-14-Feb-2025 *** Stamp Duty *** 0.10
-
-#### Page 9 of 12
-
-
------
-
-# Consolidated Account Statement
-
-
-### 06-Mar-2002 To 20-Feb-2025
-
-#### Date Transaction Amount Units NAV           Unit
-(INR) (INR) Balance
-
-Closing Unit Balance: 449.104 NAV on 19-Feb-2025: INR 96.6250 Total Cost Value: 50,000.00 Market Value on 19-Feb-2025: INR 43,394.67
-
-
-Entry Load NIL, Exit Load - 1% if redeemed within 15 days of allotment of units on all redemptions/switchouts including STP
-
-
-#### Folio No: 51073313842 / 0 SANCHIT WALIA
-
-
-#### PAN: AFDPW5788D KYC: OK PAN: OK
-
-
-166PEDGG-quant Flexi Cap Fund - Direct Plan Growth - ISIN: INF966L01911(Advisor: INZ000240532) Registrar :
-
-KFINTECH
-
-#### Nominee 1: Sanyam Walia Nominee 2: Nominee 3:
-
-
-Opening Unit Balance: 0.000
-05-Jun-2024 New Purchase 14,999.25 136.342 110.0122 136.342
-05-Jun-2024 *** Stamp Duty *** 0.75
-07-Jun-2024 ******Address Updated from CVL Data******
-21-Oct-2024 Additional Purchase 9,999.50 87.259 114.5953 223.601
-21-Oct-2024 *** Stamp Duty *** 0.50
-18-Nov-2024 Additional Purchase 14,999.25 141.362 106.1052 364.963
-18-Nov-2024 *** Stamp Duty *** 0.75
-
-Closing Unit Balance: 364.963 NAV on 19-Feb-2025: INR 96.6250 Total Cost Value: 40,000.00 Market Value on 19-Feb-2025: INR 35,264.55
-
-
-Entry Load NIL, Exit Load - 1% if redeemed within 15 days of allotment of units on all redemptions/switchouts including STP
-
-
-## SBI Mutual Fund
-
-#### Folio No: 23224722 PAN: AFDPW5788D KYC: OK PAN: OK Sanchit Walia
-
-LD346G-SBI Small Cap Fund Direct Growth (formerly SBI Small & Midcap Fund) (Non-Demat) - ISIN: INF200K01T51(Advisor: INZ000240532) Registrar : CAMS
-
-#### Nominee 1: Sanjay Walia Nominee 2: Surita Walia Nominee 3:
-
-Opening Unit Balance: 0.000
-11-Nov-2019 Purchase - Systematic 500.00 8.667 57.6920 8.667
-12-Nov-2019 ***Address Updated from KRA Data***
-24-Feb-2020 Purchase - Systematic 500.00 8.091 61.7942 16.758
-23-Dec-2020 Purchase - Systematic 499.98 6.579 75.9950 23.337
-23-Dec-2020 *** Stamp Duty *** 0.02
-25-Jan-2021 Purchase - Systematic 499.98 6.330 78.9867 29.667
-25-Jan-2021 *** Stamp Duty *** 0.02
-23-Apr-2021 Purchase - Systematic 499.98 5.687 87.9149 35.354
-23-Apr-2021 *** Stamp Duty *** 0.02
-23-Jun-2021 Purchase - Systematic 499.98 5.014 99.7100 40.368
-23-Jun-2021 *** Stamp Duty *** 0.02
-23-Jul-2021 Purchase - Systematic 499.98 4.789 104.3972 45.157
-23-Jul-2021 *** Stamp Duty *** 0.02
-24-Aug-2021 Purchase - Systematic 499.98 4.947 101.0715 50.104
-24-Aug-2021 *** Stamp Duty *** 0.02
-23-Sep-2021 Purchase - Systematic 499.98 4.537 110.2011 54.641
-23-Sep-2021 *** Stamp Duty *** 0.02
-25-Oct-2021 Purchase - Systematic 499.98 4.464 111.9962 59.105
-25-Oct-2021 *** Stamp Duty *** 0.02
-23-Nov-2021 Purchase - Systematic 499.98 4.319 115.7625 63.424
-23-Nov-2021 *** Stamp Duty *** 0.02
-24-Dec-2021 Purchase - Systematic Instalment No - 24 499.98 4.424 113.0034 67.848
-24-Dec-2021 *** Stamp Duty *** 0.02
-24-Jan-2022 Purchase - Systematic Instalment No - 1 1,499.93 13.176 113.8388 81.024
-24-Jan-2022 *** Stamp Duty *** 0.07
-28-Feb-2022 ***Invalid Purchase23-FEB-2022_***
-23-Mar-2022 Purchase - Systematic Instalment No - 3/482-Channel 1,499.93 13.385 112.0594 94.409
-23-Mar-2022 *** Stamp Duty *** 0.07
-26-Apr-2022 ***Invalid Purchase25-APR-2022_***
-03-Jun-2022 ***Invalid Purchase23-MAY-2022_ (Reversal - 1243 )***
-23-Jun-2022 Purchase - Systematic Instalment No - 6/482-Channel 1,499.93 14.206 105.5826 108.615
-23-Jun-2022 *** Stamp Duty *** 0.07
-12-Jul-2022 ***Address Updated from KRA Data***
-25-Jul-2022 Purchase - Systematic Instalment No - 7/482-Channel 1,499.93 13.120 114.3251 121.735
-25-Jul-2022 *** Stamp Duty *** 0.07
-23-Aug-2022 Purchase - Systematic Instalment No - 8/482-Channel 1,499.93 12.281 122.1378 134.016
-23-Aug-2022 *** Stamp Duty *** 0.07
-23-Sep-2022 Purchase - Systematic Instalment No - 9/482-Channel 1,499.93 11.814 126.9671 145.830
-23-Sep-2022 *** Stamp Duty *** 0.07
-25-Oct-2022 Purchase - Systematic-BSE - Instalment No - 10-Channel 1,499.93 11.705 128.1443 157.535
-25-Oct-2022 *** Stamp Duty *** 0.07
-23-Nov-2022 Purchase - Systematic-BSE - Instalment No - 11-Channel 1,499.93 11.741 127.7493 169.276
-
-
-#### Page 10 of 12
-
-
------
-
-# Consolidated Account Statement
-
-### 06-Mar-2002 To 20-Feb-2025
-
-
-#### Date Transaction Amount Units NAV           Unit
-(INR) (INR) Balance
-
-23-Nov-2022 *** Stamp Duty *** 0.07
-23-Dec-2022 Purchase - Systematic-BSE - Instalment No - 12-Channel 1,499.93 12.237 122.5751 181.513
-23-Dec-2022 *** Stamp Duty *** 0.07
-02-Jan-2023 ***Cancelled***
-23-Jan-2023 Purchase - Systematic-BSE - Instalment No - 13 1,499.93 12.055 124.4250 193.568
-23-Jan-2023 *** Stamp Duty *** 0.07
-23-Mar-2023 Purchase - Systematic-BSE - Instalment No - 15 1,499.93 12.324 121.7065 205.892
-23-Mar-2023 *** Stamp Duty *** 0.07
-24-Apr-2023 Purchase - Systematic-BSE - Instalment No - 15 1,499.93 11.964 125.3720 217.856
-24-Apr-2023 *** Stamp Duty *** 0.07
-09-May-2023 Purchase - Systematic-BSE - Instalment No - 1 4,999.75 38.810 128.8274 256.666
-09-May-2023 *** Stamp Duty *** 0.25
-16-May-2023 ***Change / Regn of NomineeNominee addition through - MFC-113447636335097834***
-12-Jun-2023 Purchase - Systematic-BSE - Instalment No - 2/481-Exchange 4,999.75 37.117 134.7018 293.783
-12-Jun-2023 *** Stamp Duty *** 0.25
-10-Jul-2023 Purchase - Systematic-BSE - Instalment No - 3/481-Exchange 4,999.75 35.847 139.4743 329.630
-10-Jul-2023 *** Stamp Duty *** 0.25
-11-Aug-2023 Purchase - Systematic-BSE - Instalment No - 4/481-Exchange 4,999.75 34.342 145.5881 363.972
-11-Aug-2023 *** Stamp Duty *** 0.25
-11-Sep-2023 Purchase - Systematic-BSE - Instalment No - 5/481-Exchange 4,999.75 32.258 154.9908 396.230
-11-Sep-2023 *** Stamp Duty *** 0.25
-10-Oct-2023 Purchase - Systematic-BSE - Instalment No - 6/481-Exchange 4,999.75 33.142 150.8563 429.372
-10-Oct-2023 *** Stamp Duty *** 0.25
-10-Nov-2023 Purchase - Systematic-BSE - Instalment No - 7/481-Exchange 4,999.75 33.204 150.5781 462.576
-10-Nov-2023 *** Stamp Duty *** 0.25
-11-Dec-2023 Purchase - Systematic-BSE - Instalment No - 8/481-Exchange 4,999.75 31.288 159.7954 493.864
-11-Dec-2023 *** Stamp Duty *** 0.25
-01-Jan-2024 *Redemption(NEFT Paytm Payments Bank)-BSE -, less STT (20,000.00) (123.896) 161.4272 369.968
-01-Jan-2024 *** STT Paid *** 0.20
-09-Jan-2024 ***Cancelled***
-10-Jan-2024 Purchase - Systematic-BSE - Instalment No - 1 1,999.90 12.288 162.7562 382.256
-10-Jan-2024 *** Stamp Duty *** 0.10
-12-Feb-2024 Purchase - Systematic-BSE - Instalment No - 2/360-Exchange 1,999.90 12.094 165.3607 394.350
-12-Feb-2024 *** Stamp Duty *** 0.10
-11-Mar-2024 Purchase - Systematic-BSE - Instalment No - 3-Exchange 1,999.90 11.870 168.4794 406.220
-11-Mar-2024 *** Stamp Duty *** 0.10
-12-Mar-2024 *Redemption(NEFT Paytm Payments Bank)-BSE -, less STT (10,000.00) (60.167) 166.2062 346.053
-12-Mar-2024 *** STT Paid *** 0.10
-10-May-2024 Purchase - Systematic-BSE - Instalment No - 5/360-Exchange 1,999.90 11.377 175.7796 357.430
-10-May-2024 *** Stamp Duty *** 0.10
-10-Jun-2024 Purchase - Systematic-BSE - Instalment No - 6/360-Exchange 1,999.90 10.397 192.3518 367.827
-10-Jun-2024 *** Stamp Duty *** 0.10
-27-Jun-2024 *Redemption(DIRECT CREDIT)-BSE - - 706168, less STT (15,000.00) (75.934) 197.5410 291.893
-27-Jun-2024 *** STT Paid *** 0.15
-06-Jul-2024 ***Change of Bank Mandate***
-10-Jul-2024 Purchase - Systematic-BSE - Instalment No - 7/360-Exchange 1,999.90 9.803 204.0050 301.696
-10-Jul-2024 *** Stamp Duty *** 0.10
-12-Aug-2024 Purchase - Systematic-BSE - Instalment No - 8/360-Exchange 1,999.90 9.892 202.1742 311.588
-12-Aug-2024 *** Stamp Duty *** 0.10
-10-Sep-2024 Purchase - Systematic-BSE - Instalment No - 9/360-Exchange 1,999.90 9.441 211.8353 321.029
-10-Sep-2024 *** Stamp Duty *** 0.10
-10-Oct-2024 Purchase - Systematic-BSE - Instalment No - 10/360-Exchange 1,999.90 9.469 211.2075 330.498
-10-Oct-2024 *** Stamp Duty *** 0.10
-11-Nov-2024 Purchase - Systematic-BSE - Instalment No - 11/360-Exchange 1,999.90 9.941 201.1783 340.439
-11-Nov-2024 *** Stamp Duty *** 0.10
-10-Dec-2024 Purchase - Systematic-BSE - Instalment No - 12/360-Exchange 1,999.90 9.515 210.1936 349.954
-10-Dec-2024 *** Stamp Duty *** 0.10
-10-Jan-2025 Purchase - Systematic-BSE - Instalment No - 13/360-Exchange 1,999.90 10.304 194.0951 360.258
-10-Jan-2025 *** Stamp Duty *** 0.10
-10-Feb-2025 Purchase - Systematic-BSE - Instalment No - 14/360-Exchange 1,999.90 10.899 183.4947 371.157
-10-Feb-2025 *** Stamp Duty *** 0.10
-
-#### Page 11 of 12
-
-
------
-
-# Consolidated Account Statement
-
-
-### 06-Mar-2002 To 20-Feb-2025
-
-#### Date Transaction Amount Units NAV           Unit
-(INR) (INR) Balance
-
-Closing Unit Balance: 371.157 NAV on 19-Feb-2025: INR 172.8542 Total Cost Value: 60,551.26 Market Value on 19-Feb-2025: INR 64,156.05
-
-"Entry Load : N.A.; Exit Load - W.e.f. 08-AUG-2011: 1% - if the units are redeemed/switched-out within 1 Year from the date of allotment; Nil - if the units are
-redeemed/switched-out after 1 year from the date of allotment. STT @ 0.001% is applicable at the time of redemption / switch. For applicability of exit load
-structure, please refer to Addendum issued from time to time. **Scheme name of """""""""""""""""SBI Small & Midcap Fund""""""""""""""""" has been changed to
-"""""""""""""""""SBI Small Cap Fund""""""""""""""""" with effect from 16th May 2018."  W.e.f. 1st July 2020, Stamp Duty @ 0.005% is applicable on allotment of units. As per
-SEBI guidelines, w.e.f. February 01, 2021, applicable NAV for allotment of units shall be based on time of receipt of transaction and funds available for utilization
-upto the cut-off time. TDS shall be deducted (wherever applicable) as per rates under New Tax Regime. Differential tax if any, should be evaluated by investor(s),
-basis relevant tax provisions.
-
-
-#### Folio No: 23224722 Sanchit Walia
-
-
-#### PAN: AFDPW5788D KYC: OK PAN: OK
-
-
-L851-SBIMF - Unclaimed IDCW[#] & Redemption Scheme - Growth (Non-Demat) - ISIN: UNCLAIMDISIN(Advisor: DIRECT) Registrar : CAMS
-
-#### Nominee 1: Sanjay Walia Nominee 2: Surita Walia Nominee 3:
-
-
-Opening Unit Balance: 0.000
-25-Oct-2024 Purchase - Unclaimed Redemption - SBI Small Cap Fund Direct Growth - 14,999.25 950.535 15.7798 950.535
-Tr.dt:27-Jun-24
-
-25-Oct-2024 *** Stamp Duty *** 0.75
-28-Oct-2024 ***EBT Perpetual Registration***
-
-
-Closing Unit Balance: 950.535 NAV on 18-Feb-2025: INR 16.0805 Total Cost Value: 15,000.00 Market Value on 18-Feb-2025: INR 15,285.08
-
-
-Entry Load: N.A. Exit Load: Nil.  W.e.f. 1st July 2020, Stamp Duty @ 0.005% is applicable on allotment of units. TDS shall be deducted (wherever applicable) as per
-rates under New Tax Regime. Differential tax if any, should be evaluated by investor(s), basis relevant tax provisions.
-
-
-#IDCW - Income Distribution cum Capital Withdrawal
-
-
-#### Page 12 of 12
+#### Page 9 of 9
 
 
 -----

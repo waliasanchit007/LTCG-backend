@@ -15,7 +15,7 @@ def xirr(cash_flows, guess=0.1, tol=1e-6, max_iter=100):
         derivative = (f1 - f) / tol
         if derivative == 0:
             break
-        new_rate = rate - f/derivative
+        new_rate = rate - f / derivative
         if abs(new_rate - rate) < tol:
             return new_rate
         rate = new_rate
@@ -27,17 +27,20 @@ def simulate_full_unrealized_tax(scheme):
     
     Investment summary (over entire history) includes:
       - total_investment_made: sum of all purchase amounts.
-      - current_market_value: remaining units * current NAV.
+      - current_market_value: computed as remaining_units * current NAV.
       - currently_invested: cost basis of remaining shares (sum over each remaining lot: purchase_nav * units).
       - withdrawn_amount: overall withdrawn (sum of all redemption cash inflows).
       - overall_profit: (withdrawn_amount + current_market_value) - total_investment_made.
       - profit_percentage: overall_profit / total_investment_made * 100.
       - xirr: annualized return from the entire cash-flow history.
     
-    Realized tax liability and unrealized tax liability are computed using only transactions 
-    that occur in the current financial year (FY defined here as April 1 – March 31).
+    Realized and unrealized tax liabilities are computed using only transactions in the current financial year 
+    (FY defined here as April 1 – March 31).
     
-    LTCG eligibility is also reported.
+    For ELSS funds (if the scheme name contains 'elss' or 'tax'), a lock-in period of 3 years (1095 days) is enforced:
+      - Lots with holding period less than 1095 days are flagged as "locked". Their cost and profit are accumulated 
+        separately (locked_in_amount, locked_in_profit) and are not included in LT gain calculations.
+      - Only unlocked lots contribute to LTCG eligibility.
     """
     transactions = scheme.get("transactions", [])
     current_valuation = scheme.get("valuation", {})
@@ -61,8 +64,8 @@ def simulate_full_unrealized_tax(scheme):
         fy_start = datetime(current_date.year - 1, 4, 1)
         fy_end = datetime(current_date.year, 3, 31)
 
-    # Set holding period threshold.
-    holding_threshold = 365 if tax_bucket == "equity" else 1095
+    # Set default holding period threshold.
+    default_threshold = 365 if tax_bucket == "equity" else 1095
 
     # Sort transactions by date.
     transactions_sorted = sorted(
@@ -70,17 +73,16 @@ def simulate_full_unrealized_tax(scheme):
         key=lambda tx: datetime.strptime(tx["date"], "%Y-%m-%d")
     )
 
-    # Each purchase lot: { date, purchase_nav, units }.
+    # Process transactions into purchase lots.
     purchase_lots = []
     realized_ST_gain = 0.0
     realized_LT_gain = 0.0
     realized_details = []
     total_investment_made = 0.0
 
-    # For XIRR, build complete cash flows (all-time).
-    cash_flows = []  # (date, amount): purchases as negative, redemptions as positive.
+    # For XIRR, build complete cash flows.
+    cash_flows = []  # Each entry: (date, amount)
 
-    # Process transactions.
     for tx in transactions_sorted:
         if tx.get("type", "").upper() in ["STAMP_DUTY_TAX"]:
             continue
@@ -100,7 +102,6 @@ def simulate_full_unrealized_tax(scheme):
             tx_amount = tx_nav * tx_units
 
         if tx_units > 0:
-            # Purchase: record lot and cash outflow.
             purchase_lots.append({
                 "date": tx_date,
                 "purchase_nav": tx_nav,
@@ -109,7 +110,6 @@ def simulate_full_unrealized_tax(scheme):
             total_investment_made += tx_nav * tx_units
             cash_flows.append((tx_date, - (tx_nav * tx_units)))
         elif tx_units < 0:
-            # Redemption: remove shares FIFO.
             redemption_units = abs(tx_units)
             redemption_cash = 0.0
             while redemption_units > 0 and purchase_lots:
@@ -124,10 +124,9 @@ def simulate_full_unrealized_tax(scheme):
                     lot["units"] -= redeemed_units
                 redemption_units -= redeemed_units
 
-                # Realized gain.
                 gain = redeemed_units * (tx_nav - lot["purchase_nav"])
                 holding_period = (tx_date - lot["date"]).days
-                classification = "long-term" if holding_period >= holding_threshold else "short-term"
+                classification = "long-term" if holding_period >= default_threshold else "short-term"
                 if classification == "long-term":
                     realized_LT_gain += gain
                 else:
@@ -144,16 +143,17 @@ def simulate_full_unrealized_tax(scheme):
                 })
             cash_flows.append((tx_date, redemption_cash))
 
-    # Overall withdrawn amount (all redemptions).
     overall_withdrawn_amount = sum(cf for (dt, cf) in cash_flows if cf > 0)
 
-    # Remaining holdings.
-    remaining_units = sum(lot["units"] for lot in purchase_lots)
-    currently_invested = sum(lot["purchase_nav"] * lot["units"] for lot in purchase_lots)
-    current_market_value = remaining_units * current_nav
-    unrealized_gain = current_market_value - currently_invested
+    # Determine if scheme is ELSS (by checking if its name contains 'elss' or 'tax').
+    scheme_name = scheme.get("scheme", "")
+    is_elss = ("elss" in scheme_name.lower()) or ("tax" in scheme_name.lower())
+    # For ELSS funds, lock-in period is 3 years (1095 days).
+    lock_in_period = 1095 if is_elss else default_threshold
 
-    # Compute unrealized gains per lot and LTCG eligibility.
+    # Process remaining lots.
+    locked_in_amount = 0.0
+    locked_in_profit = 0.0
     unrealized_ST_gain = 0.0
     unrealized_LT_gain = 0.0
     unrealized_details = []
@@ -161,12 +161,23 @@ def simulate_full_unrealized_tax(scheme):
     for lot in purchase_lots:
         lot_gain = lot["units"] * (current_nav - lot["purchase_nav"])
         holding_period = (current_date - lot["date"]).days
-        classification = "long-term" if holding_period >= holding_threshold else "short-term"
-        if classification == "long-term":
-            unrealized_LT_gain += lot_gain
-            ltcg_eligible_units += lot["units"]
+        if is_elss:
+            if holding_period < lock_in_period:
+                classification = "locked"
+                locked_in_amount += lot["units"] * lot["purchase_nav"]
+                locked_in_profit += lot["units"] * (current_nav - lot["purchase_nav"])
+            else:
+                classification = "unlocked long-term"
+                unrealized_LT_gain += lot_gain
+                ltcg_eligible_units += lot["units"]
         else:
-            unrealized_ST_gain += lot_gain
+            if holding_period >= default_threshold:
+                classification = "long-term"
+                unrealized_LT_gain += lot_gain
+                ltcg_eligible_units += lot["units"]
+            else:
+                classification = "short-term"
+                unrealized_ST_gain += lot_gain
         unrealized_details.append({
             "purchase_date": lot["date"].strftime("%Y-%m-%d"),
             "purchase_nav": lot["purchase_nav"],
@@ -196,7 +207,7 @@ def simulate_full_unrealized_tax(scheme):
         tax_rate_ST = 0.0
         exemption_available = None
 
-    # For realized tax liability, consider only redemptions in the current FY.
+    # For realized tax liability, only consider redemptions in the current FY.
     fy_realized_details = [r for r in realized_details 
                            if fy_start <= datetime.strptime(r["redemption_date"], "%Y-%m-%d") <= fy_end]
     fy_realized_LT_gain = sum(r["gain"] for r in fy_realized_details if r["classification"]=="long-term")
@@ -204,20 +215,24 @@ def simulate_full_unrealized_tax(scheme):
     fy_realized_total_gain = fy_realized_LT_gain + fy_realized_ST_gain
     potential_realized_tax = fy_realized_LT_gain * tax_rate_LT + fy_realized_ST_gain * tax_rate_ST
 
-    # For unrealized tax liability (if sold today, assumed in current FY).
+    # For unrealized tax liability (if sold today, assumed to occur in current FY).
     potential_unrealized_tax = unrealized_LT_gain * tax_rate_LT + unrealized_ST_gain * tax_rate_ST
 
-    # Overall profit and return percentage (using overall cash flows).
+    # Compute overall profit.
+    # current_market_value is defined as remaining_units * current_nav.
+    overall_profit = (overall_withdrawn_amount + (len(purchase_lots) > 0 and sum(lot["units"] for lot in purchase_lots) or 0 * current_nav)) - total_investment_made
+    # Better: compute current_market_value as:
+    remaining_units = sum(lot["units"] for lot in purchase_lots)
+    current_market_value = remaining_units * current_nav
     overall_profit = (overall_withdrawn_amount + current_market_value) - total_investment_made
     profit_percentage = (overall_profit / total_investment_made * 100) if total_investment_made else 0
+    # Calculate unrealized return percentage based on unlocked amounts:
+    currently_invested = sum(lot["purchase_nav"] * lot["units"] for lot in purchase_lots)
+    unrealized_return_percentage = ((current_market_value - currently_invested) / currently_invested * 100) if currently_invested else 0
 
-    # Unrealized return percentage.
-    unrealized_return_percentage = (unrealized_gain / currently_invested * 100) if currently_invested else 0
-
-    # LTCG eligibility.
     ltcg_eligible_value = ltcg_eligible_units * current_nav
 
-    # Compute XIRR using the complete cash-flow history plus a final inflow at current_date.
+    # Compute XIRR using complete cash-flow history plus a final inflow at current_date.
     cash_flows.append((current_date, current_market_value))
     try:
         computed_xirr = xirr(cash_flows)
@@ -248,7 +263,7 @@ def simulate_full_unrealized_tax(scheme):
             "remaining_units": round(remaining_units, 3),
             "currently_invested": round(currently_invested, 2),
             "current_market_value": round(current_market_value, 2),
-            "unrealized_gain": round(unrealized_gain, 2),
+            "unrealized_gain": round(current_market_value - currently_invested, 2),
             "unrealized_long_term_gain": round(unrealized_LT_gain, 2),
             "unrealized_short_term_gain": round(unrealized_ST_gain, 2),
             "unrealized_return_percentage": round(unrealized_return_percentage, 2),
@@ -263,6 +278,10 @@ def simulate_full_unrealized_tax(scheme):
             "eligible_current_value": round(ltcg_eligible_value, 2),
             "potential_tax_on_ltcg": round(unrealized_LT_gain * tax_rate_LT, 2)
         },
+        "locked": {
+            "locked_in_amount": round(locked_in_amount, 2),
+            "locked_in_profit": round(locked_in_profit, 2)
+        },
         "financial_year": {
             "fy_start": fy_start.strftime("%Y-%m-%d"),
             "fy_end": fy_end.strftime("%Y-%m-%d")
@@ -273,6 +292,6 @@ def simulate_full_unrealized_tax(scheme):
         "summary": summary,
         "details": {
             "lot_details_unrealized": unrealized_details,
-            "lot_details_realized": realized_details  # all-time details
+            "lot_details_realized": realized_details
         }
     }
