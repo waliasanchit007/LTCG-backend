@@ -17,7 +17,6 @@
     .fund-card { margin-bottom: 20px; }
     .modal-body pre { background: #f4f4f4; padding: 10px; }
     .info-link { font-size: 0.9em; margin-left: 5px; }
-    /* Style clickable summary values */
     .clickable { cursor: pointer; color: #007bff; text-decoration: underline; }
   </style>
 </head>
@@ -31,7 +30,7 @@
       <div class="form-group">
         <input type="file" id="file-input" accept=".pdf" class="form-control-file">
       </div>
-      <button id="upload-button" class="btn btn-primary">Upload & Analyze</button>
+      <button id="upload-button" class="btn btn-primary">Upload &amp; Analyze</button>
       <div id="upload-status" class="mt-3"></div>
     </div>
 
@@ -74,7 +73,7 @@
         </div>
       </div>
 
-      <!-- Merged LTCG Eligibility & Tax Summary Card (for unlocked funds) -->
+      <!-- Merged Long-Term Gains & Tax Summary Card -->
       <h2 class="section-title">
         Long-Term Gains & Tax
         <a href="#" id="ltcg-link" class="info-link">[View Details]</a>
@@ -91,8 +90,7 @@
         </div>
       </div>
 
-      <!-- Additional: Locked funds details and Withdrawal details are not separate sections,
-           but are accessible by clicking on the corresponding values in the Investment Summary. -->
+      <!-- Funds by AMC -->
       <h2 class="section-title">Funds by AMC</h2>
       <div id="funds-container">
         <!-- Fund cards will be rendered here -->
@@ -110,7 +108,7 @@
             </button>
           </div>
           <div class="modal-body" id="ltcg-details">
-            <!-- LTCG eligible details table will be inserted here -->
+            <!-- LTCG details table will be inserted here -->
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -232,12 +230,14 @@
       document.getElementById("upload-status").textContent = "Upload and analysis complete.";
 
       // Overall summary accumulators.
-      let overallInvestmentMade = 0, overallCurrentMarketValue = 0, overallCurrentlyInvested = 0, overallWithdrawn = 0, overallProfit = 0;
+      let overallCurrentMarketValue = 0, overallCurrentlyInvested = 0, overallProfit = 0;
+      let overallWithdrawn = 0;
       let overallXirr = 0;
       let realizedSummary = { currentFY: 0, lt: 0, st: 0 };
       let unrealizedSummary = { total: 0, lt: 0, st: 0 };
       let ltcgSummary = { eligibleUnits: 0, eligibleValue: 0, potentialTax: 0, unrealizedLTGain: 0 };
       let lockedOverall = { amount: 0, profit: 0 };
+      let lockedDetailsArray = [];
       let allWithdrawals = [];
       let fundsHtml = "";
       let ltcgDetails = "";
@@ -256,7 +256,6 @@
             return;
           }
           let sim = scheme.unrealized_tax_simulation.summary;
-          overallInvestmentMade += sim.investment_summary.total_investment_made;
           overallCurrentMarketValue += sim.investment_summary.current_market_value;
           overallCurrentlyInvested += sim.investment_summary.currently_invested;
           overallWithdrawn += sim.investment_summary.withdrawn_amount;
@@ -264,17 +263,15 @@
           if (!firstXirr && sim.investment_summary.xirr !== null) {
             firstXirr = sim.investment_summary.xirr;
           }
-          // Compute overall realized gain from each scheme's detailed realized transactions.
+          // Sum overall realized gain from each scheme.
           if (scheme.unrealized_tax_simulation.details && scheme.unrealized_tax_simulation.details.lot_details_realized) {
             scheme.unrealized_tax_simulation.details.lot_details_realized.forEach(tx => {
               overallRealizedGain += tx.gain;
             });
           }
-          // Also accumulate current FY realized gains.
           realizedSummary.currentFY += sim.realized.realized_total_gain_current_FY;
           realizedSummary.lt += sim.realized.realized_long_term_gain_current_FY;
           realizedSummary.st += sim.realized.realized_short_term_gain_current_FY;
-          // Accumulate unrealized gains.
           unrealizedSummary.total += sim.unrealized.unrealized_gain;
           unrealizedSummary.lt += sim.unrealized.unrealized_long_term_gain;
           unrealizedSummary.st += sim.unrealized.unrealized_short_term_gain;
@@ -283,10 +280,17 @@
           ltcgSummary.potentialTax += sim.ltcg_eligibility.potential_tax_on_ltcg;
           ltcgSummary.unrealizedLTGain += sim.unrealized.unrealized_long_term_gain;
           
-          // Accumulate locked funds details.
-          if (sim.locked) {
-            lockedOverall.amount += sim.locked.locked_in_amount;
-            lockedOverall.profit += sim.locked.locked_in_profit;
+          // Use locked data from sim.locked or scheme.locked.
+          let lockedData = sim.locked || scheme.locked;
+          if (lockedData && lockedData.locked_in_amount > 0) {
+            lockedOverall.amount += lockedData.locked_in_amount;
+            lockedOverall.profit += lockedData.locked_in_profit;
+            lockedDetailsArray.push({
+              fund: scheme.scheme,
+              folio: scheme.folio,
+              locked_in_amount: lockedData.locked_in_amount,
+              locked_in_profit: lockedData.locked_in_profit
+            });
           }
 
           // Collect withdrawal details.
@@ -296,7 +300,7 @@
                 fund: scheme.scheme,
                 folio: scheme.folio,
                 redemption_date: r.redemption_date,
-                amount: r.gain, // adjust if needed
+                amount: r.gain,
                 units: r.units
               });
             });
@@ -317,17 +321,17 @@
           let detailsHtml = `
             <ul>
               <li><strong>Currently Invested:</strong> ${formatINR(sim.investment_summary.currently_invested)}</li>
-              <li><strong>Withdrawn Amount:</strong> ${formatINR(sim.investment_summary.withdrawn_amount)}</li>
               <li><strong>Overall Profit:</strong> ${formatINR(sim.investment_summary.overall_profit)} (${sim.investment_summary.profit_percentage}%)</li>
               <li><strong>Overall Realized Gain:</strong> ${formatINR(overallRealizedGain)}</li>
               <li><strong>Realized Gain (Current FY):</strong> ${formatINR(sim.realized.realized_total_gain_current_FY)}</li>
               <li><strong>Unrealized Gain:</strong> ${formatINR(sim.investment_summary.current_market_value - sim.investment_summary.currently_invested)}
                   (LT: ${formatINR(sim.unrealized.unrealized_long_term_gain)}, ST: ${formatINR(sim.unrealized.unrealized_short_term_gain)})
               </li>
+              <li><strong>XIRR:</strong> ${sim.investment_summary.xirr ? sim.investment_summary.xirr.toFixed(2) + '%' : 'N/A'}</li>
             </ul>
           `;
 
-          // Build the fund card. Fund name is a clickable link (using its ISIN) to Zerodha's fund page.
+          // Build the fund card.
           fundsHtml += `<div class="card mb-2">
                           <div class="card-body">
                             <h5 class="card-title">
@@ -352,21 +356,15 @@
 
       // Build Overall Investment Summary HTML.
       const invSummaryHtml = `
-        <li class="list-group-item"><strong>Total Investment Made:</strong> ${formatINR(overallInvestmentMade)}</li>
         <li class="list-group-item"><strong>Current Market Value:</strong> ${formatINR(overallCurrentMarketValue)}</li>
         <li class="list-group-item"><strong>Currently Invested:</strong> ${formatINR(overallCurrentlyInvested)}</li>
-        <li class="list-group-item">
-          <strong>Withdrawn Amount:</strong> 
-          <span id="withdrawn-summary" class="clickable">${formatINR(overallWithdrawn)}</span>
-        </li>
         <li class="list-group-item"><strong>Overall Profit:</strong> ${formatINR(overallProfit)}</li>
-        <li class="list-group-item"><strong>Profit Percentage:</strong> ${((overallProfit/overallInvestmentMade)*100).toFixed(2)}%</li>
+        <li class="list-group-item"><strong>Profit Percentage:</strong> ${overallCurrentlyInvested ? ((overallProfit/overallCurrentlyInvested)*100).toFixed(2) : 0}%</li>
         <li class="list-group-item"><strong>XIRR (Annual Return):</strong> ${overallXirr.toFixed(2)}%</li>
         <li class="list-group-item">
-          <strong>Locked Investment:</strong> ${formatINR(lockedOverall.amount)}
-          <span id="locked-summary" class="clickable">[View Details]</span>
+          <strong>Locked (ELSS) Investment:</strong> ${formatINR(lockedOverall.amount)}
+          <span id="locked-link" class="clickable">[View Details]</span>
         </li>
-        <li class="list-group-item"><strong>Locked Profit:</strong> ${formatINR(lockedOverall.profit)}</li>
       `;
       document.getElementById("investment-summary").innerHTML = invSummaryHtml;
 
@@ -382,7 +380,10 @@
       // Build Unrealized Gains HTML.
       const unrealizedHtml = `
         <li class="list-group-item"><strong>Unrealized Gain:</strong> ${formatINR(unrealizedSummary.total)}</li>
+        <li class="list-group-item"><strong>Unrealized LT Gain:</strong> ${formatINR(unrealizedSummary.lt)}</li>
+        <li class="list-group-item"><strong>Unrealized ST Gain:</strong> ${formatINR(unrealizedSummary.st)}</li>
         <li class="list-group-item"><strong>Return on Current Investment:</strong> ${overallCurrentlyInvested ? ((unrealizedSummary.total/overallCurrentlyInvested)*100).toFixed(2) : 0}%</li>
+        <li class="list-group-item"><strong>Locked (ELSS) Profit:</strong> ${formatINR(lockedOverall.profit)}</li>
       `;
       document.getElementById("unrealized-summary").innerHTML = unrealizedHtml;
 
@@ -396,7 +397,8 @@
         <li class="list-group-item"><strong>LTCG Eligible Units:</strong> ${ltcgSummary.eligibleUnits.toFixed(3)}</li>
         <li class="list-group-item"><strong>Eligible Current Value:</strong> ${formatINR(ltcgSummary.eligibleValue)}</li>
         <li class="list-group-item"><strong>Long-Term Realized Gain (Current FY):</strong> ${formatINR(totalLTRealizedFY)}</li>
-        <li class="list-group-item"><strong>Total LT Gain:</strong> ${formatINR(totalLTGain)}</li>
+        <li class="list-group-item"><strong>Unrealized LT Gain:</strong> ${formatINR(ltcgSummary.unrealizedLTGain)}</li>
+        <li class="list-group-item"><strong>Total LT Gain (LTCG):</strong> ${formatINR(totalLTGain)}</li>
         <li class="list-group-item"><strong>Non-Taxable Amount:</strong> ${formatINR(nonTaxable)}</li>
         <li class="list-group-item"><strong>Final Taxable LT Gain:</strong> ${formatINR(taxableLTGain)}</li>
       `;
@@ -410,11 +412,11 @@
                                   <th>Folio</th>
                                   <th>Current Market Value</th>
                                   <th>LTCG Eligible Value</th>
-                                  <th>Unlocked LT Gain</th>
+                                  <th>LTCG</th>
                                 </tr>
                               </thead>
                               <tbody>
-                                ${ltcgDetails}
+                                ${ltcgDetails ? ltcgDetails : '<tr><td colspan="5" class="text-center">No LTCG eligible details available.</td></tr>'}
                               </tbody>
                             </table>`;
       document.getElementById("ltcg-details").innerHTML = ltcgModalHtml;
@@ -431,19 +433,23 @@
                                       </tr>
                                     </thead>
                                     <tbody>`;
-      allWithdrawals.forEach(w => {
-        withdrawalsModalHtml += `<tr>
-                                    <td>${w.fund}</td>
-                                    <td>${w.folio}</td>
-                                    <td>${w.redemption_date}</td>
-                                    <td>${formatINR(w.amount)}</td>
-                                    <td>${w.units}</td>
-                                  </tr>`;
-      });
+      if (allWithdrawals.length > 0) {
+        allWithdrawals.forEach(w => {
+          withdrawalsModalHtml += `<tr>
+                                      <td>${w.fund}</td>
+                                      <td>${w.folio}</td>
+                                      <td>${w.redemption_date}</td>
+                                      <td>${formatINR(w.amount)}</td>
+                                      <td>${w.units}</td>
+                                    </tr>`;
+        });
+      } else {
+        withdrawalsModalHtml += `<tr><td colspan="5" class="text-center">No withdrawal transactions available.</td></tr>`;
+      }
       withdrawalsModalHtml += `</tbody></table>`;
       document.getElementById("withdrawals-details").innerHTML = withdrawalsModalHtml;
 
-      // Build Locked Funds modal details.
+      // Build Locked Funds modal details from lockedDetailsArray.
       let lockedModalHtml = `<table class="table table-bordered">
                               <thead>
                                 <tr>
@@ -454,41 +460,39 @@
                                 </tr>
                               </thead>
                               <tbody>`;
-      data.data.folios.forEach(folio => {
-        folio.schemes.forEach(scheme => {
-          if (scheme.scheme && (scheme.scheme.toLowerCase().includes("uclaim") || scheme.scheme.toLowerCase().includes("redemption"))) {
-            return;
-          }
-          let sim = scheme.unrealized_tax_simulation.summary;
-          if (sim.locked && sim.locked.locked_in_amount > 0) {
-            lockedModalHtml += `<tr>
-                                  <td>${scheme.scheme}</td>
-                                  <td>${scheme.folio}</td>
-                                  <td>${formatINR(sim.locked.locked_in_amount)}</td>
-                                  <td>${formatINR(sim.locked.locked_in_profit)}</td>
-                                </tr>`;
-          }
+      if (lockedDetailsArray.length > 0) {
+        lockedDetailsArray.forEach(item => {
+          lockedModalHtml += `<tr>
+                                <td>${item.fund}</td>
+                                <td>${item.folio}</td>
+                                <td>${formatINR(item.locked_in_amount)}</td>
+                                <td>${formatINR(item.locked_in_profit)}</td>
+                              </tr>`;
         });
-      });
+      } else {
+        lockedModalHtml += `<tr><td colspan="4" class="text-center">No locked funds details available.</td></tr>`;
+      }
       lockedModalHtml += `</tbody></table>`;
       document.getElementById("locked-details").innerHTML = lockedModalHtml;
 
       // Render funds by AMC.
       document.getElementById("funds-container").innerHTML = fundsHtml;
 
-      // Set up event listeners for summary modals.
-      document.getElementById("withdrawn-summary").addEventListener("click", (e) => {
-        e.preventDefault();
-        $("#withdrawalsModal").modal("show");
-      });
-      document.getElementById("locked-summary").addEventListener("click", (e) => {
-        e.preventDefault();
-        $("#lockedModal").modal("show");
-      });
-      document.getElementById("ltcg-link").addEventListener("click", (e) => {
-        e.preventDefault();
-        $("#ltcgModal").modal("show");
-      });
+      // Attach event listeners safely.
+      let lockedLinkElem = document.getElementById("locked-link");
+      if (lockedLinkElem) {
+        lockedLinkElem.addEventListener("click", (e) => {
+          e.preventDefault();
+          $("#lockedModal").modal("show");
+        });
+      }
+      let ltcgElem = document.getElementById("ltcg-link");
+      if (ltcgElem) {
+        ltcgElem.addEventListener("click", (e) => {
+          e.preventDefault();
+          $("#ltcgModal").modal("show");
+        });
+      }
     }
 
     function toggleDetails(element) {

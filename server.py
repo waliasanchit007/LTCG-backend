@@ -208,7 +208,7 @@ def check_and_update_nav_data():
         conn.close()
 
 def initialize_app():
-    """Initializes the application: creates database table and ensures NAV data is currents."""
+    """Initializes the application: creates database table and ensures NAV data is current."""
     create_table()
     # with app.app_context():
     #     check_and_update_nav_data()
