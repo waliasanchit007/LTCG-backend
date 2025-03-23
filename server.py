@@ -19,7 +19,9 @@ DATABASE_NAME = 'mutual_fund_nav.db'
 
 def create_table():
     """Creates the nav_data table in the database if it doesn't already exist."""
-    conn = sqlite3.connect(DATABASE_NAME)
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    db_path = os.path.join(BASE_DIR, "your_db_file_name.db")  # Replace with actual filename if different
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     try:
         cursor.execute('''
@@ -69,7 +71,9 @@ def parse_and_store_nav_data(csv_data, nav_date):
     current_scheme_category = None
     current_fund_house = None
     rows_inserted = 0
-    conn = sqlite3.connect(DATABASE_NAME)
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    db_path = os.path.join(BASE_DIR, "your_db_file_name.db")  # Replace with actual filename if different
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     for line in data_lines:
         if ';' not in line:
@@ -116,7 +120,9 @@ def parse_and_store_nav_data(csv_data, nav_date):
 @app.route("/fetch_and_store_nav", methods=["GET"])
 def fetch_and_store_nav():
     try:
-        conn = sqlite3.connect(DATABASE_NAME)
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        db_path = os.path.join(BASE_DIR, "your_db_file_name.db")  # Replace with actual filename if different
+        conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
         cursor.execute("DELETE FROM nav_data")
         conn.commit()
@@ -187,7 +193,9 @@ def check_and_update_nav_data():
     If not, clears the nav_data table and fetches new data for yesterday.
     """
     yesterday = (date.today() - timedelta(days=1)).strftime('%Y-%m-%d')
-    conn = sqlite3.connect(DATABASE_NAME)
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    db_path = os.path.join(BASE_DIR, "your_db_file_name.db")  # Replace with actual filename if different
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     try:
         cursor.execute("SELECT MAX(nav_date) FROM nav_data")

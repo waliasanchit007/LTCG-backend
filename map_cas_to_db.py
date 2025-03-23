@@ -1,4 +1,5 @@
 import sqlite3
+import os
 
 DATABASE_NAME = 'mutual_fund_nav.db'
 
@@ -25,7 +26,9 @@ def map_cas_schemes_to_db(cas_json):
     
     Returns the enriched cas_json.
     """
-    conn = sqlite3.connect(DATABASE_NAME)
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    db_path = os.path.join(BASE_DIR, "your_db_file_name.db")  # Replace with actual filename if different
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     folios = cas_json.get("data", {}).get("folios", [])
