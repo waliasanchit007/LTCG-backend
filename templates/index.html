@@ -15,9 +15,13 @@
     .details-section { display: none; margin-top: 10px; }
     .section-title { border-bottom: 2px solid #dee2e6; margin-bottom: 15px; padding-bottom: 5px; }
     .fund-card { margin-bottom: 20px; }
-    .modal-body pre { background: #f4f4f4; padding: 10px; }
     .info-link { font-size: 0.9em; margin-left: 5px; }
     .clickable { cursor: pointer; color: #007bff; text-decoration: underline; }
+    /* Styling for the file-upload section */
+    #file-upload-section { margin-bottom: 20px; padding: 15px; background: #fff; border: 1px solid #ccc; border-radius: 5px; }
+    #uploaded-files { margin-bottom: 10px; }
+    .uploaded-file { display: inline-block; background: #e9ecef; padding: 5px 10px; border-radius: 15px; margin-right: 5px; margin-bottom: 5px; }
+    .uploaded-file span.remove { margin-left: 8px; cursor: pointer; color: red; }
   </style>
 </head>
 <body>
@@ -25,13 +29,16 @@
     <h1 class="mb-4">Your Investment Dashboard</h1>
 
     <!-- File Upload Section -->
-    <div class="mb-4 p-3 bg-white shadow-sm rounded">
-      <h3>Upload Your CAS Statement PDF</h3>
-      <div class="form-group">
-        <input type="file" id="file-input" accept=".pdf" class="form-control-file">
-      </div>
-      <button id="upload-button" class="btn btn-primary">Upload &amp; Analyze</button>
-      <div id="upload-status" class="mt-3"></div>
+    <div id="file-upload-section" class="mb-4">
+      <h3>Upload Your CAS Statement PDF(s)</h3>
+      <p id="upload-instructions" class="text-muted">Select a PDF file and it will be uploaded automatically.</p>
+      <!-- File input (only one file at a time) -->
+      <input type="file" id="file-input" accept=".pdf" class="form-control-file">
+      <!-- A button to allow adding another PDF (hidden until first file is uploaded) -->
+      <button id="add-button" class="btn btn-secondary mt-2" style="display: none;">Add Another PDF</button>
+      <!-- A container to list the names of uploaded files -->
+      <div id="uploaded-files" class="mt-2"></div>
+      <div id="upload-status" class="mt-2"></div>
     </div>
 
     <!-- Dashboard Section -->
@@ -108,7 +115,7 @@
             </button>
           </div>
           <div class="modal-body" id="ltcg-details">
-            <!-- LTCG details table will be inserted here -->
+            <!-- LTCG eligible details table will be inserted here -->
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -168,7 +175,7 @@
             </button>
           </div>
           <div class="modal-body">
-            <p>The Withdrawn Amount represents the total money redeemed from your funds. Click on the value above to view detailed information, including the fund name, folio, redemption date, amount withdrawn, and units redeemed.</p>
+            <p>The Withdrawn Amount represents the total money redeemed from your funds. Click on the value above to view detailed information including fund name, folio, redemption date, amount withdrawn, and units redeemed.</p>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -186,6 +193,9 @@
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   <script>
+    // Global array to store individual file results.
+    var combinedResults = [];
+
     // Helper: Format number as Indian Rupee with commas and ₹ symbol.
     function formatINR(num) {
       if(num === undefined || num === null) {
@@ -194,41 +204,43 @@
       return num.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 });
     }
 
-    // Handle file upload.
-    document.getElementById("upload-button").addEventListener("click", async () => {
-      const fileInput = document.getElementById("file-input");
-      if (fileInput.files.length === 0) {
-        alert("Please select a PDF file.");
-        return;
-      }
-      const file = fileInput.files[0];
-      document.getElementById("upload-status").textContent = "Uploading file...";
-      const formData = new FormData();
-      formData.append("file", file);
-
-      try {
-        const response = await fetch("http://127.0.0.1:5001/upload", {
-          method: "POST",
-          body: formData
+    // Improved combineData function: merge folios by AMC.
+    function combineData(resultsArray) {
+      let combined = {
+        data: {
+          folios: [],
+          investor_info: {},
+          statement_period: {}
+        },
+        msg: "success",
+        status: "success"
+      };
+      let amcMap = {};
+      resultsArray.forEach(result => {
+        result.data.folios.forEach(folio => {
+          let amcName = folio.amc.trim();
+          if (amcMap[amcName]) {
+            amcMap[amcName].schemes = amcMap[amcName].schemes.concat(folio.schemes);
+          } else {
+            amcMap[amcName] = folio;
+          }
         });
-        if (!response.ok) {
-          throw new Error("Server error: " + response.statusText);
-        }
-        const data = await response.json();
-        console.log("Parsed data received:", data);
-        renderDashboard(data);
-      } catch (error) {
-        console.error("Error:", error);
-        document.getElementById("error-message").style.display = "block";
-        document.getElementById("error-message").textContent = "Error: " + error.message;
+      });
+      combined.data.folios = Object.values(amcMap);
+      // Use investor_info and statement_period from the first result.
+      if(resultsArray.length > 0) {
+        combined.data.investor_info = resultsArray[0].data.investor_info;
+        combined.data.statement_period = resultsArray[0].data.statement_period;
       }
-    });
+      return combined;
+    }
 
-    // Render Dashboard using received JSON data.
+    // Render Dashboard using combined data (same as previous renderDashboard function).
     function renderDashboard(data) {
       document.getElementById("dashboard").style.display = "block";
-      document.getElementById("upload-status").textContent = "Upload and analysis complete.";
+      document.getElementById("upload-status").textContent = "Data combined and analysis complete.";
 
+      // (The rest of this function remains unchanged from your previous code.)
       // Overall summary accumulators.
       let overallCurrentMarketValue = 0, overallCurrentlyInvested = 0, overallProfit = 0;
       let overallWithdrawn = 0;
@@ -244,14 +256,12 @@
       let overallRealizedGain = 0;
       let firstXirr = null;
 
-      // Loop through folios (AMCs).
       data.data.folios.forEach(folio => {
         let amc = folio.amc;
         fundsHtml += `<div class="card fund-card">
                         <div class="card-header"><strong>${amc}</strong></div>
                         <div class="card-body">`;
         folio.schemes.forEach(scheme => {
-          // Skip funds with "uclaim" or "redemption"
           if (scheme.scheme && (scheme.scheme.toLowerCase().includes("uclaim") || scheme.scheme.toLowerCase().includes("redemption"))) {
             return;
           }
@@ -263,7 +273,6 @@
           if (!firstXirr && sim.investment_summary.xirr !== null) {
             firstXirr = sim.investment_summary.xirr;
           }
-          // Sum overall realized gain from each scheme.
           if (scheme.unrealized_tax_simulation.details && scheme.unrealized_tax_simulation.details.lot_details_realized) {
             scheme.unrealized_tax_simulation.details.lot_details_realized.forEach(tx => {
               overallRealizedGain += tx.gain;
@@ -280,7 +289,6 @@
           ltcgSummary.potentialTax += sim.ltcg_eligibility.potential_tax_on_ltcg;
           ltcgSummary.unrealizedLTGain += sim.unrealized.unrealized_long_term_gain;
           
-          // Use locked data from sim.locked or scheme.locked.
           let lockedData = sim.locked || scheme.locked;
           if (lockedData && lockedData.locked_in_amount > 0) {
             lockedOverall.amount += lockedData.locked_in_amount;
@@ -292,8 +300,7 @@
               locked_in_profit: lockedData.locked_in_profit
             });
           }
-
-          // Collect withdrawal details.
+          
           if (sim.lot_details_realized && sim.lot_details_realized.length > 0) {
             sim.lot_details_realized.forEach(r => {
               allWithdrawals.push({
@@ -305,8 +312,7 @@
               });
             });
           }
-
-          // Build LTCG details for modal (only include funds with eligible_current_value > 0).
+          
           if (sim.ltcg_eligibility.eligible_current_value > 0) {
             ltcgDetails += `<tr>
                               <td>${scheme.scheme}</td>
@@ -316,8 +322,7 @@
                               <td>${formatINR(sim.unrealized.unrealized_long_term_gain)}</td>
                             </tr>`;
           }
-
-          // Build a human-readable detailed simulation.
+          
           let detailsHtml = `
             <ul>
               <li><strong>Currently Invested:</strong> ${formatINR(sim.investment_summary.currently_invested)}</li>
@@ -330,8 +335,7 @@
               <li><strong>XIRR:</strong> ${sim.investment_summary.xirr ? sim.investment_summary.xirr.toFixed(2) + '%' : 'N/A'}</li>
             </ul>
           `;
-
-          // Build the fund card.
+          
           fundsHtml += `<div class="card mb-2">
                           <div class="card-body">
                             <h5 class="card-title">
@@ -351,10 +355,8 @@
         });
         fundsHtml += `</div></div>`;
       });
-
+      
       overallXirr = firstXirr !== null ? firstXirr : 0;
-
-      // Build Overall Investment Summary HTML.
       const invSummaryHtml = `
         <li class="list-group-item"><strong>Current Market Value:</strong> ${formatINR(overallCurrentMarketValue)}</li>
         <li class="list-group-item"><strong>Currently Invested:</strong> ${formatINR(overallCurrentlyInvested)}</li>
@@ -367,8 +369,7 @@
         </li>
       `;
       document.getElementById("investment-summary").innerHTML = invSummaryHtml;
-
-      // Build Realized Gains HTML.
+      
       const realizedHtml = `
         <li class="list-group-item"><strong>Overall Realized Gain:</strong> ${formatINR(overallRealizedGain)}</li>
         <li class="list-group-item"><strong>Realized Gain (Current FY):</strong> ${formatINR(realizedSummary.currentFY)}</li>
@@ -376,8 +377,7 @@
         <li class="list-group-item"><strong>Short-Term Realized Gain (Current FY):</strong> ${formatINR(realizedSummary.st)}</li>
       `;
       document.getElementById("realized-summary").innerHTML = realizedHtml;
-
-      // Build Unrealized Gains HTML.
+      
       const unrealizedHtml = `
         <li class="list-group-item"><strong>Unrealized Gain:</strong> ${formatINR(unrealizedSummary.total)}</li>
         <li class="list-group-item"><strong>Unrealized LT Gain:</strong> ${formatINR(unrealizedSummary.lt)}</li>
@@ -386,8 +386,7 @@
         <li class="list-group-item"><strong>Locked (ELSS) Profit:</strong> ${formatINR(lockedOverall.profit)}</li>
       `;
       document.getElementById("unrealized-summary").innerHTML = unrealizedHtml;
-
-      // Build Merged LTCG Eligibility & Tax Summary HTML.
+      
       let totalLTRealizedFY = realizedSummary.lt;
       let totalLTGain = totalLTRealizedFY + ltcgSummary.unrealizedLTGain;
       let nonTaxable = 100000;
@@ -403,8 +402,7 @@
         <li class="list-group-item"><strong>Final Taxable LT Gain:</strong> ${formatINR(taxableLTGain)}</li>
       `;
       document.getElementById("ltcg-summary").innerHTML = ltcgHtml;
-
-      // Build LTCG Eligible Funds modal details.
+      
       let ltcgModalHtml = `<table class="table table-bordered">
                               <thead>
                                 <tr>
@@ -412,7 +410,7 @@
                                   <th>Folio</th>
                                   <th>Current Market Value</th>
                                   <th>LTCG Eligible Value</th>
-                                  <th>LTCG</th>
+                                  <th>Unlocked LT Gain</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -420,8 +418,7 @@
                               </tbody>
                             </table>`;
       document.getElementById("ltcg-details").innerHTML = ltcgModalHtml;
-
-      // Build Withdrawal Transactions modal details.
+      
       let withdrawalsModalHtml = `<table class="table table-bordered">
                                     <thead>
                                       <tr>
@@ -448,8 +445,7 @@
       }
       withdrawalsModalHtml += `</tbody></table>`;
       document.getElementById("withdrawals-details").innerHTML = withdrawalsModalHtml;
-
-      // Build Locked Funds modal details from lockedDetailsArray.
+      
       let lockedModalHtml = `<table class="table table-bordered">
                               <thead>
                                 <tr>
@@ -474,11 +470,9 @@
       }
       lockedModalHtml += `</tbody></table>`;
       document.getElementById("locked-details").innerHTML = lockedModalHtml;
-
-      // Render funds by AMC.
+      
       document.getElementById("funds-container").innerHTML = fundsHtml;
-
-      // Attach event listeners safely.
+      
       let lockedLinkElem = document.getElementById("locked-link");
       if (lockedLinkElem) {
         lockedLinkElem.addEventListener("click", (e) => {
@@ -505,6 +499,82 @@
         element.textContent = "View Detailed Fund Performance";
       }
     }
+
+    // --- Multi-File Upload Logic ---
+    // Hide the "Add Another" button initially.
+    document.getElementById("add-button").style.display = "none";
+
+    // Use file input's change event to auto-upload.
+    function uploadFile() {
+      const fileInput = document.getElementById("file-input");
+      if (fileInput.files.length === 0) {
+        return;
+      }
+      const file = fileInput.files[0];
+      document.getElementById("upload-status").textContent = "Uploading file...";
+      const formData = new FormData();
+      formData.append("file", file);
+      fetch("http://127.0.0.1:5001/upload", {
+        method: "POST",
+        body: formData
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Server error: " + response.statusText);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log("Parsed data received:", data);
+        combinedResults.push(data);
+        // Update the list of uploaded files.
+        addUploadedFile(file.name);
+        // Hide file input and clear its value.
+        fileInput.value = "";
+        fileInput.style.display = "none";
+        // Show the "Add Another PDF" button.
+        document.getElementById("add-button").style.display = "inline-block";
+        document.getElementById("upload-status").textContent = "File uploaded successfully.";
+        // Automatically combine data and render dashboard.
+        let combinedData = combineData(combinedResults);
+        renderDashboard(combinedData);
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        document.getElementById("error-message").style.display = "block";
+        document.getElementById("error-message").textContent = "Error: " + error.message;
+      });
+    }
+
+    // Add the uploaded file name with a removable cross.
+    function addUploadedFile(fileName) {
+      const container = document.getElementById("uploaded-files");
+      const fileItem = document.createElement("div");
+      fileItem.className = "uploaded-file";
+      fileItem.innerHTML = `${fileName} <span class="remove">&times;</span>`;
+      // When the cross is clicked, remove the file from the combinedResults array.
+      fileItem.querySelector("span.remove").addEventListener("click", function() {
+        // For simplicity, we will simply remove the file item and clear all results.
+        // (In production, you might want to remove only that file’s data and re–combine the rest.)
+        container.removeChild(fileItem);
+        combinedResults = [];
+        document.getElementById("dashboard").style.display = "none";
+        document.getElementById("upload-status").textContent = "File removed. Please upload a new PDF.";
+        // Show file input again.
+        document.getElementById("file-input").style.display = "block";
+        document.getElementById("add-button").style.display = "none";
+      });
+      container.appendChild(fileItem);
+    }
+
+    // When a file is selected, auto–upload.
+    document.getElementById("file-input").addEventListener("change", uploadFile);
+
+    // "Add Another PDF" button: show the file input.
+    document.getElementById("add-button").addEventListener("click", () => {
+      document.getElementById("file-input").style.display = "block";
+      document.getElementById("upload-status").textContent = "Select another PDF file.";
+    });
   </script>
 </body>
 </html>

@@ -122,7 +122,7 @@ def fetch_and_store_nav():
         conn.commit()
         conn.close()
         create_table()
-        yesterday = date.today() - timedelta(days=4)
+        yesterday = date.today() - timedelta(days=2)
         csv_data = fetch_nav_data_from_amfi(yesterday)
         print("DEBUG: Fetched CSV Data (first 500 chars):")
         print(csv_data[:500])
