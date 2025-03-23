@@ -134,51 +134,47 @@ def fetch_and_store_nav():
 
 @app.route("/upload", methods=["POST"])
 def upload():
-    tmp_path = None
+    """Endpoint to upload a PDF file for parsing."""
+    if "file" not in request.files:
+        return jsonify({"error": "No file part in the request"}), 400
+    file = request.files["file"]
+    if file.filename == "":
+        return jsonify({"error": "No file selected"}), 400
+
+    # Retrieve password from the form, if provided.
+    password = request.form.get("password", None)
+    
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+        file.save(tmp.name)
+        tmp_path = tmp.name
+
     try:
-        if "file" not in request.files:
-            return jsonify({"error": "No file part in the request"}), 400
-        file = request.files["file"]
-        if file.filename == "":
-            return jsonify({"error": "No file selected"}), 400
-        if not file.filename.endswith('.pdf'):
-            return jsonify({"error": "File must be a PDF"}), 400
-        print(f"Saving uploaded file: {file.filename}")
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
-            file.save(tmp.name)
-            tmp_path = tmp.name
-        print(f"File saved to temporary path: {tmp_path}")
-        print("Starting PDF parsing...")
-        cas_json = pdf_parser.parse_pdf(tmp_path)
-        print("PDF parsing completed")
-        print("Mapping schemes to database...")
-        cas_json = map_cas_schemes_to_db(cas_json)
-        print("Scheme mapping completed")
-        print("Classifying schemes...")
-        cas_json = classify_cas_schemes(cas_json)
-        print("Scheme classification completed")
-        print("Calculating unrealized tax...")
-        for folio in cas_json["data"]["folios"]:
-            for scheme in folio.get("schemes", []):
-                simulation = simulate_full_unrealized_tax(scheme)
-                scheme["unrealized_tax_simulation"] = simulation
-        print("Tax calculation completed")
-        result = cas_json
+        # Pass the password to the parser if provided.
+        if password:
+            cas_json = pdf_parser.parse_pdf(tmp_path, password=password)
+        else:
+            cas_json = pdf_parser.parse_pdf(tmp_path)
     except Exception as e:
-        import traceback
-        error_trace = traceback.format_exc()
-        print(f"Error in upload endpoint: {str(e)}")
-        print(f"Full traceback:\n{error_trace}")
-        if tmp_path and os.path.exists(tmp_path):
-            os.unlink(tmp_path)
-        return jsonify({
-            "error": str(e),
-            "traceback": error_trace
-        }), 500
-    finally:
-        if tmp_path and os.path.exists(tmp_path):
-            os.unlink(tmp_path)
+        # If the error message indicates the document is encrypted,
+        # return a specific error message.
+        if "encrypted" in str(e).lower() or "document closed" in str(e).lower():
+            return jsonify({"error": "Document is encrypted. Please provide a passwords."}), 400
+        else:
+            return jsonify({"error": str(e)}), 500
+
+    # Proceed with further processing...
+    cas_json = map_cas_schemes_to_db(cas_json)
+    cas_json = classify_cas_schemes(cas_json)
+    for folio in cas_json["data"]["folios"]:
+        for scheme in folio.get("schemes", []):
+            simulation = simulate_full_unrealized_tax(scheme)
+            scheme["unrealized_tax_simulation"] = simulation
+
+    result = cas_json
+
+    os.unlink(tmp_path)
     return jsonify(result)
+
 
 # NEW: Serve the frontend page
 @app.route("/")
@@ -208,7 +204,7 @@ def check_and_update_nav_data():
         conn.close()
 
 def initialize_app():
-    """Initializes the application: creates database table and ensures NAV data is current."""
+    """Initializes the application: creates database table and ensures NAV data is currents."""
     create_table()
     # with app.app_context():
     #     check_and_update_nav_data()

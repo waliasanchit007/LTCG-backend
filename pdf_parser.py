@@ -10,6 +10,10 @@ import re
 import json
 import datetime
 import pymupdf4llm
+import pikepdf
+import tempfile
+import os
+
 # --- Helper Functions ---
 
 def parse_date(date_str, in_format="%d-%b-%Y", out_format="%Y-%m-%d"):
@@ -460,15 +464,6 @@ def parse_pdf_markdown(md_text):
 
     result["data"]["folios"] = list(folio_by_amc.values())
     return result
-
-def parse_pdf(pdf_path):
-    """
-    Given a PDF file path, this function converts the PDF to Markdown using 
-    pymupdf4llm.to_markdown(), then parses the Markdown to produce structured data.
-    Returns a dictionary representing the parsed data.
-    """
-    md_text = pymupdf4llm.to_markdown(pdf_path)
-    return parse_pdf_markdown(md_text)
     
 if __name__ == "__main__":
     pdf_path = "cas.pdf"  # Replace with your PDF file path.
@@ -482,3 +477,41 @@ if __name__ == "__main__":
         file.write(md_text)
     with open("parsed_json_output", 'w') as file:
         file.write(json.dumps(parsed_data, indent=2))
+
+
+def decrypt_pdf(input_path, password):
+    """Decrypts an encrypted PDF and returns the path to a temporary decrypted file."""
+    try:
+        pdf = pikepdf.open(input_path, password=password)
+    except pikepdf.PasswordError:
+        raise Exception("Incorrect password provided for decryption.")
+
+    # Save decrypted PDF to temporary file.
+    tmp_decrypted = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+    pdf.save(tmp_decrypted.name)
+    pdf.close()
+    return tmp_decrypted.name
+
+def parse_pdf(pdf_path, password=None):
+    """
+    Given a PDF file path, this function decrypts the file if needed using pikepdf
+    and then converts the PDF to Markdown using pymupdf4llm.to_markdown().
+    Returns a dictionary representing the parsed data.
+    """
+    # If a password is provided, try to decrypt first.
+    if password:
+        try:
+            decrypted_path = decrypt_pdf(pdf_path, password)
+        except Exception as e:
+            raise Exception(f"Decryption failed: {e}")
+    else:
+        decrypted_path = pdf_path
+
+    try:
+        md_text = pymupdf4llm.to_markdown(decrypted_path)
+        parsed = parse_pdf_markdown(md_text)
+    finally:
+        # Clean up the decrypted file if it was created.
+        if password and os.path.exists(decrypted_path):
+            os.unlink(decrypted_path)
+    return parsed
