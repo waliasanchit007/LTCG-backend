@@ -220,7 +220,7 @@ def initialize_app():
 
 if __name__ == "__main__":
     initialize_app()
-        # app.run(debug=True)
+    app.run(debug=True)
     # pdf_path = "cas2.pdf" 
     # md_text = pymupdf4llm.to_markdown(pdf_path)
     # parsed_data = pdf_parser.parse_pdf_markdown(md_text)
@@ -244,4 +244,4 @@ if __name__ == "__main__":
     # with open("final_tax_json", 'w') as file:
     #     file.write(json.dumps(cas_json, indent=2))
 
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    # app.run(host="0.0.0.0", port=5001, debug=True)
