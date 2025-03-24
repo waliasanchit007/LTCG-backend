@@ -514,7 +514,7 @@
       document.getElementById("upload-status").textContent = "Uploading file...";
       const formData = new FormData();
       formData.append("file", file);
-      fetch("https://sanwal.pythonanywhere.com/upload", {
+      fetch("https://ltcg-backend.onrender.com/upload", {
         method: "POST",
         body: formData
       })

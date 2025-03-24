@@ -117,27 +117,6 @@ def parse_and_store_nav_data(csv_data, nav_date):
     conn.close()
     return {"message": f"NAV data successfully stored for {nav_date.strftime('%Y-%m-%d')}. Rows inserted/updated: {rows_inserted}"}
 
-@app.route("/fetch_and_store_nav", methods=["GET"])
-def fetch_and_store_nav():
-    try:
-        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-        db_path = os.path.join(BASE_DIR, "your_db_file_name.db")  # Replace with actual filename if different
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM nav_data")
-        conn.commit()
-        conn.close()
-        create_table()
-        yesterday = date.today() - timedelta(days=4)
-        csv_data = fetch_nav_data_from_amfi(yesterday)
-        print("DEBUG: Fetched CSV Data (first 500 chars):")
-        print(csv_data[:500])
-        result = parse_and_store_nav_data(csv_data, yesterday)
-        return jsonify(result)
-    except Exception as e:
-        print("Error in /fetch_and_store_nav:", e)
-        return jsonify({"error": str(e)}), 500
-
 @app.route("/upload", methods=["POST"])
 def upload():
     """Endpoint to upload a PDF file for parsing."""
@@ -189,37 +168,93 @@ def index():
 
 def check_and_update_nav_data():
     """
-    Checks if the latest nav_date in the database is equal to yesterday.
-    If not, clears the nav_data table and fetches new data for yesterday.
+    Checks if the latest nav_date in the database is today's date.
+    If not, fetches and stores yesterday's NAV data.
     """
-    yesterday = (date.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+    today_str = date.today().strftime('%Y-%m-%d')
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    db_path = os.path.join(BASE_DIR, "your_db_file_name.db")  # Replace with actual filename if different
+    db_path = os.path.join(BASE_DIR, "your_db_file_name.db")
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     try:
         cursor.execute("SELECT MAX(nav_date) FROM nav_data")
         result = cursor.fetchone()
         latest_date = result[0] if result and result[0] else None
-        if latest_date is None or latest_date != yesterday:
-            print("Latest NAV date is not yesterday. Clearing nav_data and fetching new data.")
-            # cursor.execute("DELETE FROM nav_data")
-            # conn.commit()
+        if latest_date == today_str:
+            print("NAV data is already up-to-date for today.")
+            return
+        else:
+            print("NAV data is not up-to-date. Fetching yesterday's data.")
             fetch_and_store_nav()
     except Exception as e:
         print("Error in checking nav_data:", e)
     finally:
         conn.close()
 
+@app.route("/fetch_and_store_nav", methods=["GET"])
+def fetch_and_store_nav():
+    """
+    Accepts an optional date parameter in the query string (YYYY-MM-DD).
+    If provided, that date is used to fetch the NAV data.
+    Otherwise, yesterday's date is used.
+    If the fetched CSV contains at least 2000 valid rows, the database is updated.
+    """
+    try:
+        # Get the date parameter from the query string
+        date_param = request.args.get('date')
+        if date_param:
+            try:
+                fetch_date = datetime.strptime(date_param, '%Y-%m-%d').date()
+            except ValueError:
+                return jsonify({"error": "Invalid date format. Please use YYYY-MM-DD."}), 400
+        else:
+            fetch_date = date.today() - timedelta(days=1)
+        
+        csv_data = fetch_nav_data_from_amfi(fetch_date)
+        
+        # Process CSV data to count valid rows
+        lines = [line.strip() for line in csv_data.splitlines() if line.strip()]
+        if not lines:
+            message = "Empty CSV data, no update performed."
+            print(message)
+            return jsonify({"message": message})
+        
+        # Assume the first line is the header; process the remaining lines
+        data_lines = lines[1:]
+        valid_rows = [line for line in data_lines if ';' in line and len(line.split(';')) >= 8]
+        valid_count = len(valid_rows)
+        print(f"Valid rows found in CSV: {valid_count}")
+        
+        if valid_count < 2000:
+            message = (f"Fetched data contains only {valid_count} valid rows. "
+                       "Threshold not met. Database not updated.")
+            print(message)
+            return jsonify({"message": message})
+        
+        # Threshold met, clear and update the database
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        db_path = os.path.join(BASE_DIR, "your_db_file_name.db")
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM nav_data")
+        conn.commit()
+        conn.close()
+        
+        create_table()  # Ensure the table exists
+        result = parse_and_store_nav_data(csv_data, fetch_date)
+        return jsonify(result)
+    except Exception as e:
+        print("Error in /fetch_and_store_nav:", e)
+        return jsonify({"error": str(e)}), 500
+
 def initialize_app():
     """Initializes the application: creates database table and ensures NAV data is currents."""
     create_table()
-    # with app.app_context():
-    #     check_and_update_nav_data()
+    check_and_update_nav_data()
 
 with app.app_context():
     initialize_app()
-    
+
 if __name__ == "__main__":
     # initialize_app()
     app.run(debug=True)
