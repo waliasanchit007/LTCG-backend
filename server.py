@@ -211,14 +211,15 @@ def check_and_update_nav_data():
     finally:
         conn.close()
 
-@app.before_first_request
 def initialize_app():
     """Initializes the application: creates database table and ensures NAV data is currents."""
     create_table()
     # with app.app_context():
     #     check_and_update_nav_data()
 
-
+with app.app_context():
+    initialize_app()
+    
 if __name__ == "__main__":
     # initialize_app()
     app.run(debug=True)
