@@ -34,6 +34,8 @@
       <p id="upload-instructions" class="text-muted">Select a PDF file and it will be uploaded automatically.</p>
       <!-- File input (only one file at a time) -->
       <input type="file" id="file-input" accept=".pdf" class="form-control-file">
+      <!-- Password input (initially hidden) -->
+      <input type="password" id="password-input" placeholder="Enter password if PDF is encrypted" style="display: none;" class="form-control mt-2">
       <!-- A button to allow adding another PDF (hidden until first file is uploaded) -->
       <button id="add-button" class="btn btn-secondary mt-2" style="display: none;">Add Another PDF</button>
       <!-- A container to list the names of uploaded files -->
@@ -204,6 +206,29 @@
       return num.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 });
     }
 
+    // XIRR Calculation functions
+    function xnpv(rate, cashFlows) {
+      let t0 = Math.min(...cashFlows.map(cf => cf.date.getTime()));
+      return cashFlows.reduce((sum, cf) => {
+        let diffDays = (cf.date.getTime() - t0) / (1000 * 3600 * 24);
+        return sum + cf.amount / Math.pow(1 + rate, diffDays / 365);
+      }, 0);
+    }
+
+    function xirr(cashFlows, guess = 0.1, tol = 1e-6, maxIter = 100) {
+      let rate = guess;
+      for (let i = 0; i < maxIter; i++) {
+        let f = xnpv(rate, cashFlows);
+        let f1 = xnpv(rate + tol, cashFlows);
+        let derivative = (f1 - f) / tol;
+        if (derivative === 0) break;
+        let newRate = rate - f / derivative;
+        if (Math.abs(newRate - rate) < tol) return newRate;
+        rate = newRate;
+      }
+      return rate;
+    }
+
     // Improved combineData function: merge folios by AMC.
     function combineData(resultsArray) {
       let combined = {
@@ -235,12 +260,11 @@
       return combined;
     }
 
-    // Render Dashboard using combined data (same as previous renderDashboard function).
+    // Render Dashboard using combined data.
     function renderDashboard(data) {
       document.getElementById("dashboard").style.display = "block";
       document.getElementById("upload-status").textContent = "Data combined and analysis complete.";
 
-      // (The rest of this function remains unchanged from your previous code.)
       // Overall summary accumulators.
       let overallCurrentMarketValue = 0, overallCurrentlyInvested = 0, overallProfit = 0;
       let overallWithdrawn = 0;
@@ -255,6 +279,9 @@
       let ltcgDetails = "";
       let overallRealizedGain = 0;
       let firstXirr = null;
+
+      // Aggregated cash flows array for overall XIRR calculation.
+      let combinedCashFlows = [];
 
       data.data.folios.forEach(folio => {
         let amc = folio.amc;
@@ -352,17 +379,44 @@
                             </div>
                           </div>
                         </div>`;
+          
+          // Add cash flows from transactions if available.
+          if (scheme.transactions && scheme.transactions.length > 0) {
+            scheme.transactions.forEach(tx => {
+              let txDate = new Date(tx.date);
+              let units = parseFloat(tx.units || 0);
+              let nav = parseFloat(tx.nav || 0);
+              let amount = 0;
+              if (units > 0) {
+                amount = - (nav * units);
+              } else if (units < 0) {
+                amount = tx.amount ? parseFloat(tx.amount) : (nav * Math.abs(units));
+              }
+              combinedCashFlows.push({ date: txDate, amount: amount });
+            });
+          }
+          // Add final valuation as cash flow.
+          if (scheme.unrealized_tax_simulation &&
+              scheme.unrealized_tax_simulation.investment_summary) {
+            let finalAmount = scheme.unrealized_tax_simulation.investment_summary.current_market_value;
+            let finalDate = scheme.valuation && scheme.valuation.date ? new Date(scheme.valuation.date) : new Date();
+            combinedCashFlows.push({ date: finalDate, amount: finalAmount });
+          }
         });
         fundsHtml += `</div></div>`;
       });
       
-      overallXirr = firstXirr !== null ? firstXirr : 0;
+      // Calculate combined XIRR from aggregated cash flows.
+      if (combinedCashFlows.length > 0) {
+        overallXirr = xirr(combinedCashFlows) * 100;
+      }
+      
       const invSummaryHtml = `
         <li class="list-group-item"><strong>Current Market Value:</strong> ${formatINR(overallCurrentMarketValue)}</li>
         <li class="list-group-item"><strong>Currently Invested:</strong> ${formatINR(overallCurrentlyInvested)}</li>
         <li class="list-group-item"><strong>Overall Profit:</strong> ${formatINR(overallProfit)}</li>
         <li class="list-group-item"><strong>Profit Percentage:</strong> ${overallCurrentlyInvested ? ((overallProfit/overallCurrentlyInvested)*100).toFixed(2) : 0}%</li>
-        <li class="list-group-item"><strong>XIRR (Annual Return):</strong> ${overallXirr.toFixed(2)}%</li>
+        <li class="list-group-item"><strong>Combined XIRR (Annual Return):</strong> ${overallXirr.toFixed(2)}%</li>
         <li class="list-group-item">
           <strong>Locked (ELSS) Investment:</strong> ${formatINR(lockedOverall.amount)}
           <span id="locked-link" class="clickable">[View Details]</span>
@@ -514,13 +568,20 @@
       document.getElementById("upload-status").textContent = "Uploading file...";
       const formData = new FormData();
       formData.append("file", file);
+      
+      // Include password if provided.
+      const passwordInput = document.getElementById("password-input");
+      if (passwordInput && passwordInput.value.trim() !== "") {
+        formData.append("password", passwordInput.value.trim());
+      }
+      
       fetch("https://ltcg-backend.onrender.com/upload", {
         method: "POST",
         body: formData
       })
       .then(response => {
         if (!response.ok) {
-          throw new Error("Server error: " + response.statusText);
+          return response.json().then(errData => { throw new Error(errData.error); });
         }
         return response.json();
       })
@@ -535,6 +596,11 @@
         // Show the "Add Another PDF" button.
         document.getElementById("add-button").style.display = "inline-block";
         document.getElementById("upload-status").textContent = "File uploaded successfully.";
+        // Hide password input on successful upload.
+        if (passwordInput) {
+          passwordInput.style.display = "none";
+          passwordInput.value = "";
+        }
         // Automatically combine data and render dashboard.
         let combinedData = combineData(combinedResults);
         renderDashboard(combinedData);
@@ -543,6 +609,10 @@
         console.error("Error:", error);
         document.getElementById("error-message").style.display = "block";
         document.getElementById("error-message").textContent = "Error: " + error.message;
+        // If the error is due to encryption, show the password input field.
+        if (error.message.toLowerCase().includes("encrypted")) {
+          document.getElementById("password-input").style.display = "block";
+        }
       });
     }
 
@@ -555,7 +625,6 @@
       // When the cross is clicked, remove the file from the combinedResults array.
       fileItem.querySelector("span.remove").addEventListener("click", function() {
         // For simplicity, we will simply remove the file item and clear all results.
-        // (In production, you might want to remove only that file’s data and re–combine the rest.)
         container.removeChild(fileItem);
         combinedResults = [];
         document.getElementById("dashboard").style.display = "none";
@@ -567,7 +636,7 @@
       container.appendChild(fileItem);
     }
 
-    // When a file is selected, auto–upload.
+    // When a file is selected, auto-upload.
     document.getElementById("file-input").addEventListener("change", uploadFile);
 
     // "Add Another PDF" button: show the file input.
