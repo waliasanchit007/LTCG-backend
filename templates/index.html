@@ -17,11 +17,12 @@
     .fund-card { margin-bottom: 20px; }
     .info-link { font-size: 0.9em; margin-left: 5px; }
     .clickable { cursor: pointer; color: #007bff; text-decoration: underline; }
-    /* Styling for the file-upload section */
     #file-upload-section { margin-bottom: 20px; padding: 15px; background: #fff; border: 1px solid #ccc; border-radius: 5px; }
     #uploaded-files { margin-bottom: 10px; }
     .uploaded-file { display: inline-block; background: #e9ecef; padding: 5px 10px; border-radius: 15px; margin-right: 5px; margin-bottom: 5px; }
     .uploaded-file span.remove { margin-left: 8px; cursor: pointer; color: red; }
+    /* Hide password input initially */
+    #password-input { display: none; margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -31,12 +32,15 @@
     <!-- File Upload Section -->
     <div id="file-upload-section" class="mb-4">
       <h3>Upload Your CAS Statement PDF(s)</h3>
-      <p id="upload-instructions" class="text-muted">Select a PDF file and it will be uploaded automatically.</p>
-      <!-- File input (only one file at a time) -->
+      <p id="upload-instructions" class="text-muted">
+        Select a PDF file and it will be uploaded automatically.
+      </p>
       <input type="file" id="file-input" accept=".pdf" class="form-control-file">
-      <!-- A button to allow adding another PDF (hidden until first file is uploaded) -->
+      <!-- Optional password input if file is locked -->
+      <input type="password" id="password-input" placeholder="Enter PDF password">
+      <!-- Button to add another file -->
       <button id="add-button" class="btn btn-secondary mt-2" style="display: none;">Add Another PDF</button>
-      <!-- A container to list the names of uploaded files -->
+      <!-- Container for uploaded file names -->
       <div id="uploaded-files" class="mt-2"></div>
       <div id="upload-status" class="mt-2"></div>
     </div>
@@ -50,9 +54,7 @@
           <div class="card card-summary">
             <div class="card-body">
               <h5 class="card-title">Investment Summary</h5>
-              <ul class="list-group" id="investment-summary">
-                <!-- Filled by JavaScript -->
-              </ul>
+              <ul class="list-group" id="investment-summary"></ul>
             </div>
           </div>
         </div>
@@ -61,9 +63,7 @@
           <div class="card card-summary">
             <div class="card-body">
               <h5 class="card-title">Realized Gains</h5>
-              <ul class="list-group" id="realized-summary">
-                <!-- Filled by JavaScript -->
-              </ul>
+              <ul class="list-group" id="realized-summary"></ul>
             </div>
           </div>
         </div>
@@ -72,9 +72,7 @@
           <div class="card card-summary">
             <div class="card-body">
               <h5 class="card-title">Unrealized Gains</h5>
-              <ul class="list-group" id="unrealized-summary">
-                <!-- Filled by JavaScript -->
-              </ul>
+              <ul class="list-group" id="unrealized-summary"></ul>
             </div>
           </div>
         </div>
@@ -89,9 +87,7 @@
         <div class="col-md-6">
           <div class="card card-summary">
             <div class="card-body">
-              <ul class="list-group" id="ltcg-summary">
-                <!-- Filled by JavaScript -->
-              </ul>
+              <ul class="list-group" id="ltcg-summary"></ul>
             </div>
           </div>
         </div>
@@ -99,8 +95,10 @@
 
       <!-- Funds by AMC -->
       <h2 class="section-title">Funds by AMC</h2>
-      <div id="funds-container">
-        <!-- Fund cards will be rendered here -->
+      <div id="funds-container"></div>
+      <div class="mt-3">
+        <strong>Combined XIRR (Annual Return):</strong>
+        <span id="combined-xirr">N/A</span>
       </div>
     </div>
 
@@ -114,9 +112,7 @@
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div class="modal-body" id="ltcg-details">
-            <!-- LTCG eligible details table will be inserted here -->
-          </div>
+          <div class="modal-body" id="ltcg-details"></div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
           </div>
@@ -134,9 +130,7 @@
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div class="modal-body" id="locked-details">
-            <!-- Locked funds table will be inserted here -->
-          </div>
+          <div class="modal-body" id="locked-details"></div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
           </div>
@@ -154,9 +148,7 @@
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div class="modal-body" id="withdrawals-details">
-            <!-- Withdrawal transactions table will be inserted here -->
-          </div>
+          <div class="modal-body" id="withdrawals-details"></div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
           </div>
@@ -193,18 +185,56 @@
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   <script>
-    // Global array to store individual file results.
+    // Global array to store each PDF's parsed JSON result.
     var combinedResults = [];
 
-    // Helper: Format number as Indian Rupee with commas and ₹ symbol.
+    // Global array to store cash flows from all results for XIRR calculation.
+    // Each cash flow is an object: { date: "YYYY-MM-DD", amount: number }
+    var allCashFlows = [];
+
+    // Helper: Format number as Indian Rupee.
     function formatINR(num) {
-      if(num === undefined || num === null) {
+      if (num === undefined || num === null) {
         return "₹0.00";
       }
       return num.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 });
     }
 
-    // Improved combineData function: merge folios by AMC.
+    // XNPV and XIRR functions in JavaScript.
+    function xnpv(rate, cashFlows) {
+      // Find earliest date.
+      let t0 = new Date(Math.min(...cashFlows.map(cf => new Date(cf.date).getTime())));
+      let npv = 0;
+      cashFlows.forEach(cf => {
+        let t = new Date(cf.date);
+        let diff = (t - t0) / (1000 * 3600 * 24); // difference in days
+        npv += cf.amount / Math.pow(1 + rate, diff / 365);
+      });
+      return npv;
+    }
+
+    function xirr(cashFlows, guess = 0.1, tol = 1e-6, maxIter = 100) {
+      let rate = guess;
+      for (let i = 0; i < maxIter; i++) {
+        let npvValue = xnpv(rate, cashFlows);
+        let npvPlus = xnpv(rate + tol, cashFlows);
+        let derivative = (npvPlus - npvValue) / tol;
+        if (derivative === 0) break;
+        let newRate = rate - npvValue / derivative;
+        if (Math.abs(newRate - rate) < tol) return newRate;
+        rate = newRate;
+      }
+      return rate;
+    }
+
+    // Compute combined XIRR from the global allCashFlows array.
+    function computeCombinedXirr() {
+      if (allCashFlows.length === 0) return "N/A";
+      let rate = xirr(allCashFlows);
+      return (rate * 100).toFixed(2) + "%";
+    }
+
+    // Merge CAS JSON objects by grouping folios by AMC.
     function combineData(resultsArray) {
       let combined = {
         data: {
@@ -222,25 +252,26 @@
           if (amcMap[amcName]) {
             amcMap[amcName].schemes = amcMap[amcName].schemes.concat(folio.schemes);
           } else {
-            amcMap[amcName] = folio;
+            // Make a shallow copy of the folio.
+            let newFolio = Object.assign({}, folio);
+            newFolio.schemes = folio.schemes.slice();
+            amcMap[amcName] = newFolio;
           }
         });
       });
       combined.data.folios = Object.values(amcMap);
-      // Use investor_info and statement_period from the first result.
-      if(resultsArray.length > 0) {
+      if (resultsArray.length > 0) {
         combined.data.investor_info = resultsArray[0].data.investor_info;
         combined.data.statement_period = resultsArray[0].data.statement_period;
       }
       return combined;
     }
 
-    // Render Dashboard using combined data (same as previous renderDashboard function).
+    // Render the dashboard.
     function renderDashboard(data) {
       document.getElementById("dashboard").style.display = "block";
       document.getElementById("upload-status").textContent = "Data combined and analysis complete.";
 
-      // (The rest of this function remains unchanged from your previous code.)
       // Overall summary accumulators.
       let overallCurrentMarketValue = 0, overallCurrentlyInvested = 0, overallProfit = 0;
       let overallWithdrawn = 0;
@@ -256,12 +287,14 @@
       let overallRealizedGain = 0;
       let firstXirr = null;
 
+      // Loop through folios.
       data.data.folios.forEach(folio => {
         let amc = folio.amc;
         fundsHtml += `<div class="card fund-card">
                         <div class="card-header"><strong>${amc}</strong></div>
                         <div class="card-body">`;
         folio.schemes.forEach(scheme => {
+          // Skip funds with "uclaim" or "redemption".
           if (scheme.scheme && (scheme.scheme.toLowerCase().includes("uclaim") || scheme.scheme.toLowerCase().includes("redemption"))) {
             return;
           }
@@ -288,6 +321,11 @@
           ltcgSummary.eligibleValue += sim.ltcg_eligibility.eligible_current_value;
           ltcgSummary.potentialTax += sim.ltcg_eligibility.potential_tax_on_ltcg;
           ltcgSummary.unrealizedLTGain += sim.unrealized.unrealized_long_term_gain;
+          
+          // Append each file's cash flows (assumed to be in sim.investment_summary.cash_flows) to the global allCashFlows.
+          if (sim.investment_summary.cash_flows && Array.isArray(sim.investment_summary.cash_flows)) {
+            allCashFlows = allCashFlows.concat(sim.investment_summary.cash_flows);
+          }
           
           let lockedData = sim.locked || scheme.locked;
           if (lockedData && lockedData.locked_in_amount > 0) {
@@ -357,12 +395,15 @@
       });
       
       overallXirr = firstXirr !== null ? firstXirr : 0;
+      // Compute combined XIRR from the merged cash flows.
+      let combinedXirr = computeCombinedXirr();
+      
       const invSummaryHtml = `
         <li class="list-group-item"><strong>Current Market Value:</strong> ${formatINR(overallCurrentMarketValue)}</li>
         <li class="list-group-item"><strong>Currently Invested:</strong> ${formatINR(overallCurrentlyInvested)}</li>
         <li class="list-group-item"><strong>Overall Profit:</strong> ${formatINR(overallProfit)}</li>
         <li class="list-group-item"><strong>Profit Percentage:</strong> ${overallCurrentlyInvested ? ((overallProfit/overallCurrentlyInvested)*100).toFixed(2) : 0}%</li>
-        <li class="list-group-item"><strong>XIRR (Annual Return):</strong> ${overallXirr.toFixed(2)}%</li>
+        <li class="list-group-item"><strong>XIRR (Annual Return):</strong> ${combinedXirr}</li>
         <li class="list-group-item">
           <strong>Locked (ELSS) Investment:</strong> ${formatINR(lockedOverall.amount)}
           <span id="locked-link" class="clickable">[View Details]</span>
@@ -473,6 +514,7 @@
       
       document.getElementById("funds-container").innerHTML = fundsHtml;
       
+      // Attach modal event listeners.
       let lockedLinkElem = document.getElementById("locked-link");
       if (lockedLinkElem) {
         lockedLinkElem.addEventListener("click", (e) => {
@@ -487,8 +529,12 @@
           $("#ltcgModal").modal("show");
         });
       }
+      
+      // Display combined XIRR.
+      document.getElementById("combined-xirr").textContent = computeCombinedXirr();
     }
 
+    // Toggle detailed fund performance.
     function toggleDetails(element) {
       const detailsSection = element.nextElementSibling;
       if (detailsSection.style.display === "none" || detailsSection.style.display === "") {
@@ -501,73 +547,79 @@
     }
 
     // --- Multi-File Upload Logic ---
-    // Hide the "Add Another" button initially.
     document.getElementById("add-button").style.display = "none";
 
-    // Use file input's change event to auto-upload.
+    // Auto-upload file when selected.
     function uploadFile() {
       const fileInput = document.getElementById("file-input");
-      if (fileInput.files.length === 0) {
-        return;
-      }
+      if (fileInput.files.length === 0) return;
       const file = fileInput.files[0];
       document.getElementById("upload-status").textContent = "Uploading file...";
       const formData = new FormData();
       formData.append("file", file);
+      // Append password if the password field is visible.
+      const pwdInput = document.getElementById("password-input");
+      if (pwdInput.style.display !== "none" && pwdInput.value) {
+        formData.append("password", pwdInput.value);
+      }
       fetch("https://ltcg-backend.onrender.com/upload", {
         method: "POST",
         body: formData
       })
       .then(response => {
         if (!response.ok) {
-          throw new Error("Server error: " + response.statusText);
+          return response.json().then(errData => { 
+            throw new Error(errData.error || "Server error");
+          });
         }
         return response.json();
       })
       .then(data => {
         console.log("Parsed data received:", data);
         combinedResults.push(data);
-        // Update the list of uploaded files.
+        // Optionally clear the password input if upload succeeds.
+        pwdInput.value = "";
+        // Add the uploaded file to the list.
         addUploadedFile(file.name);
-        // Hide file input and clear its value.
         fileInput.value = "";
         fileInput.style.display = "none";
-        // Show the "Add Another PDF" button.
         document.getElementById("add-button").style.display = "inline-block";
         document.getElementById("upload-status").textContent = "File uploaded successfully.";
-        // Automatically combine data and render dashboard.
         let combinedData = combineData(combinedResults);
         renderDashboard(combinedData);
       })
       .catch(error => {
         console.error("Error:", error);
-        document.getElementById("error-message").style.display = "block";
-        document.getElementById("error-message").textContent = "Error: " + error.message;
+        // If error indicates encrypted document, reveal the password input.
+        if (error.message.toLowerCase().includes("encrypted")) {
+          document.getElementById("upload-status").textContent = "File is encrypted. Please enter the password below and re-upload.";
+          document.getElementById("password-input").style.display = "block";
+        } else {
+          document.getElementById("error-message").style.display = "block";
+          document.getElementById("error-message").textContent = "Error: " + error.message;
+        }
       });
     }
 
-    // Add the uploaded file name with a removable cross.
+    // Add uploaded file name with a removable cross.
     function addUploadedFile(fileName) {
       const container = document.getElementById("uploaded-files");
       const fileItem = document.createElement("div");
       fileItem.className = "uploaded-file";
       fileItem.innerHTML = `${fileName} <span class="remove">&times;</span>`;
-      // When the cross is clicked, remove the file from the combinedResults array.
       fileItem.querySelector("span.remove").addEventListener("click", function() {
-        // For simplicity, we will simply remove the file item and clear all results.
-        // (In production, you might want to remove only that file’s data and re–combine the rest.)
         container.removeChild(fileItem);
+        // For simplicity, clear all combined results if any file is removed.
         combinedResults = [];
+        allCashFlows = [];
         document.getElementById("dashboard").style.display = "none";
         document.getElementById("upload-status").textContent = "File removed. Please upload a new PDF.";
-        // Show file input again.
         document.getElementById("file-input").style.display = "block";
         document.getElementById("add-button").style.display = "none";
       });
       container.appendChild(fileItem);
     }
 
-    // When a file is selected, auto–upload.
     document.getElementById("file-input").addEventListener("change", uploadFile);
 
     // "Add Another PDF" button: show the file input.
