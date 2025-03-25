@@ -103,7 +103,7 @@ def simulate_full_unrealized_tax(scheme):
             tx_amount = tx_nav * tx_units
 
         if tx_units > 0:
-            # Purchase transaction.
+            # Purchase: record lot and cash outflow.
             purchase_lots.append({
                 "date": tx_date,
                 "purchase_nav": tx_nav,
@@ -112,7 +112,7 @@ def simulate_full_unrealized_tax(scheme):
             total_investment_made += tx_nav * tx_units
             cash_flows.append((tx_date, - (tx_nav * tx_units)))
         elif tx_units < 0:
-            # Redemption transaction.
+            # Redemption: remove shares FIFO.
             redemption_units = abs(tx_units)
             redemption_cash = 0.0
             while redemption_units > 0 and purchase_lots:
@@ -148,7 +148,7 @@ def simulate_full_unrealized_tax(scheme):
 
     overall_withdrawn_amount = sum(cf for (dt, cf) in cash_flows if cf > 0)
 
-    # Determine if the scheme is ELSS.
+    # Determine if scheme is ELSS.
     scheme_name = scheme.get("scheme", "")
     is_elss = ("elss" in scheme_name.lower()) or ("tax" in scheme_name.lower())
     lock_in_period = 1095 if is_elss else default_threshold
@@ -209,7 +209,7 @@ def simulate_full_unrealized_tax(scheme):
         tax_rate_ST = 0.0
         exemption_available = None
 
-    # Realized tax liability using only current FY transactions.
+    # For realized tax liability, consider only redemptions in the current FY.
     fy_realized_details = [r for r in realized_details 
                            if fy_start <= datetime.strptime(r["redemption_date"], "%Y-%m-%d") <= fy_end]
     fy_realized_LT_gain = sum(r["gain"] for r in fy_realized_details if r["classification"]=="long-term")
@@ -217,10 +217,10 @@ def simulate_full_unrealized_tax(scheme):
     fy_realized_total_gain = fy_realized_LT_gain + fy_realized_ST_gain
     potential_realized_tax = fy_realized_LT_gain * tax_rate_LT + fy_realized_ST_gain * tax_rate_ST
 
-    # Unrealized tax liability (if sold today).
+    # For unrealized tax liability (if sold today).
     potential_unrealized_tax = unrealized_LT_gain * tax_rate_LT + unrealized_ST_gain * tax_rate_ST
 
-    # Current market value & overall profit.
+    # Compute overall profit and current market value.
     remaining_units = sum(lot["units"] for lot in purchase_lots)
     current_market_value = remaining_units * current_nav
     overall_profit = (overall_withdrawn_amount + current_market_value) - total_investment_made
@@ -234,6 +234,11 @@ def simulate_full_unrealized_tax(scheme):
     cash_flows.append((current_date, current_market_value))
     try:
         computed_xirr = xirr(cash_flows)
+        if isinstance(computed_xirr, complex):
+            if abs(computed_xirr.imag) < 1e-6:
+                computed_xirr = computed_xirr.real
+            else:
+                computed_xirr = None
     except Exception:
         computed_xirr = None
 
