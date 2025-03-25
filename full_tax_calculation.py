@@ -23,30 +23,13 @@ def xirr(cash_flows, guess=0.1, tol=1e-6, max_iter=100):
 
 def simulate_full_unrealized_tax(scheme):
     """
-    Processes scheme transactions (using FIFO and per‑unit cost) and returns a detailed summary.
-    
-    Investment summary (over entire history) includes:
-      - total_investment_made: sum of all purchase amounts.
-      - current_market_value: computed as remaining_units * current NAV.
-      - currently_invested: cost basis of remaining shares (sum over each remaining lot: purchase_nav * units).
-      - withdrawn_amount: overall withdrawn (sum of all redemption cash inflows).
-      - overall_profit: (withdrawn_amount + current_market_value) - total_investment_made.
-      - profit_percentage: overall_profit / total_investment_made * 100.
-      - xirr: annualized return from the entire cash‑flow history.
-    
-    Realized and unrealized tax liabilities are computed using only transactions in the current financial year 
-    (FY defined here as April 1 – March 31).
-    
-    For ELSS funds (if the scheme name contains 'elss' or 'tax'), a lock‑in period of 3 years (1095 days) is enforced:
-      - Lots with holding period less than 1095 days are flagged as "locked". Their cost and profit are accumulated 
-        separately (locked_in_amount, locked_in_profit) and are not included in LT gain calculations.
-      - Only unlocked lots contribute to LTCG eligibility.
+    Processes scheme transactions and returns a detailed summary.
+    (See earlier documentation for details.)
     """
     transactions = scheme.get("transactions", [])
     current_valuation = scheme.get("valuation", {})
     tax_bucket = scheme.get("tax_bucket", "debt")
 
-    # Parse current NAV and valuation date.
     try:
         current_nav = float(current_valuation.get("nav", 0))
     except Exception:
@@ -56,7 +39,7 @@ def simulate_full_unrealized_tax(scheme):
     except Exception:
         current_date = datetime.now()
 
-    # Determine financial year boundaries.
+    # Financial year boundaries.
     if current_date.month >= 4:
         fy_start = datetime(current_date.year, 4, 1)
         fy_end = datetime(current_date.year + 1, 3, 31)
@@ -93,10 +76,6 @@ def simulate_full_unrealized_tax(scheme):
             tx_units = float(tx.get("units", 0))
         except Exception:
             tx_units = 0.0
-        try:
-            tx_amount = float(tx.get("amount", 0))
-        except Exception:
-            tx_amount = tx_nav * tx_units
 
         if tx_units > 0:
             purchase_lots.append({
@@ -207,7 +186,6 @@ def simulate_full_unrealized_tax(scheme):
     fy_realized_ST_gain = sum(r["gain"] for r in fy_realized_details if r["classification"]=="short-term")
     fy_realized_total_gain = fy_realized_LT_gain + fy_realized_ST_gain
     potential_realized_tax = fy_realized_LT_gain * tax_rate_LT + fy_realized_ST_gain * tax_rate_ST
-
     potential_unrealized_tax = unrealized_LT_gain * tax_rate_LT + unrealized_ST_gain * tax_rate_ST
 
     remaining_units = sum(lot["units"] for lot in purchase_lots)
@@ -221,13 +199,23 @@ def simulate_full_unrealized_tax(scheme):
 
     # Append final valuation cash flow.
     cash_flows.append((current_date, current_market_value))
+    
+    # Debug log: print cash flows and their count.
+    print("DEBUG: Cash flows for XIRR (scheme: {}):".format(scheme.get("scheme", "N/A")))
+    for cf in cash_flows:
+        print("  Date: {}, Amount: {}".format(cf[0].strftime("%Y-%m-%d"), cf[1]))
+    print("DEBUG: Number of cash flows:", len(cash_flows))
+    
     try:
         computed_xirr = xirr(cash_flows)
         if computed_xirr is not None and isinstance(computed_xirr, complex):
             computed_xirr = computed_xirr.real
-    except Exception:
+    except Exception as e:
+        print("DEBUG: Exception in computing XIRR:", e)
         computed_xirr = None
 
+    print("DEBUG: Computed XIRR for scheme {}: {}".format(scheme.get("scheme", "N/A"), computed_xirr))
+    
     summary = {
         "investment_summary": {
             "total_investment_made": round(total_investment_made, 2),
