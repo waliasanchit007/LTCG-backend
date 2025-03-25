@@ -225,11 +225,11 @@ def fetch_and_store_nav():
         valid_count = len(valid_rows)
         print(f"Valid rows found in CSV: {valid_count}")
         
-        if valid_count < 2000:
-            message = (f"Fetched data contains only {valid_count} valid rows. "
-                       "Threshold not met. Database not updated.")
-            print(message)
-            return jsonify({"message": message})
+        # if valid_count < 2000:
+        #     message = (f"Fetched data contains only {valid_count} valid rows. "
+        #                "Threshold not met. Database not updated.")
+        #     print(message)
+        #     return jsonify({"message": message})
         
         # Threshold met, clear and update the database
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))

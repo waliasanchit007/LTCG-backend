@@ -198,7 +198,7 @@
     // Global array to store individual file results.
     var combinedResults = [];
 
-    // Helper: Format number as Indian Rupee with commas and ₹ symbol.
+    // Helper: Format number as Indian Rupee.
     function formatINR(num) {
       if(num === undefined || num === null) {
         return "₹0.00";
@@ -206,7 +206,7 @@
       return num.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 });
     }
 
-    // XIRR Calculation functions
+    // XIRR calculation functions.
     function xnpv(rate, cashFlows) {
       let t0 = Math.min(...cashFlows.map(cf => cf.date.getTime()));
       return cashFlows.reduce((sum, cf) => {
@@ -229,7 +229,7 @@
       return rate;
     }
 
-    // Improved combineData function: merge folios by AMC.
+    // Merge results by AMC.
     function combineData(resultsArray) {
       let combined = {
         data: {
@@ -252,7 +252,6 @@
         });
       });
       combined.data.folios = Object.values(amcMap);
-      // Use investor_info and statement_period from the first result.
       if(resultsArray.length > 0) {
         combined.data.investor_info = resultsArray[0].data.investor_info;
         combined.data.statement_period = resultsArray[0].data.statement_period;
@@ -265,10 +264,8 @@
       document.getElementById("dashboard").style.display = "block";
       document.getElementById("upload-status").textContent = "Data combined and analysis complete.";
 
-      // Overall summary accumulators.
       let overallCurrentMarketValue = 0, overallCurrentlyInvested = 0, overallProfit = 0;
-      let overallWithdrawn = 0;
-      let overallXirr = 0;
+      let overallWithdrawn = 0, overallXirr = 0;
       let realizedSummary = { currentFY: 0, lt: 0, st: 0 };
       let unrealizedSummary = { total: 0, lt: 0, st: 0 };
       let ltcgSummary = { eligibleUnits: 0, eligibleValue: 0, potentialTax: 0, unrealizedLTGain: 0 };
@@ -280,7 +277,7 @@
       let overallRealizedGain = 0;
       let firstXirr = null;
 
-      // Aggregated cash flows array for overall XIRR calculation.
+      // Array for aggregated cash flows for combined XIRR.
       let combinedCashFlows = [];
 
       data.data.folios.forEach(folio => {
@@ -380,7 +377,7 @@
                           </div>
                         </div>`;
           
-          // Add cash flows from transactions if available.
+          // Aggregate cash flows from transactions.
           if (scheme.transactions && scheme.transactions.length > 0) {
             scheme.transactions.forEach(tx => {
               let txDate = new Date(tx.date);
@@ -395,7 +392,7 @@
               combinedCashFlows.push({ date: txDate, amount: amount });
             });
           }
-          // Add final valuation as cash flow.
+          // Add final valuation cash flow.
           if (scheme.unrealized_tax_simulation &&
               scheme.unrealized_tax_simulation.investment_summary) {
             let finalAmount = scheme.unrealized_tax_simulation.investment_summary.current_market_value;
@@ -555,21 +552,16 @@
     }
 
     // --- Multi-File Upload Logic ---
-    // Hide the "Add Another" button initially.
     document.getElementById("add-button").style.display = "none";
 
-    // Use file input's change event to auto-upload.
     function uploadFile() {
       const fileInput = document.getElementById("file-input");
-      if (fileInput.files.length === 0) {
-        return;
-      }
+      if (fileInput.files.length === 0) return;
       const file = fileInput.files[0];
       document.getElementById("upload-status").textContent = "Uploading file...";
       const formData = new FormData();
       formData.append("file", file);
       
-      // Include password if provided.
       const passwordInput = document.getElementById("password-input");
       if (passwordInput && passwordInput.value.trim() !== "") {
         formData.append("password", passwordInput.value.trim());
@@ -588,20 +580,15 @@
       .then(data => {
         console.log("Parsed data received:", data);
         combinedResults.push(data);
-        // Update the list of uploaded files.
         addUploadedFile(file.name);
-        // Hide file input and clear its value.
         fileInput.value = "";
         fileInput.style.display = "none";
-        // Show the "Add Another PDF" button.
         document.getElementById("add-button").style.display = "inline-block";
         document.getElementById("upload-status").textContent = "File uploaded successfully.";
-        // Hide password input on successful upload.
         if (passwordInput) {
           passwordInput.style.display = "none";
           passwordInput.value = "";
         }
-        // Automatically combine data and render dashboard.
         let combinedData = combineData(combinedResults);
         renderDashboard(combinedData);
       })
@@ -609,37 +596,30 @@
         console.error("Error:", error);
         document.getElementById("error-message").style.display = "block";
         document.getElementById("error-message").textContent = "Error: " + error.message;
-        // If the error is due to encryption, show the password input field.
         if (error.message.toLowerCase().includes("encrypted")) {
           document.getElementById("password-input").style.display = "block";
         }
       });
     }
 
-    // Add the uploaded file name with a removable cross.
     function addUploadedFile(fileName) {
       const container = document.getElementById("uploaded-files");
       const fileItem = document.createElement("div");
       fileItem.className = "uploaded-file";
       fileItem.innerHTML = `${fileName} <span class="remove">&times;</span>`;
-      // When the cross is clicked, remove the file from the combinedResults array.
       fileItem.querySelector("span.remove").addEventListener("click", function() {
-        // For simplicity, we will simply remove the file item and clear all results.
         container.removeChild(fileItem);
         combinedResults = [];
         document.getElementById("dashboard").style.display = "none";
         document.getElementById("upload-status").textContent = "File removed. Please upload a new PDF.";
-        // Show file input again.
         document.getElementById("file-input").style.display = "block";
         document.getElementById("add-button").style.display = "none";
       });
       container.appendChild(fileItem);
     }
 
-    // When a file is selected, auto-upload.
     document.getElementById("file-input").addEventListener("change", uploadFile);
 
-    // "Add Another PDF" button: show the file input.
     document.getElementById("add-button").addEventListener("click", () => {
       document.getElementById("file-input").style.display = "block";
       document.getElementById("upload-status").textContent = "Select another PDF file.";
