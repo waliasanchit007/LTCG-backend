@@ -195,18 +195,13 @@
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   <script>
-    // Global array to store individual file results.
     var combinedResults = [];
 
-    // Helper: Format number as Indian Rupee.
     function formatINR(num) {
-      if(num === undefined || num === null) {
-        return "₹0.00";
-      }
+      if(num === undefined || num === null) return "₹0.00";
       return num.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 });
     }
 
-    // XIRR calculation functions.
     function xnpv(rate, cashFlows) {
       let t0 = Math.min(...cashFlows.map(cf => cf.date.getTime()));
       return cashFlows.reduce((sum, cf) => {
@@ -229,7 +224,6 @@
       return rate;
     }
 
-    // Merge results by AMC.
     function combineData(resultsArray) {
       let combined = {
         data: {
@@ -259,7 +253,6 @@
       return combined;
     }
 
-    // Render Dashboard using combined data.
     function renderDashboard(data) {
       document.getElementById("dashboard").style.display = "block";
       document.getElementById("upload-status").textContent = "Data combined and analysis complete.";
@@ -276,8 +269,6 @@
       let ltcgDetails = "";
       let overallRealizedGain = 0;
       let firstXirr = null;
-
-      // Array for aggregated cash flows for combined XIRR.
       let combinedCashFlows = [];
 
       data.data.folios.forEach(folio => {
@@ -377,7 +368,7 @@
                           </div>
                         </div>`;
           
-          // Aggregate cash flows from transactions.
+          // Collect cash flows from transactions.
           if (scheme.transactions && scheme.transactions.length > 0) {
             scheme.transactions.forEach(tx => {
               let txDate = new Date(tx.date);
@@ -403,9 +394,27 @@
         fundsHtml += `</div></div>`;
       });
       
-      // Calculate combined XIRR from aggregated cash flows.
-      if (combinedCashFlows.length > 0) {
-        overallXirr = xirr(combinedCashFlows) * 100;
+      // Determine overall XIRR:
+      // If more than one PDF is uploaded, calculate combined XIRR from aggregated cash flows.
+      // Otherwise, use the xirr value from the backend simulation.
+      if (combinedResults.length > 1 && combinedCashFlows.length > 0) {
+          // Aggregate cash flows by date.
+          let aggregated = {};
+          combinedCashFlows.forEach(cf => {
+              let dateKey = cf.date.toISOString().split('T')[0];
+              if (aggregated[dateKey]) {
+                  aggregated[dateKey] += cf.amount;
+              } else {
+                  aggregated[dateKey] = cf.amount;
+              }
+          });
+          let aggregatedCashFlows = [];
+          for (let dateKey in aggregated) {
+              aggregatedCashFlows.push({ date: new Date(dateKey), amount: aggregated[dateKey] });
+          }
+          overallXirr = xirr(aggregatedCashFlows) * 100;
+      } else {
+          overallXirr = firstXirr !== null ? firstXirr : 0;
       }
       
       const invSummaryHtml = `
@@ -413,7 +422,7 @@
         <li class="list-group-item"><strong>Currently Invested:</strong> ${formatINR(overallCurrentlyInvested)}</li>
         <li class="list-group-item"><strong>Overall Profit:</strong> ${formatINR(overallProfit)}</li>
         <li class="list-group-item"><strong>Profit Percentage:</strong> ${overallCurrentlyInvested ? ((overallProfit/overallCurrentlyInvested)*100).toFixed(2) : 0}%</li>
-        <li class="list-group-item"><strong>Combined XIRR (Annual Return):</strong> ${overallXirr.toFixed(2)}%</li>
+        <li class="list-group-item"><strong>${combinedResults.length > 1 ? "Combined XIRR (Annual Return)" : "XIRR (Annual Return)"}:</strong> ${overallXirr.toFixed(2)}%</li>
         <li class="list-group-item">
           <strong>Locked (ELSS) Investment:</strong> ${formatINR(lockedOverall.amount)}
           <span id="locked-link" class="clickable">[View Details]</span>
@@ -551,7 +560,6 @@
       }
     }
 
-    // --- Multi-File Upload Logic ---
     document.getElementById("add-button").style.display = "none";
 
     function uploadFile() {

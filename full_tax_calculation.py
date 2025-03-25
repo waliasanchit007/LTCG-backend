@@ -64,10 +64,8 @@ def simulate_full_unrealized_tax(scheme):
         fy_start = datetime(current_date.year - 1, 4, 1)
         fy_end = datetime(current_date.year, 3, 31)
 
-    # Set default holding period threshold.
     default_threshold = 365 if tax_bucket == "equity" else 1095
 
-    # Sort transactions by date.
     transactions_sorted = sorted(
         transactions,
         key=lambda tx: datetime.strptime(tx["date"], "%Y-%m-%d")
@@ -79,7 +77,7 @@ def simulate_full_unrealized_tax(scheme):
     realized_details = []
     total_investment_made = 0.0
 
-    # Build cash flows for XIRR: each purchase is negative and each redemption is positive.
+    # Build cash flows for XIRR.
     cash_flows = []
 
     for tx in transactions_sorted:
@@ -144,7 +142,6 @@ def simulate_full_unrealized_tax(scheme):
 
     overall_withdrawn_amount = sum(cf for (dt, cf) in cash_flows if cf > 0)
 
-    # Determine if scheme is ELSS.
     scheme_name = scheme.get("scheme", "")
     is_elss = ("elss" in scheme_name.lower()) or ("tax" in scheme_name.lower())
     lock_in_period = 1095 if is_elss else default_threshold
@@ -187,7 +184,6 @@ def simulate_full_unrealized_tax(scheme):
         })
     total_unrealized_gain = unrealized_LT_gain + unrealized_ST_gain
 
-    # Tax rates.
     if tax_bucket == "equity":
         tax_rate_LT = 0.10
         tax_rate_ST = 0.20
@@ -205,7 +201,6 @@ def simulate_full_unrealized_tax(scheme):
         tax_rate_ST = 0.0
         exemption_available = None
 
-    # Consider only current FY for realized tax liability.
     fy_realized_details = [r for r in realized_details 
                            if fy_start <= datetime.strptime(r["redemption_date"], "%Y-%m-%d") <= fy_end]
     fy_realized_LT_gain = sum(r["gain"] for r in fy_realized_details if r["classification"]=="long-term")
@@ -224,7 +219,7 @@ def simulate_full_unrealized_tax(scheme):
 
     ltcg_eligible_value = ltcg_eligible_units * current_nav
 
-    # Append final valuation as a cash flow for XIRR.
+    # Append final valuation cash flow.
     cash_flows.append((current_date, current_market_value))
     try:
         computed_xirr = xirr(cash_flows)
