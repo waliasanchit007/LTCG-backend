@@ -299,7 +299,7 @@
         <li class="list-group-item"><strong>Currently Invested:</strong> ${formatINR(overallCurrentlyInvested)}</li>
         <li class="list-group-item"><strong>Overall Profit:</strong> ${formatINR(overallProfit)}</li>
         <li class="list-group-item"><strong>Profit Percentage:</strong> ${overallCurrentlyInvested ? ((overallProfit/overallCurrentlyInvested)*100).toFixed(2) : 0}%</li>
-        <li class="list-group-item"><strong>${combinedResults.length > 1 ? "Combined XIRR (Annual Return)" : "XIRR (Annual Return)"}:</strong> ${overallXirr.toFixed(2)}%</li>
+        <li class="list-group-item"><strong>${combinedResults.length > 1 ? "Combined XIRR (Annual Return)" : "XIRR (Annual Return)"}:</strong> ${data.overall_xirr ? data.overall_xirr.toFixed(2) + '%' : 'N/A'}</li>
         <li class="list-group-item">
           <strong>Locked (ELSS) Investment:</strong> ${formatINR(lockedOverall.amount)}
           <span id="locked-link" class="clickable">[View Details]</span>

@@ -21,6 +21,77 @@ def xirr(cash_flows, guess=0.1, tol=1e-6, max_iter=100):
         rate = new_rate
     return rate
 
+def compute_overall_xirr(cas_json):
+    """
+    Compute an overall XIRR (annualized return) for the entire portfolio by merging cash flows
+    from all schemes in the combined CAS JSON.
+    For each scheme, we:
+      - Recreate cash flows from each transaction (ignoring non-investment types)
+      - Add one final cash flow using the scheme's current market value from the simulation summary.
+    Then we aggregate cash flows by date and compute the overall XIRR.
+    """
+    combined_cash_flows = []
+    for folio in cas_json.get("data", {}).get("folios", []):
+        for scheme in folio.get("schemes", []):
+            # Process each transaction in the scheme
+            transactions = scheme.get("transactions", [])
+            for tx in transactions:
+                if tx.get("type", "").upper() == "STAMP_DUTY_TAX":
+                    continue
+                try:
+                    tx_date = datetime.strptime(tx["date"], "%Y-%m-%d")
+                except Exception:
+                    continue
+                try:
+                    tx_nav = float(tx.get("nav", 0))
+                except Exception:
+                    tx_nav = 0.0
+                try:
+                    tx_units = float(tx.get("units", 0))
+                except Exception:
+                    tx_units = 0.0
+                if tx_units > 0:
+                    amount = - (tx_nav * tx_units)
+                elif tx_units < 0:
+                    try:
+                        amount = float(tx.get("amount", 0))
+                    except Exception:
+                        amount = tx_nav * abs(tx_units)
+                else:
+                    amount = 0
+                combined_cash_flows.append((tx_date, amount))
+            # Add one final cash flow per scheme using its current market value from simulation.
+            sim = scheme.get("unrealized_tax_simulation", {}).get("summary", {}).get("investment_summary", {})
+            final_value = sim.get("current_market_value", 0)
+            if final_value:
+                # Use the valuation date if available; otherwise, today.
+                try:
+                    final_date = datetime.strptime(scheme.get("valuation", {}).get("date", ""), "%Y-%m-%d")
+                except Exception:
+                    final_date = datetime.now()
+                combined_cash_flows.append((final_date, final_value))
+    if not combined_cash_flows:
+        return None
+    # Sort and aggregate by date.
+    combined_cash_flows.sort(key=lambda cf: cf[0])
+    aggregated = {}
+    for dt, amt in combined_cash_flows:
+        key = dt.strftime("%Y-%m-%d")
+        aggregated[key] = aggregated.get(key, 0) + amt
+    aggregated_cash_flows = [(datetime.strptime(k, "%Y-%m-%d"), v) for k, v in aggregated.items()]
+    # (Optional debug logging)
+    print("DEBUG: Aggregated cash flows for overall XIRR:")
+    for dt, amt in aggregated_cash_flows:
+        print("  Date: {}, Amount: {}".format(dt.strftime("%Y-%m-%d"), amt))
+    print("DEBUG: Number of aggregated cash flows:", len(aggregated_cash_flows))
+    try:
+        overall_rate = xirr(aggregated_cash_flows)
+    except Exception as e:
+        print("DEBUG: Exception computing overall XIRR:", e)
+        overall_rate = None
+    return overall_rate
+
+
 def simulate_full_unrealized_tax(scheme):
     """
     Processes scheme transactions and returns a detailed summary.

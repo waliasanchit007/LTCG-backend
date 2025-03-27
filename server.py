@@ -16,6 +16,9 @@ app = Flask(__name__)
 CORS(app)
 
 DATABASE_NAME = 'mutual_fund_nav.db'
+# Global list to hold parsed CAS data (for the current user/session).
+parsed_cas_list = []
+
 
 def create_table():
     """Creates the nav_data table in the database if it doesn't already exist."""
@@ -54,6 +57,28 @@ def fetch_nav_data_from_amfi(nav_date):
         return response.text
     except requests.exceptions.RequestException as e:
         raise Exception(f"Error fetching NAV data from AMFI: {e}")
+
+def combine_cas_json(parsed_list):
+    """
+    Combine multiple CAS JSON objects by merging folios based on AMC.
+    Uses a similar logic as the frontend combineData().
+    """
+    combined = {"data": {"folios": [], "investor_info": {}, "statement_period": {}}, "msg": "success", "status": "success"}
+    folio_map = {}
+    for cas in parsed_list:
+        for folio in cas.get("data", {}).get("folios", []):
+            amc = folio.get("amc", "").strip()
+            if amc in folio_map:
+                # Merge schemes arrays
+                folio_map[amc]["schemes"].extend(folio.get("schemes", []))
+            else:
+                folio_map[amc] = folio
+    combined["data"]["folios"] = list(folio_map.values())
+    if parsed_list:
+        combined["data"]["investor_info"] = parsed_list[0]["data"].get("investor_info", {})
+        combined["data"]["statement_period"] = parsed_list[0]["data"].get("statement_period", {})
+    return combined
+
 
 def parse_and_store_nav_data(csv_data, nav_date):
     """
@@ -147,7 +172,6 @@ def upload():
         else:
             return jsonify({"error": str(e)}), 500
 
-    # Proceed with further processing...
     cas_json = map_cas_schemes_to_db(cas_json)
     cas_json = classify_cas_schemes(cas_json)
     for folio in cas_json["data"]["folios"]:
@@ -155,11 +179,23 @@ def upload():
             simulation = simulate_full_unrealized_tax(scheme)
             scheme["unrealized_tax_simulation"] = simulation
 
-    result = cas_json
+    # Append this parsed data to the global list.
+    parsed_cas_list.append(cas_json)
+    
+    # Combine all stored parsed CAS data.
+    combined_cas = combine_cas_json(parsed_cas_list)
+    
+    # Compute overall XIRR from the combined data.
+    overall_rate = compute_overall_xirr(combined_cas)
+    if overall_rate is not None:
+        combined_cas["overall_xirr"] = round(overall_rate * 100, 2)
+    else:
+        combined_cas["overall_xirr"] = None
+
+    result = combined_cas
 
     os.unlink(tmp_path)
     return jsonify(result)
-
 
 # NEW: Serve the frontend page
 @app.route("/")
