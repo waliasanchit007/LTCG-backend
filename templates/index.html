@@ -6,63 +6,167 @@
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <style>
-    body { background-color: #f8f9fa; padding-top: 20px; }
-    .card-summary { margin-bottom: 20px; }
-    .toggle-details { cursor: pointer; color: #007bff; text-decoration: underline; }
-    .details-section { display: none; margin-top: 10px; }
-    .section-title { border-bottom: 2px solid #dee2e6; margin-bottom: 15px; padding-bottom: 5px; }
-    .fund-card { margin-bottom: 20px; }
-    .info-link { font-size: 0.9em; margin-left: 5px; }
-    .clickable { cursor: pointer; color: #007bff; text-decoration: underline; }
+    body {
+      background-color: #f8f9fa;
+      padding-top: 20px;
+    }
+    .card-summary {
+      margin-bottom: 20px;
+    }
+    .toggle-details {
+      cursor: pointer;
+      color: #007bff;
+      text-decoration: underline;
+    }
+    .details-section {
+      display: none;
+      margin-top: 10px;
+    }
+    .section-title {
+      border-bottom: 2px solid #dee2e6;
+      margin-bottom: 15px;
+      padding-bottom: 5px;
+    }
+    .fund-card {
+      margin-bottom: 20px;
+    }
+    .info-link {
+      font-size: 0.9em;
+      margin-left: 5px;
+    }
+    .clickable {
+      cursor: pointer;
+      color: #007bff;
+      text-decoration: underline;
+    }
     /* File-upload styling */
-    #file-upload-section { margin-bottom: 20px; padding: 15px; background: #fff; border: 1px solid #ccc; border-radius: 5px; }
-    #uploaded-files { margin-bottom: 10px; }
-    .uploaded-file { display: inline-block; background: #e9ecef; padding: 5px 10px; border-radius: 15px; margin-right: 5px; margin-bottom: 5px; }
-    .uploaded-file span.remove { margin-left: 8px; cursor: pointer; color: red; }
+    #file-upload-section {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    #uploaded-files {
+      margin-bottom: 10px;
+    }
+    .uploaded-file {
+      display: inline-block;
+      background: #e9ecef;
+      padding: 5px 10px;
+      border-radius: 15px;
+      margin-right: 5px;
+      margin-bottom: 5px;
+    }
+    .uploaded-file span.remove {
+      margin-left: 8px;
+      cursor: pointer;
+      color: red;
+    }
+    /* Table styling for detailed info */
+    .detail-table th,
+    .detail-table td {
+      vertical-align: middle;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1 class="mb-4">Your Investment Dashboard</h1>
+
     <!-- File Upload Section -->
     <div id="file-upload-section" class="mb-4">
       <h3>Upload Your CAS Statement PDF(s)</h3>
-      <p id="upload-instructions" class="text-muted">Select a PDF file and it will be uploaded automatically.</p>
+      <p id="upload-instructions" class="text-muted">
+        Select a PDF file and it will be uploaded automatically.
+      </p>
       <input type="file" id="file-input" accept=".pdf" class="form-control-file">
       <input type="password" id="password-input" placeholder="Enter password if PDF is encrypted" style="display: none;" class="form-control mt-2">
       <button id="add-button" class="btn btn-secondary mt-2" style="display: none;">Add Another PDF</button>
       <div id="uploaded-files" class="mt-2"></div>
       <div id="upload-status" class="mt-2"></div>
     </div>
+
     <!-- Dashboard Section -->
     <div id="dashboard" style="display: none;">
       <h2 class="section-title">Overall Investment Summary</h2>
       <div class="row" id="overall-summary">
+        <!-- Investment Summary Card -->
         <div class="col-md-4">
           <div class="card card-summary">
             <div class="card-body">
               <h5 class="card-title">Investment Summary</h5>
-              <ul class="list-group" id="investment-summary"></ul>
+              <ul class="list-group" id="investment-summary">
+                <!-- Filled by JavaScript -->
+              </ul>
             </div>
           </div>
         </div>
+        <!-- Realized Gains Card -->
         <div class="col-md-4">
           <div class="card card-summary">
             <div class="card-body">
-              <h5 class="card-title">Realized Gains</h5>
-              <ul class="list-group" id="realized-summary"></ul>
+              <h5 class="card-title">Detailed Realized Gains</h5>
+              <div class="table-responsive">
+                <table class="table table-bordered detail-table" id="realized-table">
+                  <thead>
+                    <tr>
+                      <th>Purchase Date</th>
+                      <th>Redemption Date</th>
+                      <th>Purchase NAV</th>
+                      <th>Redemption NAV</th>
+                      <th>Units</th>
+                      <th>Gain</th>
+                      <th>Holding Days</th>
+                      <th>Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Realized details filled by JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+              <!-- Also display summary values -->
+              <ul class="list-group mt-2" id="realized-summary">
+                <!-- Filled by JavaScript -->
+              </ul>
             </div>
           </div>
         </div>
+        <!-- Unrealized Gains Card -->
         <div class="col-md-4">
           <div class="card card-summary">
             <div class="card-body">
-              <h5 class="card-title">Unrealized Gains</h5>
-              <ul class="list-group" id="unrealized-summary"></ul>
+              <h5 class="card-title">Detailed Unrealized Gains</h5>
+              <div class="table-responsive">
+                <table class="table table-bordered detail-table" id="unrealized-table">
+                  <thead>
+                    <tr>
+                      <th>Purchase Date</th>
+                      <th>Purchase NAV</th>
+                      <th>Units</th>
+                      <th>Current NAV</th>
+                      <th>Lot Gain</th>
+                      <th>Holding Days</th>
+                      <th>Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Unrealized details filled by JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+              <!-- Also display summary values -->
+              <ul class="list-group mt-2" id="unrealized-summary">
+                <!-- Filled by JavaScript -->
+              </ul>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- LTCG Eligible & Tax Summary -->
       <h2 class="section-title">
         Long-Term Gains & Tax
         <a href="#" id="ltcg-link" class="info-link">[View Details]</a>
@@ -71,16 +175,102 @@
         <div class="col-md-6">
           <div class="card card-summary">
             <div class="card-body">
-              <ul class="list-group" id="ltcg-summary"></ul>
+              <ul class="list-group" id="ltcg-summary">
+                <!-- Filled by JavaScript -->
+              </ul>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Funds by AMC -->
       <h2 class="section-title">Funds by AMC</h2>
-      <div id="funds-container"></div>
+      <div id="funds-container">
+        <!-- Fund cards will be rendered here -->
+      </div>
     </div>
 
-    <!-- (Modals omitted for brevity) -->
+    <!-- Modal for LTCG Eligible Funds Details -->
+    <div class="modal fade" id="ltcgModal" tabindex="-1" role="dialog" aria-labelledby="ltcgModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="ltcgModalLabel">LTCG Eligible Funds Details</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" id="ltcg-details">
+            <!-- LTCG eligible details table will be inserted here -->
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for Locked Funds Details -->
+    <div class="modal fade" id="lockedModal" tabindex="-1" role="dialog" aria-labelledby="lockedModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="lockedModalLabel">Locked Funds Details (ELSS)</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" id="locked-details">
+            <!-- Locked funds table will be inserted here -->
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for Withdrawal Transactions Details -->
+    <div class="modal fade" id="withdrawalsModal" tabindex="-1" role="dialog" aria-labelledby="withdrawalsModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="withdrawalsModalLabel">Withdrawal Transactions Details</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" id="withdrawals-details">
+            <!-- Withdrawal transactions table will be inserted here -->
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for Withdrawn Amount Info -->
+    <div class="modal fade" id="withdrawnInfoModal" tabindex="-1" role="dialog" aria-labelledby="withdrawnInfoModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="withdrawnInfoModalLabel">About Withdrawn Amount</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>The Withdrawn Amount represents the total money redeemed from your funds. Click on the value above to view detailed information including fund name, folio, redemption date, amount withdrawn, and units redeemed.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Message -->
     <div id="error-message" class="alert alert-danger" style="display: none;"></div>
   </div>
 
@@ -96,6 +286,7 @@
       return num.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 });
     }
 
+    // --- Utility functions for XIRR (not used on frontend now) ---
     function xnpv(rate, cashFlows) {
       let t0 = Math.min(...cashFlows.map(cf => cf.date.getTime()));
       return cashFlows.reduce((sum, cf) => {
@@ -118,17 +309,20 @@
       return rate;
     }
 
-    // Merge duplicate schemes based on folio and scheme name.
+    // Function to merge duplicate schemes (by folio and scheme name)
     function combineData(resultsArray) {
       let combined = {
         data: { folios: [], investor_info: {}, statement_period: {} },
-        msg: "success", status: "success"
+        msg: "success",
+        status: "success"
       };
       let amcMap = {};
       resultsArray.forEach(result => {
         result.data.folios.forEach(folio => {
           let amcName = folio.amc.trim();
-          if (!amcMap[amcName]) { amcMap[amcName] = { amc: folio.amc, schemes: [] }; }
+          if (!amcMap[amcName]) {
+            amcMap[amcName] = { amc: folio.amc, schemes: [] };
+          }
           folio.schemes.forEach(scheme => {
             let key = scheme.folio + "_" + scheme.scheme;
             let existing = amcMap[amcName].schemes.find(s => (s.folio + "_" + s.scheme) === key);
@@ -150,164 +344,146 @@
         combined.data.investor_info = resultsArray[0].data.investor_info;
         combined.data.statement_period = resultsArray[0].data.statement_period;
       }
+      // Also pass through overall_xirr if available
+      if(resultsArray[0].overall_xirr !== undefined){
+        combined.overall_xirr = resultsArray[0].overall_xirr;
+      }
       return combined;
     }
 
-    // Render dashboard: use backend xirr if single PDF; recalc combined xirr if more than one.
+    // Render the dashboard using the combined data from the backend.
     function renderDashboard(data) {
       document.getElementById("dashboard").style.display = "block";
       document.getElementById("upload-status").textContent = "Data combined and analysis complete.";
 
-      let overallCurrentMarketValue = 0, overallCurrentlyInvested = 0, overallProfit = 0;
-      let realizedSummary = { currentFY: 0, lt: 0, st: 0 };
-      let unrealizedSummary = { total: 0, lt: 0, st: 0 };
-      let ltcgSummary = { eligibleUnits: 0, eligibleValue: 0, potentialTax: 0, unrealizedLTGain: 0 };
-      let lockedOverall = { amount: 0, profit: 0 };
-      let lockedDetailsArray = [], allWithdrawals = [];
-      let fundsHtml = "", ltcgDetails = "";
-      let overallRealizedGain = 0, firstXirr = null;
-      
-      // For combined XIRR, we aggregate transaction cash flows (filtering out final valuation entries)
-      // and sum the final market values separately.
-      let combinedCashFlows = [];
-      let totalFinalMarketValue = 0;
-      
-      data.data.folios.forEach(folio => {
-        let amc = folio.amc;
-        fundsHtml += `<div class="card fund-card"><div class="card-header"><strong>${amc}</strong></div><div class="card-body">`;
-        folio.schemes.forEach(scheme => {
-          // Skip funds with keywords like "uclaim" or "redemption"
-          if (scheme.scheme && (scheme.scheme.toLowerCase().includes("uclaim") || scheme.scheme.toLowerCase().includes("redemption"))) {
-            return;
-          }
-          let sim = scheme.unrealized_tax_simulation.summary;
-          overallCurrentMarketValue += sim.investment_summary.current_market_value;
-          overallCurrentlyInvested += sim.investment_summary.currently_invested;
-          overallProfit += sim.investment_summary.overall_profit;
-          if (!firstXirr && sim.investment_summary.xirr !== null) { firstXirr = sim.investment_summary.xirr; }
-          if (scheme.unrealized_tax_simulation.details && scheme.unrealized_tax_simulation.details.lot_details_realized) {
-            scheme.unrealized_tax_simulation.details.lot_details_realized.forEach(tx => { overallRealizedGain += tx.gain; });
-          }
-          realizedSummary.currentFY += sim.realized.realized_total_gain_current_FY;
-          realizedSummary.lt += sim.realized.realized_long_term_gain_current_FY;
-          realizedSummary.st += sim.realized.realized_short_term_gain_current_FY;
-          unrealizedSummary.total += sim.unrealized.unrealized_gain;
-          unrealizedSummary.lt += sim.unrealized.unrealized_long_term_gain;
-          unrealizedSummary.st += sim.unrealized.unrealized_short_term_gain;
-          ltcgSummary.eligibleUnits += sim.ltcg_eligibility.eligible_units;
-          ltcgSummary.eligibleValue += sim.ltcg_eligibility.eligible_current_value;
-          ltcgSummary.potentialTax += sim.ltcg_eligibility.potential_tax_on_ltcg;
-          ltcgSummary.unrealizedLTGain += sim.unrealized.unrealized_long_term_gain;
-          
-          let lockedData = sim.locked || scheme.locked;
-          if (lockedData && lockedData.locked_in_amount > 0) {
-            lockedOverall.amount += lockedData.locked_in_amount;
-            lockedOverall.profit += lockedData.locked_in_profit;
-            lockedDetailsArray.push({ fund: scheme.scheme, folio: scheme.folio, locked_in_amount: lockedData.locked_in_amount, locked_in_profit: lockedData.locked_in_profit });
-          }
-          
-          if (sim.lot_details_realized && sim.lot_details_realized.length > 0) {
-            sim.lot_details_realized.forEach(r => {
-              allWithdrawals.push({ fund: scheme.scheme, folio: scheme.folio, redemption_date: r.redemption_date, amount: r.gain, units: r.units });
-            });
-          }
-          
-          if (sim.ltcg_eligibility.eligible_current_value > 0) {
-            ltcgDetails += `<tr><td>${scheme.scheme}</td><td>${scheme.folio}</td><td>${formatINR(sim.investment_summary.current_market_value)}</td><td>${formatINR(sim.ltcg_eligibility.eligible_current_value)}</td><td>${formatINR(sim.unrealized.unrealized_long_term_gain)}</td></tr>`;
-          }
-          
-          let detailsHtml = `
-            <ul>
-              <li><strong>Currently Invested:</strong> ${formatINR(sim.investment_summary.currently_invested)}</li>
-              <li><strong>Overall Profit:</strong> ${formatINR(sim.investment_summary.overall_profit)} (${sim.investment_summary.profit_percentage}%)</li>
-              <li><strong>Overall Realized Gain:</strong> ${formatINR(overallRealizedGain)}</li>
-              <li><strong>Realized Gain (Current FY):</strong> ${formatINR(sim.realized.realized_total_gain_current_FY)}</li>
-              <li><strong>Unrealized Gain:</strong> ${formatINR(sim.investment_summary.current_market_value - sim.investment_summary.currently_invested)}
-                  (LT: ${formatINR(sim.unrealized.unrealized_long_term_gain)}, ST: ${formatINR(sim.unrealized.unrealized_short_term_gain)})
-              </li>
-              <li><strong>XIRR:</strong> ${sim.investment_summary.xirr ? sim.investment_summary.xirr.toFixed(2) + '%' : 'N/A'}</li>
-            </ul>
-          `;
-          
-          fundsHtml += `<div class="card mb-2">
-                          <div class="card-body">
-                            <h5 class="card-title"><a href="https://coin.zerodha.com/mf/fund/${scheme.isin}" target="_blank">${scheme.scheme}</a></h5>
-                            <p class="card-text">
-                              <strong>Folio:</strong> ${scheme.folio}<br>
-                              <strong>Current Market Value:</strong> ${formatINR(sim.investment_summary.current_market_value)}<br>
-                              <strong>Profit:</strong> ${formatINR(sim.investment_summary.overall_profit)} (${sim.investment_summary.profit_percentage}%)
-                            </p>
-                            <p class="toggle-details" onclick="toggleDetails(this)">View Detailed Fund Performance</p>
-                            <div class="details-section">${detailsHtml}</div>
-                          </div>
-                        </div>`;
-          
-          // IMPORTANT: For combined XIRR, add only transaction cash flows that are NOT final valuation entries.
-          if (scheme.transactions && scheme.transactions.length > 0) {
-            let valuationDate = (scheme.valuation && scheme.valuation.date) ? scheme.valuation.date : "";
-            scheme.transactions.forEach(tx => {
-              let txDate = new Date(tx.date);
-              if (valuationDate && txDate.toISOString().split('T')[0] === valuationDate) {
-                // Skip this transaction because it's the final valuation cash flow.
-              } else {
-                let units = parseFloat(tx.units || 0);
-                let nav = parseFloat(tx.nav || 0);
-                let amount = 0;
-                if (units > 0) {
-                  amount = - (nav * units);
-                } else if (units < 0) {
-                  amount = tx.amount ? parseFloat(tx.amount) : (nav * Math.abs(units));
-                }
-                combinedCashFlows.push({ date: txDate, amount: amount });
-              }
-            });
-          }
-          // Sum up the final market value from each scheme (added only once per scheme).
-          if (scheme.unrealized_tax_simulation && scheme.unrealized_tax_simulation.investment_summary) {
-            totalFinalMarketValue += scheme.unrealized_tax_simulation.investment_summary.current_market_value;
-          }
-        });
-        fundsHtml += `</div></div>`;
-      });
-      
-      console.log("DEBUG: Combined transaction cash flows (filtered):", combinedCashFlows);
-      console.log("DEBUG: Total final market value (to be added as one cash flow):", totalFinalMarketValue);
-      
-      // If more than one PDF is merged, add one final cash flow for the entire portfolio.
-      let overallXirr = 0;
-      if (combinedResults.length > 1 && combinedCashFlows.length > 0) {
-          combinedCashFlows.push({ date: new Date(), amount: totalFinalMarketValue });
-          // Aggregate cash flows by date.
-          let aggregated = {};
-          combinedCashFlows.forEach(cf => {
-              let dateKey = cf.date.toISOString().split('T')[0];
-              aggregated[dateKey] = (aggregated[dateKey] || 0) + cf.amount;
-          });
-          let aggregatedCashFlows = [];
-          for (let dateKey in aggregated) {
-              aggregatedCashFlows.push({ date: new Date(dateKey), amount: aggregated[dateKey] });
-          }
-          console.log("DEBUG: Aggregated cash flows:", aggregatedCashFlows);
-          overallXirr = xirr(aggregatedCashFlows) * 100;
-          console.log("DEBUG: Computed combined XIRR:", overallXirr);
-      } else {
-          overallXirr = firstXirr !== null ? firstXirr : 0;
-      }
-      
+      // Overall Summary from summary.investment_summary
+      let invSum = data.summary.investment_summary;
+      let overallCurrentMarketValue = invSum.current_market_value;
+      let overallCurrentlyInvested = invSum.currently_invested;
+      let overallProfit = invSum.overall_profit;
+
       const invSummaryHtml = `
         <li class="list-group-item"><strong>Current Market Value:</strong> ${formatINR(overallCurrentMarketValue)}</li>
         <li class="list-group-item"><strong>Currently Invested:</strong> ${formatINR(overallCurrentlyInvested)}</li>
         <li class="list-group-item"><strong>Overall Profit:</strong> ${formatINR(overallProfit)}</li>
         <li class="list-group-item"><strong>Profit Percentage:</strong> ${overallCurrentlyInvested ? ((overallProfit/overallCurrentlyInvested)*100).toFixed(2) : 0}%</li>
-        <li class="list-group-item"><strong>${combinedResults.length > 1 ? "Combined XIRR (Annual Return)" : "XIRR (Annual Return)"}:</strong> ${data.overall_xirr ? data.overall_xirr.toFixed(2) + '%' : 'N/A'}</li>
+        <li class="list-group-item"><strong>${(combinedResults.length > 1) ? "Combined XIRR (Annual Return)" : "XIRR (Annual Return)"}:</strong> ${data.overall_xirr ? data.overall_xirr.toFixed(2) + '%' : 'N/A'}</li>
         <li class="list-group-item">
-          <strong>Locked (ELSS) Investment:</strong> ${formatINR(lockedOverall.amount)}
+          <strong>Locked (ELSS) Investment:</strong> ${formatINR(data.summary.locked.locked_in_amount)}
           <span id="locked-link" class="clickable">[View Details]</span>
         </li>
       `;
       document.getElementById("investment-summary").innerHTML = invSummaryHtml;
+
+      // Realized Gains: build table from detailed_realized array and also show summary info.
+      let realizedHTML = "";
+      if (data.details.lot_details_realized && data.details.lot_details_realized.length > 0) {
+        data.details.lot_details_realized.forEach(item => {
+          realizedHTML += `<tr>
+            <td>${item.purchase_date}</td>
+            <td>${item.redemption_date}</td>
+            <td>${item.purchase_nav}</td>
+            <td>${item.redemption_nav}</td>
+            <td>${item.units}</td>
+            <td>${item.gain}</td>
+            <td>${item.holding_period_days}</td>
+            <td>${item.classification}</td>
+          </tr>`;
+        });
+      } else {
+        realizedHTML = `<tr><td colspan="8" class="text-center">No realized transactions available.</td></tr>`;
+      }
+      document.getElementById("realized-table").querySelector("tbody").innerHTML = realizedHTML;
+      
+      // Also, fill in the Realized Summary list.
+      let realizedSum = data.summary.realized;
+      const realizedSummaryHtml = `
+        <li class="list-group-item"><strong>Overall Realized Gain (Current FY):</strong> ${realizedSum.realized_total_gain_current_FY}</li>
+        <li class="list-group-item"><strong>Long-Term Realized Gain (Current FY):</strong> ${realizedSum.realized_long_term_gain_current_FY}</li>
+        <li class="list-group-item"><strong>Short-Term Realized Gain (Current FY):</strong> ${realizedSum.realized_short_term_gain_current_FY}</li>
+        <li class="list-group-item"><strong>Potential Realized Tax Liability (Current FY):</strong> ${realizedSum.potential_realized_tax_liability_current_FY.total_tax}</li>
+      `;
+      document.getElementById("realized-summary").innerHTML = realizedSummaryHtml;
+      
+      // Unrealized Gains: build table from detailed_unrealized array.
+      let unrealizedHTML = "";
+      if (data.details.lot_details_unrealized && data.details.lot_details_unrealized.length > 0) {
+        data.details.lot_details_unrealized.forEach(item => {
+          unrealizedHTML += `<tr>
+            <td>${item.purchase_date}</td>
+            <td>${item.purchase_nav}</td>
+            <td>${item.units}</td>
+            <td>${item.current_nav}</td>
+            <td>${item.lot_unrealized_gain}</td>
+            <td>${item.holding_period_days}</td>
+            <td>${item.classification}</td>
+          </tr>`;
+        });
+      } else {
+        unrealizedHTML = `<tr><td colspan="7" class="text-center">No unrealized lots available.</td></tr>`;
+      }
+      document.getElementById("unrealized-table").querySelector("tbody").innerHTML = unrealizedHTML;
+      
+      // Fill Unrealized Summary list.
+      let unrealizedSum = data.summary.unrealized;
+      const unrealizedSummaryHtml = `
+        <li class="list-group-item"><strong>Unrealized Gain:</strong> ${unrealizedSum.unrealized_gain}</li>
+        <li class="list-group-item"><strong>Unrealized Long-Term Gain:</strong> ${unrealizedSum.unrealized_long_term_gain}</li>
+        <li class="list-group-item"><strong>Unrealized Short-Term Gain:</strong> ${unrealizedSum.unrealized_short_term_gain}</li>
+        <li class="list-group-item"><strong>Return on Current Investment:</strong> ${unrealizedSum.unrealized_return_percentage}%</li>
+        <li class="list-group-item"><strong>Potential Unrealized Tax Liability:</strong> ${unrealizedSum.potential_unrealized_tax_liability_current_FY.total_tax}</li>
+      `;
+      document.getElementById("unrealized-summary").innerHTML = unrealizedSummaryHtml;
+      
+      // LTCG Eligible & Tax Summary
+      const ltcgSummaryHtml = `
+        <li class="list-group-item"><strong>LTCG Eligible Units:</strong> ${data.summary.ltcg_eligibility.eligible_units}</li>
+        <li class="list-group-item"><strong>Eligible Current Value:</strong> ${data.summary.ltcg_eligibility.eligible_current_value}</li>
+        <li class="list-group-item"><strong>Potential Tax on LTCG:</strong> ${data.summary.ltcg_eligibility.potential_tax_on_ltcg}</li>
+      `;
+      document.getElementById("ltcg-summary").innerHTML = ltcgSummaryHtml;
+      
+      // Funds by AMC: render as before (you can customize as needed).
+      let fundsHtml = "";
+      data.data.folios.forEach(folio => {
+        let amc = folio.amc;
+        fundsHtml += `<div class="card fund-card">
+                        <div class="card-header"><strong>${amc}</strong></div>
+                        <div class="card-body">`;
+        folio.schemes.forEach(scheme => {
+          if (scheme.scheme && (scheme.scheme.toLowerCase().includes("uclaim") || scheme.scheme.toLowerCase().includes("redemption"))) {
+            return;
+          }
+          let sim = scheme.unrealized_tax_simulation.summary;
+          let detailsHtml = `
+            <ul>
+              <li><strong>Currently Invested:</strong> ${sim.investment_summary.currently_invested}</li>
+              <li><strong>Overall Profit:</strong> ${sim.investment_summary.overall_profit} (${sim.investment_summary.profit_percentage}%)</li>
+              <li><strong>XIRR:</strong> ${sim.investment_summary.xirr ? sim.investment_summary.xirr.toFixed(2) + '%' : 'N/A'}</li>
+            </ul>
+          `;
+          fundsHtml += `<div class="card mb-2">
+                          <div class="card-body">
+                            <h5 class="card-title">
+                              <a href="https://coin.zerodha.com/mf/fund/${scheme.isin}" target="_blank">${scheme.scheme}</a>
+                            </h5>
+                            <p class="card-text">
+                              <strong>Folio:</strong> ${scheme.folio}<br>
+                              <strong>Current Market Value:</strong> ${sim.investment_summary.current_market_value}<br>
+                              <strong>Profit:</strong> ${sim.investment_summary.overall_profit} (${sim.investment_summary.profit_percentage}%)
+                            </p>
+                            <p class="toggle-details" onclick="toggleDetails(this)">View Detailed Fund Performance</p>
+                            <div class="details-section">
+                              ${detailsHtml}
+                            </div>
+                          </div>
+                        </div>`;
+        });
+        fundsHtml += `</div></div>`;
+      });
       document.getElementById("funds-container").innerHTML = fundsHtml;
       
+      // Attach event listeners for modals.
       let lockedLinkElem = document.getElementById("locked-link");
       if (lockedLinkElem) {
         lockedLinkElem.addEventListener("click", (e) => {
@@ -344,12 +520,10 @@
       document.getElementById("upload-status").textContent = "Uploading file...";
       const formData = new FormData();
       formData.append("file", file);
-      
       const passwordInput = document.getElementById("password-input");
       if (passwordInput && passwordInput.value.trim() !== "") {
         formData.append("password", passwordInput.value.trim());
       }
-      
       fetch("https://ltcg-backend.onrender.com/upload", { method: "POST", body: formData })
       .then(response => {
         if (!response.ok) {
@@ -365,7 +539,10 @@
         fileInput.style.display = "none";
         document.getElementById("add-button").style.display = "inline-block";
         document.getElementById("upload-status").textContent = "File uploaded successfully.";
-        if (passwordInput) { passwordInput.style.display = "none"; passwordInput.value = ""; }
+        if (passwordInput) {
+          passwordInput.style.display = "none";
+          passwordInput.value = "";
+        }
         let combinedData = combineData(combinedResults);
         renderDashboard(combinedData);
       })

@@ -8,17 +8,22 @@ def xnpv(rate, cash_flows):
 
 def xirr(cash_flows, tol=1e-6, max_iter=1000):
     """
-    Compute XIRR using the bisection method.
-    It finds a rate r such that the net present value (NPV) is close to zero.
+    Compute XIRR using a bisection method.
+    It finds a rate r such that the net present value (NPV) of cash flows is close to zero.
+    The function dynamically extends the upper bound if no sign change is found.
     """
     t0 = min(cf[0] for cf in cash_flows)
     def f(rate):
         return sum(cf[1] / ((1 + rate) ** ((cf[0] - t0).days / 365.0)) for cf in cash_flows)
     
     lower = -0.9999
-    upper = 10  # Adjust if needed.
+    upper = 10
     f_lower = f(lower)
     f_upper = f(upper)
+    # Extend upper bound until sign change is detected or a maximum is reached.
+    while f_lower * f_upper > 0 and upper < 1e10:
+        upper *= 10
+        f_upper = f(upper)
     if f_lower * f_upper > 0:
         raise Exception("No sign change found in cash flows. Cannot compute XIRR.")
     for i in range(max_iter):
@@ -37,27 +42,24 @@ def xirr(cash_flows, tol=1e-6, max_iter=1000):
 def simulate_full_unrealized_tax(scheme):
     """
     Processes scheme transactions (using FIFO and per‑unit cost) and returns a detailed simulation summary.
-
+    
     The returned dictionary includes:
-      - investment_summary: Overall amounts including:
-            total_investment_made, current_market_value, currently_invested,
+      - investment_summary: Contains total_investment_made, current_market_value, currently_invested,
             withdrawn_amount, overall_profit, profit_percentage, and xirr.
       - realized: Contains realized_total_gain_current_FY, realized_long_term_gain_current_FY,
             realized_short_term_gain_current_FY, potential_realized_tax_liability_current_FY,
-            and a detailed list ("detailed_realized") of each redemption transaction.
-      - unrealized: Contains remaining_units, currently_invested, current_market_value,
-            unrealized_gain, unrealized_long_term_gain, unrealized_short_term_gain,
-            unrealized_return_percentage, potential_unrealized_tax_liability_current_FY,
-            and a detailed list ("detailed_unrealized") of each remaining lot.
-      - ltcg_eligibility: Eligible units, eligible_current_value, and potential_tax_on_ltcg.
-      - locked: locked_in_amount and locked_in_profit.
-      - financial_year: fy_start and fy_end.
+            and detailed_realized (list of each redemption transaction).
+      - unrealized: Contains remaining_units, currently_invested, current_market_value, unrealized_gain,
+            unrealized_long_term_gain, unrealized_short_term_gain, unrealized_return_percentage,
+            potential_unrealized_tax_liability_current_FY, and detailed_unrealized (list of each remaining lot).
+      - ltcg_eligibility: Contains eligible_units, eligible_current_value, and potential_tax_on_ltcg.
+      - locked: Contains locked_in_amount and locked_in_profit.
+      - financial_year: Contains fy_start and fy_end.
     """
     transactions = scheme.get("transactions", [])
     current_valuation = scheme.get("valuation", {})
     tax_bucket = scheme.get("tax_bucket", "debt")
-
-    # Parse current NAV and valuation date.
+    
     try:
         current_nav = float(current_valuation.get("nav", 0))
     except Exception:
@@ -66,7 +68,7 @@ def simulate_full_unrealized_tax(scheme):
         current_date = datetime.strptime(current_valuation.get("date"), "%Y-%m-%d")
     except Exception:
         current_date = datetime.now()
-
+    
     # Determine financial year boundaries.
     if current_date.month >= 4:
         fy_start = datetime(current_date.year, 4, 1)
@@ -74,20 +76,17 @@ def simulate_full_unrealized_tax(scheme):
     else:
         fy_start = datetime(current_date.year - 1, 4, 1)
         fy_end = datetime(current_date.year, 3, 31)
-
+    
     default_threshold = 365 if tax_bucket == "equity" else 1095
-
     transactions_sorted = sorted(transactions, key=lambda tx: datetime.strptime(tx["date"], "%Y-%m-%d"))
-
+    
     purchase_lots = []
     realized_LT_gain = 0.0
     realized_ST_gain = 0.0
     realized_details = []
     total_investment_made = 0.0
-
-    # Build cash flows for XIRR calculation.
-    cash_flows = []
-
+    cash_flows = []  # For XIRR computation.
+    
     for tx in transactions_sorted:
         if tx.get("type", "").upper() in ["STAMP_DUTY_TAX"]:
             continue
@@ -100,7 +99,7 @@ def simulate_full_unrealized_tax(scheme):
             tx_units = float(tx.get("units", 0))
         except Exception:
             tx_units = 0.0
-
+        
         if tx_units > 0:
             purchase_lots.append({
                 "date": tx_date,
@@ -141,20 +140,20 @@ def simulate_full_unrealized_tax(scheme):
                     "classification": classification
                 })
             cash_flows.append((tx_date, redemption_cash))
-
+    
     overall_withdrawn_amount = sum(cf for (dt, cf) in cash_flows if cf > 0)
-
+    
     scheme_name = scheme.get("scheme", "")
     is_elss = ("elss" in scheme_name.lower()) or ("tax" in scheme_name.lower())
     lock_in_period = 1095 if is_elss else default_threshold
-
+    
     locked_in_amount = 0.0
     locked_in_profit = 0.0
     unrealized_ST_gain = 0.0
     unrealized_LT_gain = 0.0
     unrealized_details = []
     ltcg_eligible_units = 0.0
-
+    
     for lot in purchase_lots:
         lot_gain = lot["units"] * (current_nav - lot["purchase_nav"])
         holding_period = (current_date - lot["date"]).days
@@ -185,8 +184,7 @@ def simulate_full_unrealized_tax(scheme):
             "classification": classification
         })
     total_unrealized_gain = unrealized_LT_gain + unrealized_ST_gain
-
-    # Determine tax rates.
+    
     if tax_bucket == "equity":
         tax_rate_LT = 0.10
         tax_rate_ST = 0.20
@@ -203,7 +201,7 @@ def simulate_full_unrealized_tax(scheme):
         tax_rate_LT = 0.0
         tax_rate_ST = 0.0
         exemption_available = None
-
+    
     fy_realized_details = [
         r for r in realized_details
         if fy_start <= datetime.strptime(r["redemption_date"], "%Y-%m-%d") <= fy_end
@@ -213,16 +211,16 @@ def simulate_full_unrealized_tax(scheme):
     fy_realized_total_gain = fy_realized_LT_gain + fy_realized_ST_gain
     potential_realized_tax = fy_realized_LT_gain * tax_rate_LT + fy_realized_ST_gain * tax_rate_ST
     potential_unrealized_tax = unrealized_LT_gain * tax_rate_LT + unrealized_ST_gain * tax_rate_ST
-
+    
     remaining_units = sum(lot["units"] for lot in purchase_lots)
     current_market_value = remaining_units * current_nav
     overall_profit = (overall_withdrawn_amount + current_market_value) - total_investment_made
     profit_percentage = (overall_profit / total_investment_made * 100) if total_investment_made else 0
     currently_invested = sum(lot["purchase_nav"] * lot["units"] for lot in purchase_lots)
     unrealized_return_percentage = ((current_market_value - currently_invested) / currently_invested * 100) if currently_invested else 0
-
+    
     ltcg_eligible_value = ltcg_eligible_units * current_nav
-
+    
     # Append final valuation cash flow.
     cash_flows.append((current_date, current_market_value))
     try:
@@ -231,7 +229,7 @@ def simulate_full_unrealized_tax(scheme):
             computed_xirr = computed_xirr.real
     except Exception:
         computed_xirr = None
-
+    
     summary = {
         "investment_summary": {
             "total_investment_made": round(total_investment_made, 2),
@@ -282,7 +280,7 @@ def simulate_full_unrealized_tax(scheme):
             "fy_end": fy_end.strftime("%Y-%m-%d")
         }
     }
-
+    
     return {"summary": summary, "details": {"lot_details_unrealized": unrealized_details, "lot_details_realized": realized_details}}
 
 def compute_overall_xirr(cas_json):
