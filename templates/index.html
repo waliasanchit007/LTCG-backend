@@ -90,9 +90,9 @@
 
     <!-- Dashboard Section -->
     <div id="dashboard" style="display: none;">
+      <!-- Overall Investment Summary -->
       <h2 class="section-title">Overall Investment Summary</h2>
       <div class="row" id="overall-summary">
-        <!-- Investment Summary Card -->
         <div class="col-md-4">
           <div class="card card-summary">
             <div class="card-body">
@@ -103,7 +103,7 @@
             </div>
           </div>
         </div>
-        <!-- Realized Gains Card -->
+        <!-- Detailed Realized Gains -->
         <div class="col-md-4">
           <div class="card card-summary">
             <div class="card-body">
@@ -123,18 +123,17 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <!-- Realized details filled by JavaScript -->
+                    <!-- Realized details will be inserted here -->
                   </tbody>
                 </table>
               </div>
-              <!-- Also display summary values -->
               <ul class="list-group mt-2" id="realized-summary">
-                <!-- Filled by JavaScript -->
+                <!-- Realized summary info -->
               </ul>
             </div>
           </div>
         </div>
-        <!-- Unrealized Gains Card -->
+        <!-- Detailed Unrealized Gains -->
         <div class="col-md-4">
           <div class="card card-summary">
             <div class="card-body">
@@ -153,13 +152,12 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <!-- Unrealized details filled by JavaScript -->
+                    <!-- Unrealized details will be inserted here -->
                   </tbody>
                 </table>
               </div>
-              <!-- Also display summary values -->
               <ul class="list-group mt-2" id="unrealized-summary">
-                <!-- Filled by JavaScript -->
+                <!-- Unrealized summary info -->
               </ul>
             </div>
           </div>
@@ -176,7 +174,7 @@
           <div class="card card-summary">
             <div class="card-body">
               <ul class="list-group" id="ltcg-summary">
-                <!-- Filled by JavaScript -->
+                <!-- LTCG eligible summary info -->
               </ul>
             </div>
           </div>
@@ -221,7 +219,7 @@
             </button>
           </div>
           <div class="modal-body" id="locked-details">
-            <!-- Locked funds table will be inserted here -->
+            <!-- Locked funds details table will be inserted here -->
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -286,30 +284,7 @@
       return num.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 });
     }
 
-    // --- Utility functions for XIRR (not used on frontend now) ---
-    function xnpv(rate, cashFlows) {
-      let t0 = Math.min(...cashFlows.map(cf => cf.date.getTime()));
-      return cashFlows.reduce((sum, cf) => {
-        let diffDays = (cf.date.getTime() - t0) / (1000 * 3600 * 24);
-        return sum + cf.amount / Math.pow(1 + rate, diffDays / 365);
-      }, 0);
-    }
-
-    function xirr(cashFlows, guess = 0.1, tol = 1e-6, maxIter = 100) {
-      let rate = guess;
-      for (let i = 0; i < maxIter; i++) {
-        let f = xnpv(rate, cashFlows);
-        let f1 = xnpv(rate + tol, cashFlows);
-        let derivative = (f1 - f) / tol;
-        if (derivative === 0) break;
-        let newRate = rate - f / derivative;
-        if (Math.abs(newRate - rate) < tol) return newRate;
-        rate = newRate;
-      }
-      return rate;
-    }
-
-    // Function to merge duplicate schemes (by folio and scheme name)
+    // --- Merge duplicate CAS JSON objects ---
     function combineData(resultsArray) {
       let combined = {
         data: { folios: [], investor_info: {}, statement_period: {} },
@@ -318,66 +293,77 @@
       };
       let amcMap = {};
       resultsArray.forEach(result => {
-        result.data.folios.forEach(folio => {
-          let amcName = folio.amc.trim();
-          if (!amcMap[amcName]) {
-            amcMap[amcName] = { amc: folio.amc, schemes: [] };
-          }
-          folio.schemes.forEach(scheme => {
-            let key = scheme.folio + "_" + scheme.scheme;
-            let existing = amcMap[amcName].schemes.find(s => (s.folio + "_" + s.scheme) === key);
-            if (existing) {
-              existing.transactions = (existing.transactions || []).concat(scheme.transactions || []);
-              if (scheme.valuation && scheme.valuation.date) {
-                if (!existing.valuation || new Date(scheme.valuation.date) > new Date(existing.valuation.date)) {
-                  existing.valuation = scheme.valuation;
-                }
-              }
-            } else {
-              amcMap[amcName].schemes.push(scheme);
+        // Expect each result to have a "data" and a "summary" and "details"
+        if(result.data) {
+          result.data.folios.forEach(folio => {
+            let amcName = folio.amc.trim();
+            if (!amcMap[amcName]) {
+              amcMap[amcName] = { amc: folio.amc, schemes: [] };
             }
+            folio.schemes.forEach(scheme => {
+              let key = scheme.folio + "_" + scheme.scheme;
+              let existing = amcMap[amcName].schemes.find(s => (s.folio + "_" + s.scheme) === key);
+              if (existing) {
+                existing.transactions = (existing.transactions || []).concat(scheme.transactions || []);
+                if (scheme.valuation && scheme.valuation.date) {
+                  if (!existing.valuation || new Date(scheme.valuation.date) > new Date(existing.valuation.date)) {
+                    existing.valuation = scheme.valuation;
+                  }
+                }
+              } else {
+                amcMap[amcName].schemes.push(scheme);
+              }
+            });
           });
-        });
+        }
       });
       combined.data.folios = Object.values(amcMap);
-      if(resultsArray.length > 0) {
-        combined.data.investor_info = resultsArray[0].data.investor_info;
-        combined.data.statement_period = resultsArray[0].data.statement_period;
-      }
-      // Also pass through overall_xirr if available
-      if(resultsArray[0].overall_xirr !== undefined){
+      // For summary and details, if only one PDF is uploaded, use its keys.
+      // (If multiple, you may wish to merge these values as well.)
+      if(resultsArray.length === 1) {
+        combined.summary = resultsArray[0].summary;
+        combined.details = resultsArray[0].details;
+        combined.overall_xirr = resultsArray[0].overall_xirr;
+      } else {
+        // For multiple PDFs, the backend should merge simulation details.
+        // Here we assume the first result contains summary info as a placeholder.
+        combined.summary = resultsArray[0].summary || {};
+        combined.details = resultsArray[0].details || {};
         combined.overall_xirr = resultsArray[0].overall_xirr;
       }
       return combined;
     }
 
-    // Render the dashboard using the combined data from the backend.
+    // Render the dashboard using the combined data.
     function renderDashboard(data) {
       document.getElementById("dashboard").style.display = "block";
       document.getElementById("upload-status").textContent = "Data combined and analysis complete.";
+      
+      // Use summary fields, with defaults if missing.
+      var simSummary = data.summary || {};
+      var invSum = simSummary.investment_summary || {};
+      var realizedSum = simSummary.realized || {};
+      var unrealizedSum = simSummary.unrealized || {};
+      var ltcgSum = simSummary.ltcg_eligibility || {};
+      var lockedSum = simSummary.locked || {};
 
-      // Overall Summary from summary.investment_summary
-      let invSum = data.summary.investment_summary;
-      let overallCurrentMarketValue = invSum.current_market_value;
-      let overallCurrentlyInvested = invSum.currently_invested;
-      let overallProfit = invSum.overall_profit;
-
+      // Overall Investment Summary
       const invSummaryHtml = `
-        <li class="list-group-item"><strong>Current Market Value:</strong> ${formatINR(overallCurrentMarketValue)}</li>
-        <li class="list-group-item"><strong>Currently Invested:</strong> ${formatINR(overallCurrentlyInvested)}</li>
-        <li class="list-group-item"><strong>Overall Profit:</strong> ${formatINR(overallProfit)}</li>
-        <li class="list-group-item"><strong>Profit Percentage:</strong> ${overallCurrentlyInvested ? ((overallProfit/overallCurrentlyInvested)*100).toFixed(2) : 0}%</li>
+        <li class="list-group-item"><strong>Current Market Value:</strong> ${formatINR(invSum.current_market_value)}</li>
+        <li class="list-group-item"><strong>Currently Invested:</strong> ${formatINR(invSum.currently_invested)}</li>
+        <li class="list-group-item"><strong>Overall Profit:</strong> ${formatINR(invSum.overall_profit)}</li>
+        <li class="list-group-item"><strong>Profit Percentage:</strong> ${invSum.currently_invested ? ((invSum.overall_profit/invSum.currently_invested)*100).toFixed(2) : 0}%</li>
         <li class="list-group-item"><strong>${(combinedResults.length > 1) ? "Combined XIRR (Annual Return)" : "XIRR (Annual Return)"}:</strong> ${data.overall_xirr ? data.overall_xirr.toFixed(2) + '%' : 'N/A'}</li>
         <li class="list-group-item">
-          <strong>Locked (ELSS) Investment:</strong> ${formatINR(data.summary.locked.locked_in_amount)}
+          <strong>Locked (ELSS) Investment:</strong> ${formatINR(lockedSum.locked_in_amount)}
           <span id="locked-link" class="clickable">[View Details]</span>
         </li>
       `;
       document.getElementById("investment-summary").innerHTML = invSummaryHtml;
-
-      // Realized Gains: build table from detailed_realized array and also show summary info.
+      
+      // Detailed Realized Gains Table
       let realizedHTML = "";
-      if (data.details.lot_details_realized && data.details.lot_details_realized.length > 0) {
+      if (data.details && data.details.lot_details_realized && data.details.lot_details_realized.length > 0) {
         data.details.lot_details_realized.forEach(item => {
           realizedHTML += `<tr>
             <td>${item.purchase_date}</td>
@@ -395,19 +381,18 @@
       }
       document.getElementById("realized-table").querySelector("tbody").innerHTML = realizedHTML;
       
-      // Also, fill in the Realized Summary list.
-      let realizedSum = data.summary.realized;
+      // Realized Summary List
       const realizedSummaryHtml = `
-        <li class="list-group-item"><strong>Overall Realized Gain (Current FY):</strong> ${realizedSum.realized_total_gain_current_FY}</li>
-        <li class="list-group-item"><strong>Long-Term Realized Gain (Current FY):</strong> ${realizedSum.realized_long_term_gain_current_FY}</li>
-        <li class="list-group-item"><strong>Short-Term Realized Gain (Current FY):</strong> ${realizedSum.realized_short_term_gain_current_FY}</li>
-        <li class="list-group-item"><strong>Potential Realized Tax Liability (Current FY):</strong> ${realizedSum.potential_realized_tax_liability_current_FY.total_tax}</li>
+        <li class="list-group-item"><strong>Overall Realized Gain (Current FY):</strong> ${realizedSum.realized_total_gain_current_FY || 0}</li>
+        <li class="list-group-item"><strong>Long-Term Realized Gain (Current FY):</strong> ${realizedSum.realized_long_term_gain_current_FY || 0}</li>
+        <li class="list-group-item"><strong>Short-Term Realized Gain (Current FY):</strong> ${realizedSum.realized_short_term_gain_current_FY || 0}</li>
+        <li class="list-group-item"><strong>Potential Realized Tax Liability (Current FY):</strong> ${realizedSum.potential_realized_tax_liability_current_FY ? realizedSum.potential_realized_tax_liability_current_FY.total_tax : 0}</li>
       `;
       document.getElementById("realized-summary").innerHTML = realizedSummaryHtml;
       
-      // Unrealized Gains: build table from detailed_unrealized array.
+      // Detailed Unrealized Gains Table
       let unrealizedHTML = "";
-      if (data.details.lot_details_unrealized && data.details.lot_details_unrealized.length > 0) {
+      if (data.details && data.details.lot_details_unrealized && data.details.lot_details_unrealized.length > 0) {
         data.details.lot_details_unrealized.forEach(item => {
           unrealizedHTML += `<tr>
             <td>${item.purchase_date}</td>
@@ -424,63 +409,62 @@
       }
       document.getElementById("unrealized-table").querySelector("tbody").innerHTML = unrealizedHTML;
       
-      // Fill Unrealized Summary list.
-      let unrealizedSum = data.summary.unrealized;
+      // Unrealized Summary List
       const unrealizedSummaryHtml = `
-        <li class="list-group-item"><strong>Unrealized Gain:</strong> ${unrealizedSum.unrealized_gain}</li>
-        <li class="list-group-item"><strong>Unrealized Long-Term Gain:</strong> ${unrealizedSum.unrealized_long_term_gain}</li>
-        <li class="list-group-item"><strong>Unrealized Short-Term Gain:</strong> ${unrealizedSum.unrealized_short_term_gain}</li>
-        <li class="list-group-item"><strong>Return on Current Investment:</strong> ${unrealizedSum.unrealized_return_percentage}%</li>
-        <li class="list-group-item"><strong>Potential Unrealized Tax Liability:</strong> ${unrealizedSum.potential_unrealized_tax_liability_current_FY.total_tax}</li>
+        <li class="list-group-item"><strong>Unrealized Gain:</strong> ${unrealizedSum.unrealized_gain || 0}</li>
+        <li class="list-group-item"><strong>Unrealized Long-Term Gain:</strong> ${unrealizedSum.unrealized_long_term_gain || 0}</li>
+        <li class="list-group-item"><strong>Unrealized Short-Term Gain:</strong> ${unrealizedSum.unrealized_short_term_gain || 0}</li>
+        <li class="list-group-item"><strong>Return on Current Investment:</strong> ${unrealizedSum.unrealized_return_percentage || 0}%</li>
+        <li class="list-group-item"><strong>Potential Unrealized Tax Liability:</strong> ${unrealizedSum.potential_unrealized_tax_liability_current_FY ? unrealizedSum.potential_unrealized_tax_liability_current_FY.total_tax : 0}</li>
       `;
       document.getElementById("unrealized-summary").innerHTML = unrealizedSummaryHtml;
       
-      // LTCG Eligible & Tax Summary
+      // LTCG Eligible & Tax Summary List
       const ltcgSummaryHtml = `
-        <li class="list-group-item"><strong>LTCG Eligible Units:</strong> ${data.summary.ltcg_eligibility.eligible_units}</li>
-        <li class="list-group-item"><strong>Eligible Current Value:</strong> ${data.summary.ltcg_eligibility.eligible_current_value}</li>
-        <li class="list-group-item"><strong>Potential Tax on LTCG:</strong> ${data.summary.ltcg_eligibility.potential_tax_on_ltcg}</li>
+        <li class="list-group-item"><strong>LTCG Eligible Units:</strong> ${ltcgSum.eligible_units || 0}</li>
+        <li class="list-group-item"><strong>Eligible Current Value:</strong> ${ltcgSum.eligible_current_value || 0}</li>
+        <li class="list-group-item"><strong>Potential Tax on LTCG:</strong> ${ltcgSum.potential_tax_on_ltcg || 0}</li>
       `;
       document.getElementById("ltcg-summary").innerHTML = ltcgSummaryHtml;
       
-      // Funds by AMC: render as before (you can customize as needed).
+      // Funds by AMC (rendering as simple cards)
       let fundsHtml = "";
-      data.data.folios.forEach(folio => {
-        let amc = folio.amc;
-        fundsHtml += `<div class="card fund-card">
-                        <div class="card-header"><strong>${amc}</strong></div>
-                        <div class="card-body">`;
-        folio.schemes.forEach(scheme => {
-          if (scheme.scheme && (scheme.scheme.toLowerCase().includes("uclaim") || scheme.scheme.toLowerCase().includes("redemption"))) {
-            return;
-          }
-          let sim = scheme.unrealized_tax_simulation.summary;
-          let detailsHtml = `
-            <ul>
-              <li><strong>Currently Invested:</strong> ${sim.investment_summary.currently_invested}</li>
-              <li><strong>Overall Profit:</strong> ${sim.investment_summary.overall_profit} (${sim.investment_summary.profit_percentage}%)</li>
-              <li><strong>XIRR:</strong> ${sim.investment_summary.xirr ? sim.investment_summary.xirr.toFixed(2) + '%' : 'N/A'}</li>
-            </ul>
-          `;
-          fundsHtml += `<div class="card mb-2">
-                          <div class="card-body">
-                            <h5 class="card-title">
-                              <a href="https://coin.zerodha.com/mf/fund/${scheme.isin}" target="_blank">${scheme.scheme}</a>
-                            </h5>
-                            <p class="card-text">
-                              <strong>Folio:</strong> ${scheme.folio}<br>
-                              <strong>Current Market Value:</strong> ${sim.investment_summary.current_market_value}<br>
-                              <strong>Profit:</strong> ${sim.investment_summary.overall_profit} (${sim.investment_summary.profit_percentage}%)
-                            </p>
-                            <p class="toggle-details" onclick="toggleDetails(this)">View Detailed Fund Performance</p>
-                            <div class="details-section">
-                              ${detailsHtml}
+      if(data.data && data.data.folios) {
+        data.data.folios.forEach(folio => {
+          let amc = folio.amc;
+          fundsHtml += `<div class="card fund-card">
+                          <div class="card-header"><strong>${amc}</strong></div>
+                          <div class="card-body">`;
+          folio.schemes.forEach(scheme => {
+            if (scheme.scheme && (scheme.scheme.toLowerCase().includes("uclaim") || scheme.scheme.toLowerCase().includes("redemption"))) {
+              return;
+            }
+            let sim = scheme.unrealized_tax_simulation ? scheme.unrealized_tax_simulation.summary : {};
+            let detailsHtml = `
+              <ul>
+                <li><strong>Currently Invested:</strong> ${sim.investment_summary ? sim.investment_summary.currently_invested : 'N/A'}</li>
+                <li><strong>Overall Profit:</strong> ${sim.investment_summary ? sim.investment_summary.overall_profit : 'N/A'} (${sim.investment_summary ? sim.investment_summary.profit_percentage : 'N/A'}%)</li>
+                <li><strong>XIRR:</strong> ${sim.investment_summary && sim.investment_summary.xirr ? sim.investment_summary.xirr.toFixed(2) + '%' : 'N/A'}</li>
+              </ul>
+            `;
+            fundsHtml += `<div class="card mb-2">
+                            <div class="card-body">
+                              <h5 class="card-title"><a href="https://coin.zerodha.com/mf/fund/${scheme.isin}" target="_blank">${scheme.scheme}</a></h5>
+                              <p class="card-text">
+                                <strong>Folio:</strong> ${scheme.folio}<br>
+                                <strong>Current Market Value:</strong> ${sim.investment_summary ? sim.investment_summary.current_market_value : 'N/A'}<br>
+                                <strong>Profit:</strong> ${sim.investment_summary ? sim.investment_summary.overall_profit : 'N/A'} (${sim.investment_summary ? sim.investment_summary.profit_percentage : 'N/A'}%)
+                              </p>
+                              <p class="toggle-details" onclick="toggleDetails(this)">View Detailed Fund Performance</p>
+                              <div class="details-section">
+                                ${detailsHtml}
+                              </div>
                             </div>
-                          </div>
-                        </div>`;
+                          </div>`;
+          });
+          fundsHtml += `</div></div>`;
         });
-        fundsHtml += `</div></div>`;
-      });
+      }
       document.getElementById("funds-container").innerHTML = fundsHtml;
       
       // Attach event listeners for modals.
