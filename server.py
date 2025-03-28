@@ -3,7 +3,7 @@ from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import os
 import tempfile
-from full_tax_calculation import simulate_full_unrealized_tax
+from full_tax_calculation import compute_overall_xirr, simulate_full_unrealized_tax
 from map_cas_to_db import map_cas_schemes_to_db
 import pdf_parser
 import requests
@@ -144,31 +144,24 @@ def parse_and_store_nav_data(csv_data, nav_date):
 
 @app.route("/upload", methods=["POST"])
 def upload():
-    """Endpoint to upload a PDF file for parsing."""
     if "file" not in request.files:
         return jsonify({"error": "No file part in the request"}), 400
     file = request.files["file"]
     if file.filename == "":
         return jsonify({"error": "No file selected"}), 400
 
-    # Retrieve password from the form, if provided.
     password = request.form.get("password", None)
-    
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
         file.save(tmp.name)
         tmp_path = tmp.name
-
     try:
-        # Pass the password to the parser if provided.
         if password:
             cas_json = pdf_parser.parse_pdf(tmp_path, password=password)
         else:
             cas_json = pdf_parser.parse_pdf(tmp_path)
     except Exception as e:
-        # If the error message indicates the document is encrypted,
-        # return a specific error message.
         if "encrypted" in str(e).lower() or "document closed" in str(e).lower():
-            return jsonify({"error": "Document is encrypted. Please provide a passwords."}), 400
+            return jsonify({"error": "Document is encrypted. Please provide a password."}), 400
         else:
             return jsonify({"error": str(e)}), 500
 
@@ -179,23 +172,18 @@ def upload():
             simulation = simulate_full_unrealized_tax(scheme)
             scheme["unrealized_tax_simulation"] = simulation
 
-    # Append this parsed data to the global list.
+    # Save the parsed data.
     parsed_cas_list.append(cas_json)
-    
-    # Combine all stored parsed CAS data.
+    # Combine all parsed CAS data.
     combined_cas = combine_cas_json(parsed_cas_list)
-    
-    # Compute overall XIRR from the combined data.
     overall_rate = compute_overall_xirr(combined_cas)
     if overall_rate is not None:
         combined_cas["overall_xirr"] = round(overall_rate * 100, 2)
     else:
         combined_cas["overall_xirr"] = None
 
-    result = combined_cas
-
     os.unlink(tmp_path)
-    return jsonify(result)
+    return jsonify(combined_cas)
 
 # NEW: Serve the frontend page
 @app.route("/")

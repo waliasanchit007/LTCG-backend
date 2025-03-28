@@ -4,103 +4,60 @@ import math
 def xnpv(rate, cash_flows):
     """Compute NPV for irregular cash flows."""
     t0 = min(cf[0] for cf in cash_flows)
-    return sum(cf[1] / (1 + rate)**((cf[0] - t0).days/365.0) for cf in cash_flows)
+    return sum(cf[1] / ((1 + rate) ** ((cf[0] - t0).days / 365.0)) for cf in cash_flows)
 
-def xirr(cash_flows, guess=0.1, tol=1e-6, max_iter=100):
-    """Compute XIRR (annualized IRR) for irregular cash flows."""
-    rate = guess
+def xirr(cash_flows, tol=1e-6, max_iter=1000):
+    """
+    Compute XIRR using the bisection method.
+    It finds a rate r such that the net present value (NPV) is close to zero.
+    """
+    t0 = min(cf[0] for cf in cash_flows)
+    def f(rate):
+        return sum(cf[1] / ((1 + rate) ** ((cf[0] - t0).days / 365.0)) for cf in cash_flows)
+    
+    lower = -0.9999
+    upper = 10  # Adjust if needed.
+    f_lower = f(lower)
+    f_upper = f(upper)
+    if f_lower * f_upper > 0:
+        raise Exception("No sign change found in cash flows. Cannot compute XIRR.")
     for i in range(max_iter):
-        f = xnpv(rate, cash_flows)
-        f1 = xnpv(rate + tol, cash_flows)
-        derivative = (f1 - f) / tol
-        if derivative == 0:
-            break
-        new_rate = rate - f / derivative
-        if abs(new_rate - rate) < tol:
-            return new_rate
-        rate = new_rate
-    return rate
-
-def compute_overall_xirr(cas_json):
-    """
-    Compute an overall XIRR (annualized return) for the entire portfolio by merging cash flows
-    from all schemes in the combined CAS JSON.
-    For each scheme, we:
-      - Recreate cash flows from each transaction (ignoring non-investment types)
-      - Add one final cash flow using the scheme's current market value from the simulation summary.
-    Then we aggregate cash flows by date and compute the overall XIRR.
-    """
-    combined_cash_flows = []
-    for folio in cas_json.get("data", {}).get("folios", []):
-        for scheme in folio.get("schemes", []):
-            # Process each transaction in the scheme
-            transactions = scheme.get("transactions", [])
-            for tx in transactions:
-                if tx.get("type", "").upper() == "STAMP_DUTY_TAX":
-                    continue
-                try:
-                    tx_date = datetime.strptime(tx["date"], "%Y-%m-%d")
-                except Exception:
-                    continue
-                try:
-                    tx_nav = float(tx.get("nav", 0))
-                except Exception:
-                    tx_nav = 0.0
-                try:
-                    tx_units = float(tx.get("units", 0))
-                except Exception:
-                    tx_units = 0.0
-                if tx_units > 0:
-                    amount = - (tx_nav * tx_units)
-                elif tx_units < 0:
-                    try:
-                        amount = float(tx.get("amount", 0))
-                    except Exception:
-                        amount = tx_nav * abs(tx_units)
-                else:
-                    amount = 0
-                combined_cash_flows.append((tx_date, amount))
-            # Add one final cash flow per scheme using its current market value from simulation.
-            sim = scheme.get("unrealized_tax_simulation", {}).get("summary", {}).get("investment_summary", {})
-            final_value = sim.get("current_market_value", 0)
-            if final_value:
-                # Use the valuation date if available; otherwise, today.
-                try:
-                    final_date = datetime.strptime(scheme.get("valuation", {}).get("date", ""), "%Y-%m-%d")
-                except Exception:
-                    final_date = datetime.now()
-                combined_cash_flows.append((final_date, final_value))
-    if not combined_cash_flows:
-        return None
-    # Sort and aggregate by date.
-    combined_cash_flows.sort(key=lambda cf: cf[0])
-    aggregated = {}
-    for dt, amt in combined_cash_flows:
-        key = dt.strftime("%Y-%m-%d")
-        aggregated[key] = aggregated.get(key, 0) + amt
-    aggregated_cash_flows = [(datetime.strptime(k, "%Y-%m-%d"), v) for k, v in aggregated.items()]
-    # (Optional debug logging)
-    print("DEBUG: Aggregated cash flows for overall XIRR:")
-    for dt, amt in aggregated_cash_flows:
-        print("  Date: {}, Amount: {}".format(dt.strftime("%Y-%m-%d"), amt))
-    print("DEBUG: Number of aggregated cash flows:", len(aggregated_cash_flows))
-    try:
-        overall_rate = xirr(aggregated_cash_flows)
-    except Exception as e:
-        print("DEBUG: Exception computing overall XIRR:", e)
-        overall_rate = None
-    return overall_rate
-
+        mid = (lower + upper) / 2.0
+        f_mid = f(mid)
+        if abs(f_mid) < tol:
+            return mid
+        if f_lower * f_mid < 0:
+            upper = mid
+            f_upper = f_mid
+        else:
+            lower = mid
+            f_lower = f_mid
+    return mid
 
 def simulate_full_unrealized_tax(scheme):
     """
-    Processes scheme transactions and returns a detailed summary.
-    (See earlier documentation for details.)
+    Processes scheme transactions (using FIFO and per‑unit cost) and returns a detailed simulation summary.
+
+    The returned dictionary includes:
+      - investment_summary: Overall amounts including:
+            total_investment_made, current_market_value, currently_invested,
+            withdrawn_amount, overall_profit, profit_percentage, and xirr.
+      - realized: Contains realized_total_gain_current_FY, realized_long_term_gain_current_FY,
+            realized_short_term_gain_current_FY, potential_realized_tax_liability_current_FY,
+            and a detailed list ("detailed_realized") of each redemption transaction.
+      - unrealized: Contains remaining_units, currently_invested, current_market_value,
+            unrealized_gain, unrealized_long_term_gain, unrealized_short_term_gain,
+            unrealized_return_percentage, potential_unrealized_tax_liability_current_FY,
+            and a detailed list ("detailed_unrealized") of each remaining lot.
+      - ltcg_eligibility: Eligible units, eligible_current_value, and potential_tax_on_ltcg.
+      - locked: locked_in_amount and locked_in_profit.
+      - financial_year: fy_start and fy_end.
     """
     transactions = scheme.get("transactions", [])
     current_valuation = scheme.get("valuation", {})
     tax_bucket = scheme.get("tax_bucket", "debt")
 
+    # Parse current NAV and valuation date.
     try:
         current_nav = float(current_valuation.get("nav", 0))
     except Exception:
@@ -110,7 +67,7 @@ def simulate_full_unrealized_tax(scheme):
     except Exception:
         current_date = datetime.now()
 
-    # Financial year boundaries.
+    # Determine financial year boundaries.
     if current_date.month >= 4:
         fy_start = datetime(current_date.year, 4, 1)
         fy_end = datetime(current_date.year + 1, 3, 31)
@@ -120,24 +77,20 @@ def simulate_full_unrealized_tax(scheme):
 
     default_threshold = 365 if tax_bucket == "equity" else 1095
 
-    transactions_sorted = sorted(
-        transactions,
-        key=lambda tx: datetime.strptime(tx["date"], "%Y-%m-%d")
-    )
+    transactions_sorted = sorted(transactions, key=lambda tx: datetime.strptime(tx["date"], "%Y-%m-%d"))
 
     purchase_lots = []
-    realized_ST_gain = 0.0
     realized_LT_gain = 0.0
+    realized_ST_gain = 0.0
     realized_details = []
     total_investment_made = 0.0
 
-    # Build cash flows for XIRR.
+    # Build cash flows for XIRR calculation.
     cash_flows = []
 
     for tx in transactions_sorted:
         if tx.get("type", "").upper() in ["STAMP_DUTY_TAX"]:
             continue
-
         tx_date = datetime.strptime(tx["date"], "%Y-%m-%d")
         try:
             tx_nav = float(tx.get("nav", 0))
@@ -170,7 +123,6 @@ def simulate_full_unrealized_tax(scheme):
                     redemption_cash += redeemed_units * tx_nav
                     lot["units"] -= redeemed_units
                 redemption_units -= redeemed_units
-
                 gain = redeemed_units * (tx_nav - lot["purchase_nav"])
                 holding_period = (tx_date - lot["date"]).days
                 classification = "long-term" if holding_period >= default_threshold else "short-term"
@@ -234,6 +186,7 @@ def simulate_full_unrealized_tax(scheme):
         })
     total_unrealized_gain = unrealized_LT_gain + unrealized_ST_gain
 
+    # Determine tax rates.
     if tax_bucket == "equity":
         tax_rate_LT = 0.10
         tax_rate_ST = 0.20
@@ -251,10 +204,12 @@ def simulate_full_unrealized_tax(scheme):
         tax_rate_ST = 0.0
         exemption_available = None
 
-    fy_realized_details = [r for r in realized_details 
-                           if fy_start <= datetime.strptime(r["redemption_date"], "%Y-%m-%d") <= fy_end]
-    fy_realized_LT_gain = sum(r["gain"] for r in fy_realized_details if r["classification"]=="long-term")
-    fy_realized_ST_gain = sum(r["gain"] for r in fy_realized_details if r["classification"]=="short-term")
+    fy_realized_details = [
+        r for r in realized_details
+        if fy_start <= datetime.strptime(r["redemption_date"], "%Y-%m-%d") <= fy_end
+    ]
+    fy_realized_LT_gain = sum(r["gain"] for r in fy_realized_details if r["classification"] == "long-term")
+    fy_realized_ST_gain = sum(r["gain"] for r in fy_realized_details if r["classification"] == "short-term")
     fy_realized_total_gain = fy_realized_LT_gain + fy_realized_ST_gain
     potential_realized_tax = fy_realized_LT_gain * tax_rate_LT + fy_realized_ST_gain * tax_rate_ST
     potential_unrealized_tax = unrealized_LT_gain * tax_rate_LT + unrealized_ST_gain * tax_rate_ST
@@ -270,23 +225,13 @@ def simulate_full_unrealized_tax(scheme):
 
     # Append final valuation cash flow.
     cash_flows.append((current_date, current_market_value))
-    
-    # Debug log: print cash flows and their count.
-    print("DEBUG: Cash flows for XIRR (scheme: {}):".format(scheme.get("scheme", "N/A")))
-    for cf in cash_flows:
-        print("  Date: {}, Amount: {}".format(cf[0].strftime("%Y-%m-%d"), cf[1]))
-    print("DEBUG: Number of cash flows:", len(cash_flows))
-    
     try:
         computed_xirr = xirr(cash_flows)
         if computed_xirr is not None and isinstance(computed_xirr, complex):
             computed_xirr = computed_xirr.real
-    except Exception as e:
-        print("DEBUG: Exception in computing XIRR:", e)
+    except Exception:
         computed_xirr = None
 
-    print("DEBUG: Computed XIRR for scheme {}: {}".format(scheme.get("scheme", "N/A"), computed_xirr))
-    
     summary = {
         "investment_summary": {
             "total_investment_made": round(total_investment_made, 2),
@@ -305,7 +250,8 @@ def simulate_full_unrealized_tax(scheme):
                 "long_term_tax": round(fy_realized_LT_gain * tax_rate_LT, 2),
                 "short_term_tax": round(fy_realized_ST_gain * tax_rate_ST, 2),
                 "total_tax": round(potential_realized_tax, 2)
-            }
+            },
+            "detailed_realized": realized_details
         },
         "unrealized": {
             "remaining_units": round(remaining_units, 3),
@@ -319,7 +265,8 @@ def simulate_full_unrealized_tax(scheme):
                 "long_term_tax": round(unrealized_LT_gain * tax_rate_LT, 2),
                 "short_term_tax": round(unrealized_ST_gain * tax_rate_ST, 2),
                 "total_tax": round(potential_unrealized_tax, 2)
-            }
+            },
+            "detailed_unrealized": unrealized_details
         },
         "ltcg_eligibility": {
             "eligible_units": round(ltcg_eligible_units, 3),
@@ -336,10 +283,74 @@ def simulate_full_unrealized_tax(scheme):
         }
     }
 
-    return {
-        "summary": summary,
-        "details": {
-            "lot_details_unrealized": unrealized_details,
-            "lot_details_realized": realized_details
-        }
-    }
+    return {"summary": summary, "details": {"lot_details_unrealized": unrealized_details, "lot_details_realized": realized_details}}
+
+def compute_overall_xirr(cas_json):
+    """
+    Compute an overall XIRR (annualized return) for the entire portfolio by merging cash flows
+    from all schemes in the provided CAS JSON.
+    
+    For each scheme, we reconstruct cash flow entries from each transaction (ignoring stamp duty)
+    and add one final cash flow using the scheme's current market value (from the simulation summary).
+    Then, we aggregate cash flows by date and compute XIRR using the xirr() function.
+    """
+    combined_cash_flows = []
+    for folio in cas_json.get("data", {}).get("folios", []):
+        for scheme in folio.get("schemes", []):
+            transactions = scheme.get("transactions", [])
+            for tx in transactions:
+                if tx.get("type", "").upper() == "STAMP_DUTY_TAX":
+                    continue
+                try:
+                    tx_date = datetime.strptime(tx["date"], "%Y-%m-%d")
+                except Exception:
+                    continue
+                try:
+                    tx_nav = float(tx.get("nav", 0))
+                except Exception:
+                    tx_nav = 0.0
+                try:
+                    tx_units = float(tx.get("units", 0))
+                except Exception:
+                    tx_units = 0.0
+                if tx_units > 0:
+                    amount = - (tx_nav * tx_units)
+                elif tx_units < 0:
+                    try:
+                        amount = float(tx.get("amount", 0))
+                    except Exception:
+                        amount = tx_nav * abs(tx_units)
+                else:
+                    amount = 0
+                combined_cash_flows.append((tx_date, amount))
+            sim = scheme.get("unrealized_tax_simulation", {}).get("summary", {}).get("investment_summary", {})
+            final_value = sim.get("current_market_value", 0)
+            if final_value:
+                try:
+                    final_date = datetime.strptime(scheme.get("valuation", {}).get("date", ""), "%Y-%m-%d")
+                except Exception:
+                    final_date = datetime.now()
+                combined_cash_flows.append((final_date, final_value))
+    if not combined_cash_flows:
+        return None
+    combined_cash_flows.sort(key=lambda cf: cf[0])
+    aggregated = {}
+    for dt, amt in combined_cash_flows:
+        key = dt.strftime("%Y-%m-%d")
+        aggregated[key] = aggregated.get(key, 0) + amt
+    aggregated_cash_flows = [(datetime.strptime(k, "%Y-%m-%d"), v) for k, v in aggregated.items()]
+    print("DEBUG: Aggregated cash flows for overall XIRR:")
+    for dt, amt in aggregated_cash_flows:
+        print("  Date: {}, Amount: {}".format(dt.strftime("%Y-%m-%d"), amt))
+    print("DEBUG: Number of aggregated cash flows:", len(aggregated_cash_flows))
+    try:
+        overall_rate = xirr(aggregated_cash_flows)
+    except Exception as e:
+        print("DEBUG: Exception computing overall XIRR:", e)
+        overall_rate = None
+    return overall_rate
+
+if __name__ == "__main__":
+    # This block can be used for standalone testing.
+    # For example, load a sample CAS JSON and print its simulation summary.
+    pass
