@@ -53,8 +53,7 @@
             <div class="card-body">
               <h5 class="card-title">Investment Summary</h5>
               <ul class="list-group" id="investment-summary">
-                <!-- Filled by JavaScript -->
-                <!-- Note: The combined XIRR element is updated via fetchOverallXirr() -->
+                <!-- Combined XIRR will be updated via fetchOverallXirr() -->
                 <li class="list-group-item">
                   <strong>Combined XIRR (Annual Return):</strong> <span id="overall-xirr">Fetching...</span>
                 </li>
@@ -206,35 +205,11 @@
       return num.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 });
     }
 
-    // XIRR functions (if needed in the frontend) can be kept or removed if solely computed on backend.
-    function xnpv(rate, cashFlows) {
-      let t0 = Math.min(...cashFlows.map(cf => cf.date.getTime()));
-      return cashFlows.reduce((sum, cf) => {
-        let diffDays = (cf.date.getTime() - t0) / (1000 * 3600 * 24);
-        return sum + cf.amount / Math.pow(1 + rate, diffDays / 365);
-      }, 0);
-    }
-
-    function xirr(cashFlows, guess = 0.1, tol = 1e-6, maxIter = 100) {
-      let rate = guess;
-      for (let i = 0; i < maxIter; i++) {
-        let f = xnpv(rate, cashFlows);
-        let f1 = xnpv(rate + tol, cashFlows);
-        let derivative = (f1 - f) / tol;
-        if (derivative === 0) break;
-        let newRate = rate - f / derivative;
-        if (Math.abs(newRate - rate) < tol) return newRate;
-        rate = newRate;
-      }
-      return rate;
-    }
-
     // Function to fetch overall XIRR computed on the backend.
     function fetchOverallXirr() {
       fetch("https://ltcg-backend.onrender.com/compute_overall_xirr")
         .then(response => response.json())
         .then(data => {
-          // Update the combined XIRR display with the value from the backend.
           const overallXirrElem = document.getElementById("overall-xirr");
           if (data.overall_xirr !== null) {
             overallXirrElem.textContent = data.overall_xirr.toFixed(2) + "%";
@@ -301,34 +276,38 @@
                         <div class="card-header"><strong>${amc}</strong></div>
                         <div class="card-body">`;
         folio.schemes.forEach(scheme => {
+          // Skip schemes with "uclaim" or "redemption" in the name.
           if (scheme.scheme && (scheme.scheme.toLowerCase().includes("uclaim") || scheme.scheme.toLowerCase().includes("redemption"))) {
             return;
           }
-          let sim = scheme.unrealized_tax_simulation.summary;
-          overallCurrentMarketValue += sim.current_market_value;
-          overallCurrentlyInvested += sim.currently_invested;
-          overallWithdrawn += sim.withdrawn_amount;
-          overallProfit += sim.overall_profit;
-          if (!firstXirr && sim.xirr !== null) {
-            firstXirr = sim.xirr;
+          // Extract the simulation parts.
+          let simSummary = scheme.unrealized_tax_simulation.summary;
+          let simDetails = scheme.unrealized_tax_simulation.details;
+          
+          overallCurrentMarketValue += simSummary.current_market_value;
+          overallCurrentlyInvested += simSummary.currently_invested;
+          overallWithdrawn += simSummary.withdrawn_amount;
+          overallProfit += simSummary.overall_profit;
+          if (!firstXirr && simSummary.xirr !== null) {
+            firstXirr = simSummary.xirr;
           }
-          if (scheme.unrealized_tax_simulation.details && scheme.unrealized_tax_simulation.details.lot_details_realized) {
-            scheme.unrealized_tax_simulation.details.lot_details_realized.forEach(tx => {
+          if (simDetails && simDetails.lot_details_realized) {
+            simDetails.lot_details_realized.forEach(tx => {
               overallRealizedGain += tx.gain;
             });
           }
-          realizedSummary.currentFY += sim.realized_total_gain_current_FY;
-          realizedSummary.lt += sim.realized_long_term_gain_current_FY;
-          realizedSummary.st += sim.realized_short_term_gain_current_FY;
-          unrealizedSummary.total += (sim.current_market_value - sim.currently_invested);
-          unrealizedSummary.lt += sim.unrealized_long_term_gain;
-          unrealizedSummary.st += sim.unrealized_short_term_gain;
-          ltcgSummary.eligibleUnits += sim.ltcg_eligibility.eligible_units;
-          ltcgSummary.eligibleValue += sim.ltcg_eligibility.eligible_current_value;
-          ltcgSummary.potentialTax += sim.ltcg_eligibility.potential_tax_on_ltcg;
-          ltcgSummary.unrealizedLTGain += sim.unrealized_long_term_gain;
+          realizedSummary.currentFY += simDetails.realized_total_gain_current_FY;
+          realizedSummary.lt += simDetails.realized_long_term_gain_current_FY;
+          realizedSummary.st += simDetails.realized_short_term_gain_current_FY;
+          unrealizedSummary.total += (simSummary.current_market_value - simSummary.currently_invested);
+          unrealizedSummary.lt += simDetails.unrealized_long_term_gain;
+          unrealizedSummary.st += simDetails.unrealized_short_term_gain;
+          ltcgSummary.eligibleUnits += simDetails.ltcg_eligibility.eligible_units;
+          ltcgSummary.eligibleValue += simDetails.ltcg_eligibility.eligible_current_value;
+          ltcgSummary.potentialTax += simDetails.ltcg_eligibility.potential_tax_on_ltcg;
+          ltcgSummary.unrealizedLTGain += simDetails.unrealized_long_term_gain;
           
-          let lockedData = sim.locked;
+          let lockedData = simDetails.locked;
           if (lockedData && lockedData.locked_in_amount > 0) {
             lockedOverall.amount += lockedData.locked_in_amount;
             lockedOverall.profit += lockedData.locked_in_profit;
@@ -340,8 +319,8 @@
             });
           }
           
-          if (sim.lot_details_realized && sim.lot_details_realized.length > 0) {
-            sim.lot_details_realized.forEach(r => {
+          if (simDetails.lot_details_realized && simDetails.lot_details_realized.length > 0) {
+            simDetails.lot_details_realized.forEach(r => {
               allWithdrawals.push({
                 fund: scheme.scheme,
                 folio: scheme.folio,
@@ -352,24 +331,24 @@
             });
           }
           
-          if (sim.ltcg_eligibility.eligible_current_value > 0) {
+          if (simDetails.ltcg_eligibility.eligible_current_value > 0) {
             ltcgDetails += `<tr>
                               <td>${scheme.scheme}</td>
                               <td>${scheme.folio}</td>
-                              <td>${formatINR(sim.current_market_value)}</td>
-                              <td>${formatINR(sim.ltcg_eligibility.eligible_current_value)}</td>
-                              <td>${formatINR(sim.unrealized_long_term_gain)}</td>
+                              <td>${formatINR(simSummary.current_market_value)}</td>
+                              <td>${formatINR(simDetails.ltcg_eligibility.eligible_current_value)}</td>
+                              <td>${formatINR(simDetails.unrealized_long_term_gain)}</td>
                             </tr>`;
           }
           
           let detailsHtml = `
             <ul>
-              <li><strong>Currently Invested:</strong> ${formatINR(sim.currently_invested)}</li>
-              <li><strong>Overall Profit:</strong> ${formatINR(sim.overall_profit)} (${sim.profit_percentage}%)</li>
+              <li><strong>Currently Invested:</strong> ${formatINR(simSummary.currently_invested)}</li>
+              <li><strong>Overall Profit:</strong> ${formatINR(simSummary.overall_profit)} (${simSummary.profit_percentage}%)</li>
               <li><strong>Overall Realized Gain:</strong> ${formatINR(overallRealizedGain)}</li>
-              <li><strong>Realized Gain (Current FY):</strong> ${formatINR(sim.realized_total_gain_current_FY)}</li>
-              <li><strong>Unrealized Gain:</strong> ${formatINR(sim.current_market_value - sim.currently_invested)}</li>
-              <li><strong>XIRR:</strong> ${sim.xirr !== null ? sim.xirr.toFixed(2) + '%' : 'N/A'}</li>
+              <li><strong>Realized Gain (Current FY):</strong> ${formatINR(simDetails.realized_total_gain_current_FY)}</li>
+              <li><strong>Unrealized Gain:</strong> ${formatINR(simSummary.current_market_value - simSummary.currently_invested)}</li>
+              <li><strong>XIRR:</strong> ${simSummary.xirr !== null ? simSummary.xirr.toFixed(2) + '%' : 'N/A'}</li>
             </ul>
           `;
           
@@ -380,8 +359,8 @@
                             </h5>
                             <p class="card-text">
                               <strong>Folio:</strong> ${scheme.folio}<br>
-                              <strong>Current Market Value:</strong> ${formatINR(sim.current_market_value)}<br>
-                              <strong>Profit:</strong> ${formatINR(sim.overall_profit)} (${sim.profit_percentage}%)
+                              <strong>Current Market Value:</strong> ${formatINR(simSummary.current_market_value)}<br>
+                              <strong>Profit:</strong> ${formatINR(simSummary.overall_profit)} (${simSummary.profit_percentage}%)
                             </p>
                             <p class="toggle-details" onclick="toggleDetails(this)">View Detailed Fund Performance</p>
                             <div class="details-section">
@@ -406,10 +385,9 @@
             });
           }
           // Add final valuation cash flow.
-          if (scheme.unrealized_tax_simulation &&
-              scheme.unrealized_tax_simulation.summary) {
+          if (scheme.unrealized_tax_simulation && scheme.valuation) {
             let finalAmount = scheme.unrealized_tax_simulation.summary.current_market_value;
-            let finalDate = scheme.valuation && scheme.valuation.date ? new Date(scheme.valuation.date) : new Date();
+            let finalDate = scheme.valuation.date ? new Date(scheme.valuation.date) : new Date();
             combinedCashFlows.push({ date: finalDate, amount: finalAmount });
           }
         });
