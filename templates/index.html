@@ -54,6 +54,10 @@
               <h5 class="card-title">Investment Summary</h5>
               <ul class="list-group" id="investment-summary">
                 <!-- Filled by JavaScript -->
+                <!-- Note: The combined XIRR element is updated via fetchOverallXirr() -->
+                <li class="list-group-item">
+                  <strong>Combined XIRR (Annual Return):</strong> <span id="overall-xirr">Fetching...</span>
+                </li>
               </ul>
             </div>
           </div>
@@ -202,6 +206,7 @@
       return num.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 });
     }
 
+    // XIRR functions (if needed in the frontend) can be kept or removed if solely computed on backend.
     function xnpv(rate, cashFlows) {
       let t0 = Math.min(...cashFlows.map(cf => cf.date.getTime()));
       return cashFlows.reduce((sum, cf) => {
@@ -222,6 +227,25 @@
         rate = newRate;
       }
       return rate;
+    }
+
+    // Function to fetch overall XIRR computed on the backend.
+    function fetchOverallXirr() {
+      fetch("https://ltcg-backend.onrender.com/compute_overall_xirr")
+        .then(response => response.json())
+        .then(data => {
+          // Update the combined XIRR display with the value from the backend.
+          const overallXirrElem = document.getElementById("overall-xirr");
+          if (data.overall_xirr !== null) {
+            overallXirrElem.textContent = data.overall_xirr.toFixed(2) + "%";
+          } else {
+            overallXirrElem.textContent = "N/A";
+          }
+        })
+        .catch(error => {
+          console.error("Error fetching overall XIRR:", error);
+          document.getElementById("overall-xirr").textContent = "Error";
+        });
     }
 
     function combineData(resultsArray) {
@@ -281,30 +305,30 @@
             return;
           }
           let sim = scheme.unrealized_tax_simulation.summary;
-          overallCurrentMarketValue += sim.investment_summary.current_market_value;
-          overallCurrentlyInvested += sim.investment_summary.currently_invested;
-          overallWithdrawn += sim.investment_summary.withdrawn_amount;
-          overallProfit += sim.investment_summary.overall_profit;
-          if (!firstXirr && sim.investment_summary.xirr !== null) {
-            firstXirr = sim.investment_summary.xirr;
+          overallCurrentMarketValue += sim.current_market_value;
+          overallCurrentlyInvested += sim.currently_invested;
+          overallWithdrawn += sim.withdrawn_amount;
+          overallProfit += sim.overall_profit;
+          if (!firstXirr && sim.xirr !== null) {
+            firstXirr = sim.xirr;
           }
           if (scheme.unrealized_tax_simulation.details && scheme.unrealized_tax_simulation.details.lot_details_realized) {
             scheme.unrealized_tax_simulation.details.lot_details_realized.forEach(tx => {
               overallRealizedGain += tx.gain;
             });
           }
-          realizedSummary.currentFY += sim.realized.realized_total_gain_current_FY;
-          realizedSummary.lt += sim.realized.realized_long_term_gain_current_FY;
-          realizedSummary.st += sim.realized.realized_short_term_gain_current_FY;
-          unrealizedSummary.total += sim.unrealized.unrealized_gain;
-          unrealizedSummary.lt += sim.unrealized.unrealized_long_term_gain;
-          unrealizedSummary.st += sim.unrealized.unrealized_short_term_gain;
+          realizedSummary.currentFY += sim.realized_total_gain_current_FY;
+          realizedSummary.lt += sim.realized_long_term_gain_current_FY;
+          realizedSummary.st += sim.realized_short_term_gain_current_FY;
+          unrealizedSummary.total += (sim.current_market_value - sim.currently_invested);
+          unrealizedSummary.lt += sim.unrealized_long_term_gain;
+          unrealizedSummary.st += sim.unrealized_short_term_gain;
           ltcgSummary.eligibleUnits += sim.ltcg_eligibility.eligible_units;
           ltcgSummary.eligibleValue += sim.ltcg_eligibility.eligible_current_value;
           ltcgSummary.potentialTax += sim.ltcg_eligibility.potential_tax_on_ltcg;
-          ltcgSummary.unrealizedLTGain += sim.unrealized.unrealized_long_term_gain;
+          ltcgSummary.unrealizedLTGain += sim.unrealized_long_term_gain;
           
-          let lockedData = sim.locked || scheme.locked;
+          let lockedData = sim.locked;
           if (lockedData && lockedData.locked_in_amount > 0) {
             lockedOverall.amount += lockedData.locked_in_amount;
             lockedOverall.profit += lockedData.locked_in_profit;
@@ -332,22 +356,20 @@
             ltcgDetails += `<tr>
                               <td>${scheme.scheme}</td>
                               <td>${scheme.folio}</td>
-                              <td>${formatINR(sim.investment_summary.current_market_value)}</td>
+                              <td>${formatINR(sim.current_market_value)}</td>
                               <td>${formatINR(sim.ltcg_eligibility.eligible_current_value)}</td>
-                              <td>${formatINR(sim.unrealized.unrealized_long_term_gain)}</td>
+                              <td>${formatINR(sim.unrealized_long_term_gain)}</td>
                             </tr>`;
           }
           
           let detailsHtml = `
             <ul>
-              <li><strong>Currently Invested:</strong> ${formatINR(sim.investment_summary.currently_invested)}</li>
-              <li><strong>Overall Profit:</strong> ${formatINR(sim.investment_summary.overall_profit)} (${sim.investment_summary.profit_percentage}%)</li>
+              <li><strong>Currently Invested:</strong> ${formatINR(sim.currently_invested)}</li>
+              <li><strong>Overall Profit:</strong> ${formatINR(sim.overall_profit)} (${sim.profit_percentage}%)</li>
               <li><strong>Overall Realized Gain:</strong> ${formatINR(overallRealizedGain)}</li>
-              <li><strong>Realized Gain (Current FY):</strong> ${formatINR(sim.realized.realized_total_gain_current_FY)}</li>
-              <li><strong>Unrealized Gain:</strong> ${formatINR(sim.investment_summary.current_market_value - sim.investment_summary.currently_invested)}
-                  (LT: ${formatINR(sim.unrealized.unrealized_long_term_gain)}, ST: ${formatINR(sim.unrealized.unrealized_short_term_gain)})
-              </li>
-              <li><strong>XIRR:</strong> ${sim.investment_summary.xirr ? sim.investment_summary.xirr.toFixed(2) + '%' : 'N/A'}</li>
+              <li><strong>Realized Gain (Current FY):</strong> ${formatINR(sim.realized_total_gain_current_FY)}</li>
+              <li><strong>Unrealized Gain:</strong> ${formatINR(sim.current_market_value - sim.currently_invested)}</li>
+              <li><strong>XIRR:</strong> ${sim.xirr !== null ? sim.xirr.toFixed(2) + '%' : 'N/A'}</li>
             </ul>
           `;
           
@@ -358,8 +380,8 @@
                             </h5>
                             <p class="card-text">
                               <strong>Folio:</strong> ${scheme.folio}<br>
-                              <strong>Current Market Value:</strong> ${formatINR(sim.investment_summary.current_market_value)}<br>
-                              <strong>Profit:</strong> ${formatINR(sim.investment_summary.overall_profit)} (${sim.investment_summary.profit_percentage}%)
+                              <strong>Current Market Value:</strong> ${formatINR(sim.current_market_value)}<br>
+                              <strong>Profit:</strong> ${formatINR(sim.overall_profit)} (${sim.profit_percentage}%)
                             </p>
                             <p class="toggle-details" onclick="toggleDetails(this)">View Detailed Fund Performance</p>
                             <div class="details-section">
@@ -385,8 +407,8 @@
           }
           // Add final valuation cash flow.
           if (scheme.unrealized_tax_simulation &&
-              scheme.unrealized_tax_simulation.investment_summary) {
-            let finalAmount = scheme.unrealized_tax_simulation.investment_summary.current_market_value;
+              scheme.unrealized_tax_simulation.summary) {
+            let finalAmount = scheme.unrealized_tax_simulation.summary.current_market_value;
             let finalDate = scheme.valuation && scheme.valuation.date ? new Date(scheme.valuation.date) : new Date();
             combinedCashFlows.push({ date: finalDate, amount: finalAmount });
           }
@@ -394,35 +416,15 @@
         fundsHtml += `</div></div>`;
       });
       
-      // Determine overall XIRR:
-      // If more than one PDF is uploaded, calculate combined XIRR from aggregated cash flows.
-      // Otherwise, use the xirr value from the backend simulation.
-      if (combinedResults.length > 1 && combinedCashFlows.length > 0) {
-          // Aggregate cash flows by date.
-          let aggregated = {};
-          combinedCashFlows.forEach(cf => {
-              let dateKey = cf.date.toISOString().split('T')[0];
-              if (aggregated[dateKey]) {
-                  aggregated[dateKey] += cf.amount;
-              } else {
-                  aggregated[dateKey] = cf.amount;
-              }
-          });
-          let aggregatedCashFlows = [];
-          for (let dateKey in aggregated) {
-              aggregatedCashFlows.push({ date: new Date(dateKey), amount: aggregated[dateKey] });
-          }
-          overallXirr = xirr(aggregatedCashFlows) * 100;
-      } else {
-          overallXirr = firstXirr !== null ? firstXirr : 0;
-      }
-      
+      // Update Investment Summary card.
       const invSummaryHtml = `
         <li class="list-group-item"><strong>Current Market Value:</strong> ${formatINR(overallCurrentMarketValue)}</li>
         <li class="list-group-item"><strong>Currently Invested:</strong> ${formatINR(overallCurrentlyInvested)}</li>
         <li class="list-group-item"><strong>Overall Profit:</strong> ${formatINR(overallProfit)}</li>
         <li class="list-group-item"><strong>Profit Percentage:</strong> ${overallCurrentlyInvested ? ((overallProfit/overallCurrentlyInvested)*100).toFixed(2) : 0}%</li>
-        <li class="list-group-item"><strong>${combinedResults.length > 1 ? "Combined XIRR (Annual Return)" : "XIRR (Annual Return)"}:</strong> ${overallXirr.toFixed(2)}%</li>
+        <li class="list-group-item">
+          <strong>Combined XIRR (Annual Return):</strong> <span id="overall-xirr">Fetching...</span>
+        </li>
         <li class="list-group-item">
           <strong>Locked (ELSS) Investment:</strong> ${formatINR(lockedOverall.amount)}
           <span id="locked-link" class="clickable">[View Details]</span>
@@ -599,6 +601,8 @@
         }
         let combinedData = combineData(combinedResults);
         renderDashboard(combinedData);
+        // Fetch the overall XIRR computed on the backend.
+        fetchOverallXirr();
       })
       .catch(error => {
         console.error("Error:", error);

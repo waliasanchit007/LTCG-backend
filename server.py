@@ -3,7 +3,7 @@ from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import os
 import tempfile
-from full_tax_calculation import simulate_full_unrealized_tax
+from full_tax_calculation import simulate_full_unrealized_tax, xirr_bisection
 from map_cas_to_db import map_cas_schemes_to_db
 import pdf_parser
 import requests
@@ -16,6 +16,8 @@ app = Flask(__name__)
 CORS(app)
 
 DATABASE_NAME = 'mutual_fund_nav.db'
+# Global list to persist parsed CAS JSON data from uploads.
+uploaded_cas_data = []
 
 def create_table():
     """Creates the nav_data table in the database if it doesn't already exist."""
@@ -126,7 +128,6 @@ def upload():
     if file.filename == "":
         return jsonify({"error": "No file selected"}), 400
 
-    # Retrieve password from the form, if provided.
     password = request.form.get("password", None)
     
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
@@ -134,20 +135,16 @@ def upload():
         tmp_path = tmp.name
 
     try:
-        # Pass the password to the parser if provided.
         if password:
             cas_json = pdf_parser.parse_pdf(tmp_path, password=password)
         else:
             cas_json = pdf_parser.parse_pdf(tmp_path)
     except Exception as e:
-        # If the error message indicates the document is encrypted,
-        # return a specific error message.
         if "encrypted" in str(e).lower() or "document closed" in str(e).lower():
             return jsonify({"error": "Document is encrypted. Please provide a passwords."}), 400
         else:
             return jsonify({"error": str(e)}), 500
 
-    # Proceed with further processing...
     cas_json = map_cas_schemes_to_db(cas_json)
     cas_json = classify_cas_schemes(cas_json)
     for folio in cas_json["data"]["folios"]:
@@ -155,10 +152,65 @@ def upload():
             simulation = simulate_full_unrealized_tax(scheme)
             scheme["unrealized_tax_simulation"] = simulation
 
+    # Persist the parsed CAS JSON for overall XIRR computation.
+    uploaded_cas_data.append(cas_json)
     result = cas_json
 
     os.unlink(tmp_path)
     return jsonify(result)
+
+@app.route("/compute_overall_xirr", methods=["GET"])
+def compute_overall_xirr():
+    """
+    Aggregates cash flows from all uploaded CAS JSONs and computes overall XIRR using a robust bisection method.
+    """
+    aggregated_cash_flows = []
+    final_cash_flow_added = {}  # To ensure we add only one final valuation cash flow per scheme.
+
+    # Define a unique key for a scheme using folio, scheme name, and AMC (if available).
+    def get_scheme_key(scheme):
+        folio = scheme.get("folio", "").strip()
+        scheme_name = scheme.get("scheme", "").strip()
+        amc = scheme.get("amc", "").strip() if "amc" in scheme else ""
+        return f"{amc}|{folio}|{scheme_name}"
+
+    # Iterate over all persisted CAS JSONs.
+    for cas_json in uploaded_cas_data:
+        for folio in cas_json.get("data", {}).get("folios", []):
+            for scheme in folio.get("schemes", []):
+                sim_result = simulate_full_unrealized_tax(scheme, return_cash_flows=True)
+                cash_flows = sim_result.get("cash_flows", [])
+                key = get_scheme_key(scheme)
+                if not cash_flows:
+                    continue
+                # If we've already added the final valuation for this scheme, skip its last cash flow.
+                if key in final_cash_flow_added:
+                    aggregated_cash_flows.extend(cash_flows[:-1])
+                else:
+                    aggregated_cash_flows.extend(cash_flows)
+                    final_cash_flow_added[key] = True
+
+    # Aggregate cash flows by date to avoid double-counting.
+    aggregated_by_date = {}
+    for cf in aggregated_cash_flows:
+        date_key = cf[0].strftime("%Y-%m-%d")
+        aggregated_by_date[date_key] = aggregated_by_date.get(date_key, 0) + cf[1]
+    final_cash_flows = []
+    for date_str, amount in aggregated_by_date.items():
+        dt = datetime.strptime(date_str, "%Y-%m-%d")
+        final_cash_flows.append((dt, amount))
+    final_cash_flows.sort(key=lambda x: x[0])
+
+    overall_xirr = xirr_bisection(final_cash_flows)
+    if overall_xirr is not None:
+        overall_xirr_percent = round(overall_xirr * 100, 2)
+    else:
+        overall_xirr_percent = None
+
+    return jsonify({
+        "overall_xirr": overall_xirr_percent,
+        "cash_flows": [(dt.strftime('%Y-%m-%d'), amt) for dt, amt in final_cash_flows]
+    })
 
 
 # NEW: Serve the frontend page

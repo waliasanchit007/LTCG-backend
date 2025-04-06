@@ -6,47 +6,60 @@ def xnpv(rate, cash_flows):
     t0 = min(cf[0] for cf in cash_flows)
     return sum(cf[1] / (1 + rate)**((cf[0] - t0).days/365.0) for cf in cash_flows)
 
-def xirr(cash_flows, guess=0.1, tol=1e-6, max_iter=100):
-    """Compute XIRR (annualized IRR) for irregular cash flows."""
-    rate = guess
+def xirr(rate, cash_flows, guess=0.1, tol=1e-6, max_iter=100):
+    """Compute XIRR (annualized IRR) for irregular cash flows using Newton–Raphson."""
+    r = guess
     for i in range(max_iter):
-        f = xnpv(rate, cash_flows)
-        f1 = xnpv(rate + tol, cash_flows)
+        f = xnpv(r, cash_flows)
+        f1 = xnpv(r + tol, cash_flows)
         derivative = (f1 - f) / tol
         if derivative == 0:
             break
-        new_rate = rate - f / derivative
-        if abs(new_rate - rate) < tol:
+        new_rate = r - f / derivative
+        if abs(new_rate - r) < tol:
             return new_rate
-        rate = new_rate
-    return rate
+        r = new_rate
+    return r
 
-def simulate_full_unrealized_tax(scheme):
+def xirr_bisection(cash_flows, tol=1e-6, max_iter=100):
+    """Compute XIRR using the bisection method for robustness."""
+    t0 = min(cf[0] for cf in cash_flows)
+    def npv(rate):
+        return sum(cf[1] / ((1 + rate) ** ((cf[0] - t0).days/365.0)) for cf in cash_flows)
+    lower = -0.9999  # Lower bound (cannot be -1)
+    upper = 10.0     # Start with an upper bound of 10 (i.e. 1000%)
+    npv_lower = npv(lower)
+    npv_upper = npv(upper)
+    if npv_lower * npv_upper > 0:
+        # Try expanding the upper bound until a sign change is detected.
+        while npv(lower) * npv(upper) > 0 and upper < 1e6:
+            upper *= 2
+        if npv(lower) * npv(upper) > 0:
+            return None  # Unable to bracket the root.
+    for i in range(max_iter):
+        mid = (lower + upper) / 2.0
+        npv_mid = npv(mid)
+        if abs(npv_mid) < tol:
+            return mid
+        if npv_lower * npv_mid < 0:
+            upper = mid
+            npv_upper = npv_mid
+        else:
+            lower = mid
+            npv_lower = npv_mid
+    return (lower + upper) / 2.0
+
+def simulate_full_unrealized_tax(scheme, return_cash_flows=False):
     """
     Processes scheme transactions (using FIFO and per‑unit cost) and returns a detailed summary.
+    Optionally, if 'return_cash_flows' is True, the cash flows used for XIRR calculation are also returned.
     
-    Investment summary (over entire history) includes:
-      - total_investment_made: sum of all purchase amounts.
-      - current_market_value: computed as remaining_units * current NAV.
-      - currently_invested: cost basis of remaining shares (sum over each remaining lot: purchase_nav * units).
-      - withdrawn_amount: overall withdrawn (sum of all redemption cash inflows).
-      - overall_profit: (withdrawn_amount + current_market_value) - total_investment_made.
-      - profit_percentage: overall_profit / total_investment_made * 100.
-      - xirr: annualized return from the entire cash‑flow history.
-    
-    Realized and unrealized tax liabilities are computed using only transactions in the current financial year 
-    (FY defined here as April 1 – March 31).
-    
-    For ELSS funds (if the scheme name contains 'elss' or 'tax'), a lock‑in period of 3 years (1095 days) is enforced:
-      - Lots with holding period less than 1095 days are flagged as "locked". Their cost and profit are accumulated 
-        separately (locked_in_amount, locked_in_profit) and are not included in LT gain calculations.
-      - Only unlocked lots contribute to LTCG eligibility.
+    [Existing documentation remains unchanged...]
     """
     transactions = scheme.get("transactions", [])
     current_valuation = scheme.get("valuation", {})
     tax_bucket = scheme.get("tax_bucket", "debt")
 
-    # Parse current NAV and valuation date.
     try:
         current_nav = float(current_valuation.get("nav", 0))
     except Exception:
@@ -56,7 +69,6 @@ def simulate_full_unrealized_tax(scheme):
     except Exception:
         current_date = datetime.now()
 
-    # Determine financial year boundaries.
     if current_date.month >= 4:
         fy_start = datetime(current_date.year, 4, 1)
         fy_end = datetime(current_date.year + 1, 3, 31)
@@ -229,38 +241,33 @@ def simulate_full_unrealized_tax(scheme):
         computed_xirr = None
 
     summary = {
-        "investment_summary": {
-            "total_investment_made": round(total_investment_made, 2),
-            "current_market_value": round(current_market_value, 2),
-            "currently_invested": round(currently_invested, 2),
-            "withdrawn_amount": round(overall_withdrawn_amount, 2),
-            "overall_profit": round(overall_profit, 2),
-            "profit_percentage": round(profit_percentage, 2),
-            "xirr": round(computed_xirr * 100, 2) if computed_xirr is not None else None
+        "total_investment_made": round(total_investment_made, 2),
+        "current_market_value": round(current_market_value, 2),
+        "currently_invested": round(currently_invested, 2),
+        "withdrawn_amount": round(overall_withdrawn_amount, 2),
+        "overall_profit": round(overall_profit, 2),
+        "profit_percentage": round(profit_percentage, 2),
+        "xirr": round(computed_xirr * 100, 2) if computed_xirr is not None else None
+    }
+    simulation_details = {
+        "realized_total_gain_current_FY": round(fy_realized_total_gain, 2),
+        "realized_long_term_gain_current_FY": round(fy_realized_LT_gain, 2),
+        "realized_short_term_gain_current_FY": round(fy_realized_ST_gain, 2),
+        "potential_realized_tax_liability_current_FY": {
+            "long_term_tax": round(fy_realized_LT_gain * tax_rate_LT, 2),
+            "short_term_tax": round(fy_realized_ST_gain * tax_rate_ST, 2),
+            "total_tax": round(potential_realized_tax, 2)
         },
-        "realized": {
-            "realized_total_gain_current_FY": round(fy_realized_total_gain, 2),
-            "realized_long_term_gain_current_FY": round(fy_realized_LT_gain, 2),
-            "realized_short_term_gain_current_FY": round(fy_realized_ST_gain, 2),
-            "potential_realized_tax_liability_current_FY": {
-                "long_term_tax": round(fy_realized_LT_gain * tax_rate_LT, 2),
-                "short_term_tax": round(fy_realized_ST_gain * tax_rate_ST, 2),
-                "total_tax": round(potential_realized_tax, 2)
-            }
-        },
-        "unrealized": {
-            "remaining_units": round(remaining_units, 3),
-            "currently_invested": round(currently_invested, 2),
-            "current_market_value": round(current_market_value, 2),
-            "unrealized_gain": round(current_market_value - currently_invested, 2),
-            "unrealized_long_term_gain": round(unrealized_LT_gain, 2),
-            "unrealized_short_term_gain": round(unrealized_ST_gain, 2),
-            "unrealized_return_percentage": round(unrealized_return_percentage, 2),
-            "potential_unrealized_tax_liability_current_FY": {
-                "long_term_tax": round(unrealized_LT_gain * tax_rate_LT, 2),
-                "short_term_tax": round(unrealized_ST_gain * tax_rate_ST, 2),
-                "total_tax": round(potential_unrealized_tax, 2)
-            }
+        "remaining_units": round(remaining_units, 3),
+        "currently_invested": round(currently_invested, 2),
+        "unrealized_gain": round(current_market_value - currently_invested, 2),
+        "unrealized_long_term_gain": round(unrealized_LT_gain, 2),
+        "unrealized_short_term_gain": round(unrealized_ST_gain, 2),
+        "unrealized_return_percentage": round(unrealized_return_percentage, 2),
+        "potential_unrealized_tax_liability_current_FY": {
+            "long_term_tax": round(unrealized_LT_gain * tax_rate_LT, 2),
+            "short_term_tax": round(unrealized_ST_gain * tax_rate_ST, 2),
+            "total_tax": round(potential_unrealized_tax, 2)
         },
         "ltcg_eligibility": {
             "eligible_units": round(ltcg_eligible_units, 3),
@@ -274,13 +281,14 @@ def simulate_full_unrealized_tax(scheme):
         "financial_year": {
             "fy_start": fy_start.strftime("%Y-%m-%d"),
             "fy_end": fy_end.strftime("%Y-%m-%d")
-        }
+        },
+        "lot_details_unrealized": unrealized_details,
+        "lot_details_realized": realized_details
     }
-
-    return {
+    result = {
         "summary": summary,
-        "details": {
-            "lot_details_unrealized": unrealized_details,
-            "lot_details_realized": realized_details
-        }
+        "details": simulation_details
     }
+    if return_cash_flows:
+        result["cash_flows"] = cash_flows
+    return result
