@@ -1,5 +1,5 @@
 from classify_tax_bucket import classify_cas_schemes
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, session
 from flask_cors import CORS
 import os
 import tempfile
@@ -13,11 +13,10 @@ import pymupdf4llm
 import json
 
 app = Flask(__name__)
+app.secret_key = "your_secret_key_here"
 CORS(app)
 
 DATABASE_NAME = 'mutual_fund_nav.db'
-# Global list to persist parsed CAS JSON data from uploads.
-uploaded_cas_data = []
 
 def create_table():
     """Creates the nav_data table in the database if it doesn't already exist."""
@@ -121,7 +120,6 @@ def parse_and_store_nav_data(csv_data, nav_date):
 
 @app.route("/upload", methods=["POST"])
 def upload():
-    """Endpoint to upload a PDF file for parsing."""
     if "file" not in request.files:
         return jsonify({"error": "No file part in the request"}), 400
     file = request.files["file"]
@@ -141,7 +139,7 @@ def upload():
             cas_json = pdf_parser.parse_pdf(tmp_path)
     except Exception as e:
         if "encrypted" in str(e).lower() or "document closed" in str(e).lower():
-            return jsonify({"error": "Document is encrypted. Please provide a passwords."}), 400
+            return jsonify({"error": "Document is encrypted. Please provide a password."}), 400
         else:
             return jsonify({"error": str(e)}), 500
 
@@ -152,30 +150,30 @@ def upload():
             simulation = simulate_full_unrealized_tax(scheme)
             scheme["unrealized_tax_simulation"] = simulation
 
-    # Persist the parsed CAS JSON for overall XIRR computation.
-    uploaded_cas_data.append(cas_json)
-    result = cas_json
+    # Update session-based storage for the current user.
+    uploads = session.get('uploaded_cas_data', [])
+    uploads.append(cas_json)
+    session['uploaded_cas_data'] = uploads  # Save the updated list in session
 
+    result = cas_json
     os.unlink(tmp_path)
     return jsonify(result)
 
+
 @app.route("/compute_overall_xirr", methods=["GET"])
 def compute_overall_xirr():
-    """
-    Aggregates cash flows from all uploaded CAS JSONs and computes overall XIRR using a robust bisection method.
-    """
     aggregated_cash_flows = []
-    final_cash_flow_added = {}  # To ensure we add only one final valuation cash flow per scheme.
+    final_cash_flow_added = {}  # To ensure we add only one final valuation per scheme.
 
-    # Define a unique key for a scheme using folio, scheme name, and AMC (if available).
     def get_scheme_key(scheme):
         folio = scheme.get("folio", "").strip()
         scheme_name = scheme.get("scheme", "").strip()
         amc = scheme.get("amc", "").strip() if "amc" in scheme else ""
         return f"{amc}|{folio}|{scheme_name}"
 
-    # Iterate over all persisted CAS JSONs.
-    for cas_json in uploaded_cas_data:
+    # Use session data for the current user.
+    uploaded_data = session.get('uploaded_cas_data', [])
+    for cas_json in uploaded_data:
         for folio in cas_json.get("data", {}).get("folios", []):
             for scheme in folio.get("schemes", []):
                 sim_result = simulate_full_unrealized_tax(scheme, return_cash_flows=True)
@@ -183,14 +181,12 @@ def compute_overall_xirr():
                 key = get_scheme_key(scheme)
                 if not cash_flows:
                     continue
-                # If we've already added the final valuation for this scheme, skip its last cash flow.
                 if key in final_cash_flow_added:
                     aggregated_cash_flows.extend(cash_flows[:-1])
                 else:
                     aggregated_cash_flows.extend(cash_flows)
                     final_cash_flow_added[key] = True
 
-    # Aggregate cash flows by date to avoid double-counting.
     aggregated_by_date = {}
     for cf in aggregated_cash_flows:
         date_key = cf[0].strftime("%Y-%m-%d")
@@ -202,10 +198,7 @@ def compute_overall_xirr():
     final_cash_flows.sort(key=lambda x: x[0])
 
     overall_xirr = xirr_bisection(final_cash_flows)
-    if overall_xirr is not None:
-        overall_xirr_percent = round(overall_xirr * 100, 2)
-    else:
-        overall_xirr_percent = None
+    overall_xirr_percent = round(overall_xirr * 100, 2) if overall_xirr is not None else None
 
     return jsonify({
         "overall_xirr": overall_xirr_percent,
@@ -277,11 +270,11 @@ def fetch_and_store_nav():
         valid_count = len(valid_rows)
         print(f"Valid rows found in CSV: {valid_count}")
         
-        # if valid_count < 2000:
-        #     message = (f"Fetched data contains only {valid_count} valid rows. "
-        #                "Threshold not met. Database not updated.")
-        #     print(message)
-        #     return jsonify({"message": message})
+        if valid_count < 8000:
+            message = (f"Fetched data contains only {valid_count} valid rows. "
+                       "Threshold not met. Database not updated.")
+            print(message)
+            return jsonify({"message": message})
         
         # Threshold met, clear and update the database
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -298,11 +291,63 @@ def fetch_and_store_nav():
     except Exception as e:
         print("Error in /fetch_and_store_nav:", e)
         return jsonify({"error": str(e)}), 500
+    
+def update_nav_data(fetch_date=None):
+    """
+    Fetches NAV data from AMFI for the given date (defaults to yesterday)
+    and updates the database.
+    """
+    from datetime import datetime
+    if fetch_date is None:
+        fetch_date = date.today() - timedelta(days=1)
+    csv_data = fetch_nav_data_from_amfi(fetch_date)
+    
+    # Process CSV data to count valid rows (if needed).
+    lines = [line.strip() for line in csv_data.splitlines() if line.strip()]
+    if not lines:
+        raise Exception("Empty CSV data received.")
+    
+    # You can uncomment and adjust the threshold logic if needed:
+    data_lines = lines[1:]
+    valid_rows = [line for line in data_lines if ';' in line and len(line.split(';')) >= 8]
+    if len(valid_rows) < 8000:
+        raise Exception("Fetched data does not meet the threshold.")
+
+    # Clear the database and update it.
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    db_path = os.path.join(BASE_DIR, "your_db_file_name.db")
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM nav_data")
+    conn.commit()
+    conn.close()
+    
+    # Ensure the table exists
+    create_table()
+    result = parse_and_store_nav_data(csv_data, fetch_date)
+    return result
+
+@app.route("/reset_uploads", methods=["POST"])
+def reset_uploads():
+    session['uploaded_cas_data'] = []
+    return jsonify({"message": "Uploaded CAS data reset for current session."})
+
+
 
 def initialize_app():
-    """Initializes the application: creates database table and ensures NAV data is currents."""
+    """Initializes the application: creates database table and updates NAV data."""
     create_table()
-    check_and_update_nav_data()
+    try:
+        nav_update_result = update_nav_data()  # This will fetch yesterday's NAV data.
+        print("NAV data updated on startup:", nav_update_result)
+    except Exception as e:
+        print("Error updating NAV data on startup:", e)
+
+@app.before_request
+def init_session():
+    if 'uploaded_cas_data' not in session:
+        session['uploaded_cas_data'] = []
+
 
 with app.app_context():
     initialize_app()

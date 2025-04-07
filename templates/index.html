@@ -31,7 +31,9 @@
     <!-- File Upload Section -->
     <div id="file-upload-section" class="mb-4">
       <h3>Upload Your CAS Statement PDF(s)</h3>
-      <p id="upload-instructions" class="text-muted">Select a PDF file and it will be uploaded automatically.</p>
+      <p id="upload-instructions" class="text-muted">
+        Select a PDF file and it will be uploaded automatically.
+      </p>
       <!-- File input (only one file at a time) -->
       <input type="file" id="file-input" accept=".pdf" class="form-control-file">
       <!-- Password input (initially hidden) -->
@@ -53,7 +55,6 @@
             <div class="card-body">
               <h5 class="card-title">Investment Summary</h5>
               <ul class="list-group" id="investment-summary">
-                <!-- Combined XIRR will be updated via fetchOverallXirr() -->
                 <li class="list-group-item">
                   <strong>Combined XIRR (Annual Return):</strong> <span id="overall-xirr">Fetching...</span>
                 </li>
@@ -199,6 +200,14 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   <script>
     var combinedResults = [];
+    // Clear server-side uploaded data on page load so that only current uploads are considered.
+    function resetUploads() {
+      fetch("https://ltcg-backend.onrender.com/reset_uploads", { method: "POST" })
+        .then(response => response.json())
+        .then(data => console.log("Uploads reset:", data))
+        .catch(error => console.error("Error resetting uploads:", error));
+    }
+    document.addEventListener("DOMContentLoaded", resetUploads);
 
     function formatINR(num) {
       if(num === undefined || num === null) return "₹0.00";
@@ -280,7 +289,7 @@
           if (scheme.scheme && (scheme.scheme.toLowerCase().includes("uclaim") || scheme.scheme.toLowerCase().includes("redemption"))) {
             return;
           }
-          // Extract the simulation parts.
+          // Extract simulation parts.
           let simSummary = scheme.unrealized_tax_simulation.summary;
           let simDetails = scheme.unrealized_tax_simulation.details;
           
@@ -542,6 +551,7 @@
 
     document.getElementById("add-button").style.display = "none";
 
+    // Modified uploadFile() to retain file input on error and show a Retry button for encrypted PDFs.
     function uploadFile() {
       const fileInput = document.getElementById("file-input");
       if (fileInput.files.length === 0) return;
@@ -587,7 +597,21 @@
         document.getElementById("error-message").style.display = "block";
         document.getElementById("error-message").textContent = "Error: " + error.message;
         if (error.message.toLowerCase().includes("encrypted")) {
+          // Show the password input field and a Retry button.
           document.getElementById("password-input").style.display = "block";
+          // Create and display a Retry button if not already present.
+          if (!document.getElementById("retry-button")) {
+            let retryButton = document.createElement("button");
+            retryButton.textContent = "Retry Upload";
+            retryButton.id = "retry-button";
+            retryButton.className = "btn btn-primary mt-2";
+            retryButton.addEventListener("click", function() {
+              document.getElementById("error-message").style.display = "none";
+              // Retry the upload (user must have re-selected the file if needed)
+              uploadFile();
+            });
+            document.getElementById("upload-status").appendChild(retryButton);
+          }
         }
       });
     }
