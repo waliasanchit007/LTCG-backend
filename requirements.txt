@@ -5,3 +5,4 @@ pikepdf
 PyMuPDF
 gunicorn
 pymupdf4llm
+Flask-Session

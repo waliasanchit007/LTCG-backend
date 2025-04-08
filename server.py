@@ -1,5 +1,6 @@
 from classify_tax_bucket import classify_cas_schemes
 from flask import Flask, request, jsonify, render_template, session
+from flask_session import Session
 from flask_cors import CORS
 import os
 import tempfile
@@ -13,7 +14,13 @@ import pymupdf4llm
 import json
 
 app = Flask(__name__)
-app.secret_key = "your_secret_key_here"
+app.secret_key = "your_secret_key_here"  # Set a strong secret key
+
+# Configure server-side sessions
+app.config["SESSION_TYPE"] = "filesystem"
+app.config["SESSION_FILE_DIR"] = "/tmp/flask_session"  # Or any writable directory on your system
+Session(app)
+
 CORS(app)
 
 DATABASE_NAME = 'mutual_fund_nav.db'
@@ -163,7 +170,7 @@ def upload():
 @app.route("/compute_overall_xirr", methods=["GET"])
 def compute_overall_xirr():
     aggregated_cash_flows = []
-    final_cash_flow_added = {}  # To ensure we add only one final valuation per scheme.
+    final_cash_flow_added = {}
 
     def get_scheme_key(scheme):
         folio = scheme.get("folio", "").strip()
@@ -197,6 +204,13 @@ def compute_overall_xirr():
         final_cash_flows.append((dt, amount))
     final_cash_flows.sort(key=lambda x: x[0])
 
+    # Guard: if no cash flows, return null for overall XIRR
+    if not final_cash_flows:
+        return jsonify({
+            "overall_xirr": None,
+            "cash_flows": []
+        })
+
     overall_xirr = xirr_bisection(final_cash_flows)
     overall_xirr_percent = round(overall_xirr * 100, 2) if overall_xirr is not None else None
 
@@ -204,6 +218,7 @@ def compute_overall_xirr():
         "overall_xirr": overall_xirr_percent,
         "cash_flows": [(dt.strftime('%Y-%m-%d'), amt) for dt, amt in final_cash_flows]
     })
+
 
 
 # NEW: Serve the frontend page
