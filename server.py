@@ -167,56 +167,99 @@ def upload():
     return jsonify(result)
 
 
+# Example Sketch for revised compute_overall_xirr
 @app.route("/compute_overall_xirr", methods=["GET"])
 def compute_overall_xirr():
-    aggregated_cash_flows = []
-    final_cash_flow_added = {}
+    portfolio_cash_flows_dict = {} # Use dict for easy aggregation by date
+    total_current_value = 0.0
+    latest_valuation_date = None
 
-    def get_scheme_key(scheme):
-        folio = scheme.get("folio", "").strip()
-        scheme_name = scheme.get("scheme", "").strip()
-        amc = scheme.get("amc", "").strip() if "amc" in scheme else ""
-        return f"{amc}|{folio}|{scheme_name}"
-
-    # Use session data for the current user.
     uploaded_data = session.get('uploaded_cas_data', [])
+    if not uploaded_data:
+         return jsonify({"overall_xirr": None, "cash_flows": []})
+
     for cas_json in uploaded_data:
         for folio in cas_json.get("data", {}).get("folios", []):
             for scheme in folio.get("schemes", []):
-                sim_result = simulate_full_unrealized_tax(scheme, return_cash_flows=True)
-                cash_flows = sim_result.get("cash_flows", [])
-                key = get_scheme_key(scheme)
-                if not cash_flows:
-                    continue
-                if key in final_cash_flow_added:
-                    aggregated_cash_flows.extend(cash_flows[:-1])
-                else:
-                    aggregated_cash_flows.extend(cash_flows)
-                    final_cash_flow_added[key] = True
+                # 1. Process Transactions for Portfolio Flows
+                for tx in scheme.get("transactions", []):
+                    if tx.get("type", "").upper() in ["STAMP_DUTY_TAX"]: # Or decide to include it
+                       continue
+                    try:
+                        tx_date = datetime.strptime(tx["date"], "%Y-%m-%d")
+                        tx_nav = float(tx.get("nav", 0))
+                        tx_units = float(tx.get("units", 0))
+                        tx_amount = float(tx.get("amount", 0)) if tx.get("amount") else tx_nav * tx_units
 
-    aggregated_by_date = {}
-    for cf in aggregated_cash_flows:
-        date_key = cf[0].strftime("%Y-%m-%d")
-        aggregated_by_date[date_key] = aggregated_by_date.get(date_key, 0) + cf[1]
+                        date_key = tx_date.strftime("%Y-%m-%d")
+
+                        if tx_units > 0: # Purchase (Outflow)
+                            portfolio_cash_flows_dict[date_key] = portfolio_cash_flows_dict.get(date_key, 0) - abs(tx_amount) # Use amount if available, else nav*units
+                        elif tx_units < 0: # Redemption (Inflow)
+                            portfolio_cash_flows_dict[date_key] = portfolio_cash_flows_dict.get(date_key, 0) + abs(tx_amount) # Use amount if available, else nav*units
+                    except Exception as e:
+                        print(f"Warning: Skipping transaction due to parsing error: {tx}, Error: {e}")
+                        continue # Skip malformed transactions
+
+
+                # 2. Accumulate Current Market Value and find latest date
+                # Ensure simulation was run and valuation exists
+                simulation_summary = scheme.get("unrealized_tax_simulation", {}).get("summary", {})
+                current_mkt_val = simulation_summary.get("current_market_value", 0.0)
+                total_current_value += current_mkt_val
+
+                valuation_str = scheme.get("valuation", {}).get("date")
+                if valuation_str:
+                    try:
+                        current_scheme_val_date = datetime.strptime(valuation_str, "%Y-%m-%d")
+                        if latest_valuation_date is None or current_scheme_val_date > latest_valuation_date:
+                            latest_valuation_date = current_scheme_val_date
+                    except ValueError:
+                         print(f"Warning: Invalid valuation date format for scheme {scheme.get('scheme')}: {valuation_str}")
+
+
+    if latest_valuation_date is None:
+         # Handle case where no valid valuation date was found across all schemes
+         # Maybe default to today, or return error? For now, let's try today if needed.
+         latest_valuation_date = datetime.now()
+         print("Warning: No valuation date found in schemes, using current date for final cashflow.")
+
+
+    # 3. Add Final Valuation Cash Flow
+    if total_current_value > 0.01: # Add only if there's remaining value
+        final_date_key = latest_valuation_date.strftime("%Y-%m-%d")
+        portfolio_cash_flows_dict[final_date_key] = portfolio_cash_flows_dict.get(final_date_key, 0) + total_current_value
+
+    # 4. Format for XIRR calculation
     final_cash_flows = []
-    for date_str, amount in aggregated_by_date.items():
-        dt = datetime.strptime(date_str, "%Y-%m-%d")
-        final_cash_flows.append((dt, amount))
+    for date_str, amount in portfolio_cash_flows_dict.items():
+         # Ignore zero amount entries if any crept in
+        if abs(amount) > 1e-6:
+            dt = datetime.strptime(date_str, "%Y-%m-%d")
+            final_cash_flows.append((dt, amount))
+
+    # Sort by date
     final_cash_flows.sort(key=lambda x: x[0])
 
-    # Guard: if no cash flows, return null for overall XIRR
+    # Guard: if no cash flows or only zero flows, return null
     if not final_cash_flows:
-        return jsonify({
-            "overall_xirr": None,
-            "cash_flows": []
-        })
+        return jsonify({"overall_xirr": None, "cash_flows": []})
 
-    overall_xirr = xirr_bisection(final_cash_flows)
-    overall_xirr_percent = round(overall_xirr * 100, 2) if overall_xirr is not None else None
+    # Guard: Check if all flows have the same sign (XIRR undefined/problematic)
+    signs = [1 if cf[1] > 0 else -1 if cf[1] < 0 else 0 for cf in final_cash_flows]
+    if all(s >= 0 for s in signs) or all(s <= 0 for s in signs):
+         # Or maybe check if sum is positive/negative matching first/last flow expectations
+         print("Warning: All cash flows have the same sign or are zero. XIRR may be undefined.")
+         # Depending on convention, might return None or 0 or raise error
+         overall_xirr_percent = None # Defaulting to None here
+    else:
+        overall_xirr = xirr_bisection(final_cash_flows)
+        overall_xirr_percent = round(overall_xirr * 100, 2) if overall_xirr is not None else None
+
 
     return jsonify({
         "overall_xirr": overall_xirr_percent,
-        "cash_flows": [(dt.strftime('%Y-%m-%d'), amt) for dt, amt in final_cash_flows]
+        "cash_flows": [(dt.strftime('%Y-%m-%d'), round(amt, 2)) for dt, amt in final_cash_flows]
     })
 
 
